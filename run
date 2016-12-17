@@ -1,7 +1,0 @@
-docker build -t childrenlab_v2 .
-docker run -it -p 8110:8110 \
-                    -e DATABASE_USER=root \
-                    -e DATABASE_PASSWORD=koe7POut \
-                    -e DATABASE_IP=45.55.248.58:3306 \
-                    -e DATABASE_NAME=childre_qu \
-		    childrenlab_v2
