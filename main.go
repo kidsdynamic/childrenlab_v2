@@ -55,6 +55,7 @@ func main() {
 		r := router.New()
 
 		return r.Run(":8111")
+
 	}
 
 	app.Run(os.Args)
