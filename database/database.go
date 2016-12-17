@@ -8,8 +8,11 @@ import (
 	"github.com/kidsdynamic/childrenlab_v2/model"
 )
 
-func New(database model.Database) *sqlx.DB {
-	db := sqlx.MustConnect("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=true", database.User, database.Password, database.IP, database.Name))
+var DatabaseInfo model.Database
+
+func New() *sqlx.DB {
+	db := sqlx.MustConnect("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=true",
+		DatabaseInfo.User, DatabaseInfo.Password, DatabaseInfo.IP, DatabaseInfo.Name))
 
 	return db
 }

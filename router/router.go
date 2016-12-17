@@ -1,18 +1,13 @@
 package router
 
-import (
-	"net/http"
-
-	"github.com/gin-gonic/gin"
-)
+import "github.com/gin-gonic/gin"
 
 func New() *gin.Engine {
-	router := gin.Default()
-	router.Use(gin.Logger())
-	router.Use(gin.Recovery())
-	router.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.html", nil)
-	})
+	r := gin.Default()
+	r.Use(gin.Logger())
+	r.Use(gin.Recovery())
 
-	return router
+	initUserRouter(r)
+
+	return r
 }
