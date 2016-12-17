@@ -54,23 +54,7 @@ func main() {
 
 		r := router.New()
 
-		//user := model.User{}
-		/*
-
-			rows, err := db.Queryx("SELECT email, first_name, last_name, zip_code, password, last_updated, date_created FROM user ORDER BY date_created ASC")
-			if err != nil {
-				log.Fatal(err)
-			}
-			for rows.Next() {
-				err := rows.StructScan(&user)
-				if err != nil {
-					log.Fatalln(err)
-				}
-				fmt.Printf("%#v\n", user.DateCreated)
-			}
-		*/
-
-		return r.Run(":8110")
+		return r.Run(":8111")
 	}
 
 	app.Run(os.Args)
