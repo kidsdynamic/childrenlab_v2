@@ -12,6 +12,7 @@
 | :------------- |:-------------|
 | 200     | Success Login |
 | 400     | Bad Request. Login failed |
+
 * Success response body:
 ```
 {
@@ -22,6 +23,7 @@
 
 ## /v1/user/isTokenValid - POST
 * Content-Type: application/json
+
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
 | ------------- |:-------------:|:-------------:| -----:|
@@ -37,6 +39,7 @@
 
 ## /v1/user/register - POST
 * Content-Type: application/json
+
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
 | ------------- |:-------------:|:-------------:| -----:|
@@ -54,6 +57,7 @@
 | 400     | Bad request. Missing some parameters |
 | 409     | Conflict. The email is already registered |
 | 500     | Internal error. Please send me the error. I will fix it |
+
 * Success - it doesn't return JSON
 * Fail - response body:
 ```
@@ -72,6 +76,7 @@
 ## /v1/user/updateProfile - PUT
 * Content-Type: application/json
 * The API doesn't support email and password update
+
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
 | ------------- |:-------------:|:-------------:| -----:|
@@ -173,10 +178,12 @@ curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -d '' "http://l
 ## /v1/user/avatar/upload - POST
 * Upload user profile image
 * Content-Type: multipart/form-data
+
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
 | ------------- |:-------------:|:-------------:| -----:|
 | upload     | Yes | file |    |
+
 ### curl Example
 ```
 curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637"  -H "Content-Type: multipart/form-data; -F "upload=@CwEiSDRVMAE4IO4.jpg" "http://localhost:8111/v1/user/avatar/upload"
@@ -188,6 +195,7 @@ curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637"  -H "Content-Ty
 | 200     | File upload successfully |
 | 400     | Bad request. Missing some parameters |
 | 500     | Internal error. Please send me the error. I will fix it |
+
 * Success - it updates profile property
 ```
 {
@@ -217,11 +225,13 @@ curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637"  -H "Content-Ty
 ## /v1/user/avatar/uploadKid - POST
 * Upload kid profile image
 * Content-Type: multipart/form-data
+
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
 | ------------- |:-------------:|:-------------:| -----:|
 | upload     | Yes | file |    |
 | kidId      | Yes | string | |
+
 ### curl Example
 ```
 curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Type: multipart/form-data; -F "kidId=19" -F "upload=@CwEiSDRVMAE4IO4.jpg" "http://localhost:8111/v1/user/avatar/uploadKid"
@@ -233,6 +243,7 @@ curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Typ
 | 200     | File upload successfully |
 | 400     | Bad request. Missing some parameters |
 | 500     | Internal error. Please send me the error. I will fix it |
+
 * Success - it updates profile property
 ```
 {
@@ -259,12 +270,14 @@ curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Typ
 ## /v1/kids/add - POST
 * Add kid
 * Content-Type: application/json
+
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
 | ------------- |:-------------:|:-------------:| -----:|
 | firstName     | Yes | string | Kiddle   |
 | lastName      | Yes | string | JY |
 | macId      | Yes | string | 8D071FCFE5E0 |
+
 ### curl Example
 ```
 curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -d '{
@@ -281,6 +294,7 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7
 | 400     | Bad request. Missing some parameters |
 | 409     | Conflict. The mac ID is already registered |
 | 500     | Internal error. Please send me the error. I will fix it |
+
 * Success - it returns all of kids belong to the user
 ```
 {
