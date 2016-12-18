@@ -1,5 +1,6 @@
 ## /v1/user/login -POST
 * Content-Type: application/json
+
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
 | :------------- |:-------------:|:-------------:| :-----|
