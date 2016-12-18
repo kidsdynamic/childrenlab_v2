@@ -11,4 +11,11 @@ func initUserRouter(r *gin.Engine) {
 	v1.POST("/login", controller.Login)
 	v1.POST("/register", controller.Register)
 	v1.POST("/isTokenValid", controller.IsTokenValid)
+
+	authAPI := r.Group("/v1/user")
+
+	authAPI.Use(controller.Auth)
+	authAPI.PUT("/updateProfile", controller.UpdateProfile)
+	authAPI.GET("/retrieveUserProfile", controller.UserProfile)
+
 }

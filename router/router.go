@@ -8,6 +8,8 @@ func New() *gin.Engine {
 	r.Use(gin.Recovery())
 
 	initUserRouter(r)
+	initKidRouter(r)
+	initAvatarRouter(r)
 
 	return r
 }

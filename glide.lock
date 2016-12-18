@@ -1,6 +1,8 @@
-hash: 3462e70952fe9b17c490fafaa8ffbb95e6cfd5999ca41ce2acd1f739f3843acf
-updated: 2016-12-14T22:57:00.281550804-05:00
+hash: 29849497bc66cfa58fd8b68bfcebb569e2125700727ca59be05a223e5154eefe
+updated: 2016-12-17T18:17:49.717046571-05:00
 imports:
+- name: github.com/aws/aws-sdk-go
+  version: 4644cdf3025727edc7d7e74902201364016b0221
 - name: github.com/gin-gonic/gin
   version: e2212d40c62a98b388a5eb48ecbdcf88534688ba
   subpackages:
@@ -14,6 +16,8 @@ imports:
   - proto
 - name: github.com/jmoiron/sqlx
   version: cac998c4f0959c19c638c523e374fa8e4e0bcfe3
+  subpackages:
+  - reflectx
 - name: github.com/manucorporat/sse
   version: ee05b128a739a0fb76c7ebd3ae4810c1de808d6d
 - name: github.com/mattn/go-isatty
@@ -32,6 +36,8 @@ imports:
   version: e2212d40c62a98b388a5eb48ecbdcf88534688ba
 - name: gopkg.in/go-playground/validator.v8
   version: c193cecd124b5cc722d7ee5538e945bdb3348435
+- name: gopkg.in/h2non/bimg.v1
+  version: abca04aab5bfd7113546677f10a502b7c752f41d
 - name: gopkg.in/urfave/cli.v2
   version: 0bdeddeeb0f650497d603c4ad7b20cfe685682f6
 - name: gopkg.in/yaml.v2

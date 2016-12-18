@@ -1,9 +1,6 @@
 package model
 
-import (
-	"database/sql"
-	"time"
-)
+import "time"
 
 type Login struct {
 	Email    string `json:"email" binding:"required"`
@@ -22,14 +19,23 @@ type AccessToken struct {
 	LastUpdated time.Time `db:"last_updated"`
 }
 
+type ProfileUpdateRequest struct {
+	FirstName   string `json:"firstName"`
+	LastName    string `json:"lastName"`
+	PhoneNumber string `json:"phoneNumber"`
+	ZipCode     string `json:"zipCode"`
+}
+
 type User struct {
-	ID          int64          `db:"id"`
-	Email       string         `db:"email"`
-	FirstName   sql.NullString `db:"first_name"`
-	LastName    sql.NullString `db:"last_name"`
-	LastUpdated string         `db:"last_updated"`
-	DateCreated time.Time      `db:"date_created"`
-	ZipCode     sql.NullString `db:"zip_code"`
+	ID          int64     `json:"id" db:"id"`
+	Email       string    `json:"email" db:"email"`
+	FirstName   string    `json:"firstName" db:"first_name"`
+	LastName    string    `json:"lastName" db:"last_name"`
+	LastUpdated string    `json:"lastUpdate" db:"last_updated"`
+	DateCreated time.Time `json:"dateCreated" db:"date_created"`
+	ZipCode     string    `json:"zipCode" db:"zip_code"`
+	PhoneNumber string    `json:"phoneNumber" db:"phone_number"`
+	Profile     string    `json:"profile" db:"profile"`
 }
 
 type Register struct {

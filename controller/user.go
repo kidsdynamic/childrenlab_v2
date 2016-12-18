@@ -7,6 +7,8 @@ import (
 
 	"database/sql"
 
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	"github.com/kidsdynamic/childrenlab_v2/database"
@@ -28,7 +30,8 @@ func Login(c *gin.Context) {
 	json.Password = EncryptPassword(json.Password)
 
 	err := db.Get(&user,
-		"SELECT email, first_name, last_name, zip_code, last_updated, date_created FROM user WHERE email=? and password=? LIMIT 1",
+		"SELECT email, COALESCE(first_name, '') as first_name, COALESCE(last_name, '') as last_name, "+
+			" COALESCE(zip_code, '') as zip_code, last_updated, date_created FROM user WHERE email=? and password=? LIMIT 1",
 		json.Email,
 		json.Password)
 	if err != nil {
@@ -154,5 +157,74 @@ func IsTokenValid(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{})
+
+}
+
+func UpdateProfile(c *gin.Context) {
+	var request model.ProfileUpdateRequest
+
+	if err := c.BindJSON(&request); err != nil {
+		log.Println(err)
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
+	}
+
+	fmt.Printf("Profile Update Request: %#v", request)
+
+	signedInUser := GetSignedInUser(c)
+
+	db := database.New()
+	defer db.Close()
+
+	tx := db.MustBegin()
+	if request.FirstName != "" {
+		tx.MustExec("UPDATE user SET first_name = ? WHERE id = ?", request.FirstName, signedInUser.ID)
+	}
+
+	if request.LastName != "" {
+		tx.MustExec("UPDATE user SET last_name = ? WHERE id = ?", request.LastName, signedInUser.ID)
+	}
+
+	if request.PhoneNumber != "" {
+		tx.MustExec("UPDATE user SET phone_number = ? WHERE id = ?", request.PhoneNumber, signedInUser.ID)
+	}
+
+	if request.ZipCode != "" {
+		tx.MustExec("UPDATE user SET zip_code = ? WHERE id = ?", request.ZipCode, signedInUser.ID)
+	}
+
+	tx.MustExec("UPDATE user SET last_updated = NOW() WHERE id = ?", signedInUser.ID)
+	tx.Commit()
+
+	user, err := GetUserByID(db, signedInUser.ID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Something wrong when retreive updated user information",
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"user": user,
+	})
+}
+
+func UserProfile(c *gin.Context) {
+	user := GetSignedInUser(c)
+
+	kids, err := GetKidsByUser(user)
+	if err != nil {
+		fmt.Printf("Kids error: %#v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Error when retrieve kids",
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"user": user,
+		"kids": kids,
+	})
 
 }

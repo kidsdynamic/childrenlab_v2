@@ -1,4 +1,5 @@
 ## /v1/user/login -POST
+* Content-Type: application/json
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
 | :------------- |:-------------:|:-------------:| :-----|
@@ -19,6 +20,7 @@
 ```
 
 ## /v1/user/isTokenValid - POST
+* Content-Type: application/json
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
 | ------------- |:-------------:|:-------------:| -----:|
@@ -33,6 +35,7 @@
 * The API doesn't return any JSON
 
 ## /v1/user/register - POST
+* Content-Type: application/json
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
 | ------------- |:-------------:|:-------------:| -----:|
@@ -62,6 +65,256 @@
 {
   "message": "Error when insert data",
   "error": "Test error"
+}
+```
+
+## /v1/user/updateProfile - PUT
+* Content-Type: application/json
+* The API doesn't support email and password update
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| -----:|
+| firstName    | No | String |   Jay |
+| lastName     | No | String |   Chen |
+| phoneNumber  | No | String |   3442314231 |
+| zipCode      | No | String |   11101 |
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Update successfully |
+| 400     | Bad request. Missing some parameters |
+| 500     | Internal error. Please send me the error. I will fix it |
+* Success - it doesn't return JSON
+```
+{
+  "user": {
+    "id": 29,
+    "email": "lwz1@swing.com",
+    "firstName": "KIDLLE",
+    "lastName": "YES",
+    "lastUpdate": "2016-12-18T21:24:57Z",
+    "dateCreated": "2016-12-06T00:40:10Z",
+    "zipCode": "11111",
+    "phoneNumber": "3444943214",
+    "profile": ""
+  }
+}
+```
+* Internal error - response body:
+```
+{
+  "message": "Error when insert data",
+  "error": "Test error"
+}
+```
+
+## /v1/user/retrieveUserProfile - GET
+* Content-Type: application/json
+* Retrieve user data by the header token
+* No any parameter required, just need x-auth-token on the header
+* It retrieves with kids data that belong to the user
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Retrieve successfully |
+| 400     | Bad request. The token is invalid |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -d '' "http://localhost:8111/v1/user/retrieveUserProfile"
+```
+* Success - with kids data
+```
+{
+  "kids": [
+    {
+      "id": 18,
+      "firstName": "Jay",
+      "lastName": "Chen",
+      "dateCreated": "2016-12-11T22:37:15Z",
+      "macId": "13031FCFE5E02",
+      "profile": ""
+    },
+    {
+      "id": 19,
+      "firstName": "KIDLLE",
+      "lastName": "YES",
+      "dateCreated": "2016-12-18T04:17:35Z",
+      "macId": "hgweorahgbkljwhnpi",
+      "profile": ""
+    },
+    {
+      "id": 20,
+      "firstName": "KIDLLE",
+      "lastName": "YES",
+      "dateCreated": "2016-12-18T21:19:54Z",
+      "macId": "hgweorahgbkljwhnpi2",
+      "profile": ""
+    }
+  ],
+  "user": {
+    "id": 29,
+    "email": "lwz1@swing.com",
+    "firstName": "KIDLLE",
+    "lastName": "YES",
+    "lastUpdate": "2016-12-18T21:24:57Z",
+    "dateCreated": "2016-12-06T00:40:10Z",
+    "zipCode": "11111",
+    "phoneNumber": "",
+    "profile": ""
+  }
+}
+```
+
+## /v1/user/avatar/upload - POST
+* Upload user profile image
+* Content-Type: multipart/form-data
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| -----:|
+| upload     | Yes | file |    |
+### curl Example
+```
+curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637"  -H "Content-Type: multipart/form-data; -F "upload=@CwEiSDRVMAE4IO4.jpg" "http://localhost:8111/v1/user/avatar/upload"
+```
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | File upload successfully |
+| 400     | Bad request. Missing some parameters |
+| 500     | Internal error. Please send me the error. I will fix it |
+* Success - it updates profile property
+```
+{
+  "user": {
+    "id": 29,
+    "email": "lwz1@swing.com",
+    "firstName": "KIDLLE",
+    "lastName": "YES",
+    "lastUpdate": "2016-12-18T04:11:02Z",
+    "dateCreated": "2016-12-06T00:40:10Z",
+    "zipCode": "11111",
+    "phoneNumber": "",
+    "profile": "avatar_29.jpg"
+  }
+}
+```
+* Bad request error - response body:
+```
+{
+  "error": {
+    "ErrorString": "request Content-Type isn't multipart/form-data"
+  },
+  "message": "upload parameter is required"
+}
+```
+
+## /v1/user/avatar/uploadKid - POST
+* Upload kid profile image
+* Content-Type: multipart/form-data
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| -----:|
+| upload     | Yes | file |    |
+| kidId      | Yes | string | |
+### curl Example
+```
+curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Type: multipart/form-data; -F "kidId=19" -F "upload=@CwEiSDRVMAE4IO4.jpg" "http://localhost:8111/v1/user/avatar/uploadKid"
+```
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | File upload successfully |
+| 400     | Bad request. Missing some parameters |
+| 500     | Internal error. Please send me the error. I will fix it |
+* Success - it updates profile property
+```
+{
+  "kid": {
+    "id": 19,
+    "firstName": "KIDLLE",
+    "lastName": "YES",
+    "dateCreated": "2016-12-18T04:17:35Z",
+    "macId": "",
+    "profile": "kid_avatar_19.jpg"
+  }
+}
+```
+* Bad request error - response body:
+```
+{
+  "error": {
+    "ErrorString": "request Content-Type isn't multipart/form-data"
+  },
+  "message": "upload parameter is required"
+}
+```
+
+## /v1/kids/add - POST
+* Add kid
+* Content-Type: application/json
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| -----:|
+| firstName     | Yes | string | Kiddle   |
+| lastName      | Yes | string | JY |
+| macId      | Yes | string | 8D071FCFE5E0 |
+### curl Example
+```
+curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -d '{
+	"firstName": "Kiddle",
+	"lastName": "JY",
+	"macId": "8D071FCFE5E0"
+}' "http://localhost:8111/v1/kids/add"
+```
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Data added successfully |
+| 400     | Bad request. Missing some parameters |
+| 409     | Conflict. The mac ID is already registered |
+| 500     | Internal error. Please send me the error. I will fix it |
+* Success - it returns all of kids belong to the user
+```
+{
+  "kids": [
+    {
+      "id": 18,
+      "firstName": "Jay",
+      "lastName": "Chen",
+      "dateCreated": "2016-12-11T22:37:15Z",
+      "macId": "13031FCFE5E02",
+      "profile": ""
+    },
+    {
+      "id": 19,
+      "firstName": "KIDLLE",
+      "lastName": "YES",
+      "dateCreated": "2016-12-18T04:17:35Z",
+      "macId": "hgweorahgbkljwhnpi",
+      "profile": ""
+    },
+    {
+      "id": 20,
+      "firstName": "KIDLLE",
+      "lastName": "YES",
+      "dateCreated": "2016-12-18T21:19:54Z",
+      "macId": "hgweorahgbkljwhnpi2",
+      "profile": ""
+    }
+  ]
+}
+```
+* Conflict error - response body:
+```
+{
+  "message": "The device is already registered"
 }
 ```
 

@@ -30,3 +30,7 @@ vendor/*
 Makefile
 
 run
+
+Childrenlab
+
+.aws/credentials
