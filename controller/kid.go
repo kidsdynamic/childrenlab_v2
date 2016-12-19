@@ -5,6 +5,8 @@ import (
 
 	"log"
 
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/kidsdynamic/childrenlab_v2/database"
 	"github.com/kidsdynamic/childrenlab_v2/model"
@@ -88,6 +90,71 @@ func AddKid(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"kids": kids,
+	})
+
+}
+
+func UpdateKid(c *gin.Context) {
+	var request model.UpdateKidRequest
+
+	if err := c.BindJSON(&request); err != nil {
+		log.Println(err)
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
+	}
+
+	fmt.Printf("Kid Update Request: %#v", request)
+
+	db := database.New()
+	defer db.Close()
+
+	user := GetSignedInUser(c)
+	kid, err := GetKidByUserIdAndKidId(db, user.ID, request.ID)
+
+	if err != nil {
+		fmt.Printf("Can't find kid. %#v", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Can't find kid",
+			"error":   err,
+		})
+		return
+	}
+
+	tx := db.MustBegin()
+	if request.FirstName != "" {
+		tx.MustExec("UPDATE kids SET first_name = ? WHERE id = ?", request.FirstName, kid.ID)
+	}
+
+	if request.LastName != "" {
+		tx.MustExec("UPDATE kids SET last_name = ? WHERE id = ?", request.LastName, kid.ID)
+	}
+
+	/*	if request.MacID != "" {
+		tx.MustExec("UPDATE kids SET phone_number = ? WHERE id = ?", request.PhoneNumber, kid.ID)
+	}*/
+
+	tx.MustExec("UPDATE user SET last_updated = NOW() WHERE id = ?", kid.ID)
+	tx.Commit()
+
+	kid, err = GetKidByUserIdAndKidId(db, user.ID, request.ID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Something wrong when retreive updated user information",
+		})
+	}
+
+	if err != nil {
+		fmt.Printf("Can't find kid. %#v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Can't find kid",
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"kid": kid,
 	})
 
 }

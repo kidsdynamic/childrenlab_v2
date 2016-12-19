@@ -91,7 +91,7 @@
 | 200     | Update successfully |
 | 400     | Bad request. Missing some parameters |
 | 500     | Internal error. Please send me the error. I will fix it |
-* Success - it doesn't return JSON
+* Success - 
 ```
 {
   "user": {
@@ -229,8 +229,8 @@ curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637"  -H "Content-Ty
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
 | ------------- |:-------------:|:-------------:| -----:|
-| upload     | Yes | file |    |
-| kidId      | Yes | string | |
+| upload     | Yes | File |    |
+| kidId      | Yes | Integer | |
 
 ### curl Example
 ```
@@ -332,4 +332,91 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7
   "message": "The device is already registered"
 }
 ```
+
+## /v1/kids/update - PUT
+* Content-Type: application/json
+* Update kid info
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| -----:|
+| firstName    | No | String |   Jay |
+| lastName     | No | String |   Chen |
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Update successfully |
+| 400     | Bad request. Missing some parameters |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X PUT -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Type: application/json" -d '{
+	"lastName": "yes",
+	"kidId": 19
+}' "http://localhost:8111/v1/kids/update"
+```
+
+* Success - 
+```
+{
+  "kid": {
+    "id": 19,
+    "firstName": "KIDLLE",
+    "lastName": "yes",
+    "dateCreated": "2016-12-18T04:17:35Z",
+    "macId": "",
+    "profile": ""
+  }
+}
+```
+* Internal error - response body:
+```
+{
+  "message": "Error when insert data",
+  "error": "Test error"
+}
+```
+
+## /v1/activity/uploadRawData - POST
+* Content-Type: application/json
+* Activity data
+* When the data duplicate which is when server response ***409*** status, you can ***ignore*** it and process next data
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| -----:|
+| indoorActivity      | Yes | String | 1481299119,0,216,2,3,4 |
+| outdoorActivity     | Yes | String | 1481299119,1,0,0,0,0 |
+| time                | Yes | Long |   1470885849 |
+| macId               | Yes | String |   hgweorahgbkljwhnpi2 |
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Update successfully |
+| 400     | Bad request. Missing some parameters, or the type is wrong |
+| 409     | Conflict. The data is already exist |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Type: application/json" -d '{
+	"indoorActivity": "1481299119,0,216,2,3,4",
+	"outdoorActivity": "1481299119,1,0,0,0,0",
+	"time": 1470885849,
+	"macId": "hgweorahgbkljwhnpi2"
+}' "http://localhost:8111/v1/activity/uploadRawData"
+```
+
+* Success - No any JSON response
+
+* 409 status - duplicate data:
+```
+{
+  "message": "This is a duplicate data"
+}
+```
+
 

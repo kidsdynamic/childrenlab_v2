@@ -1,43 +1,16 @@
-hash: 29849497bc66cfa58fd8b68bfcebb569e2125700727ca59be05a223e5154eefe
-updated: 2016-12-17T18:17:49.717046571-05:00
+hash: ff7465a38cc47723a230fb14c7bb72ef4f0b299e8b6f0c37e02db9572e42d31c
+updated: 2016-12-18T18:05:36.800476826-05:00
 imports:
 - name: github.com/aws/aws-sdk-go
   version: 4644cdf3025727edc7d7e74902201364016b0221
-- name: github.com/gin-gonic/gin
-  version: e2212d40c62a98b388a5eb48ecbdcf88534688ba
-  subpackages:
-  - binding
-  - render
 - name: github.com/go-sql-driver/mysql
   version: a0583e0143b1624142adab07e0e97fe106d99561
-- name: github.com/golang/protobuf
-  version: 2402d76f3d41f928c7902a765dfc872356dd3aad
-  subpackages:
-  - proto
 - name: github.com/jmoiron/sqlx
   version: cac998c4f0959c19c638c523e374fa8e4e0bcfe3
-  subpackages:
-  - reflectx
-- name: github.com/manucorporat/sse
-  version: ee05b128a739a0fb76c7ebd3ae4810c1de808d6d
-- name: github.com/mattn/go-isatty
-  version: 30a891c33c7cde7b02a981314b4228ec99380cca
-- name: github.com/urfave/cli
-  version: 0bdeddeeb0f650497d603c4ad7b20cfe685682f6
-- name: golang.org/x/net
-  version: f315505cf3349909cdf013ea56690da34e96a451
-  subpackages:
-  - context
-- name: golang.org/x/sys
-  version: d75a52659825e75fff6158388dddc6a5b04f9ba5
-  subpackages:
-  - unix
+- name: github.com/leekchan/timeutil
+  version: 28917288c48df3d2c1cfe468c273e0b2adda0aa5
 - name: gopkg.in/gin-gonic/gin.v1
   version: e2212d40c62a98b388a5eb48ecbdcf88534688ba
-- name: gopkg.in/go-playground/validator.v8
-  version: c193cecd124b5cc722d7ee5538e945bdb3348435
-- name: gopkg.in/h2non/bimg.v1
-  version: abca04aab5bfd7113546677f10a502b7c752f41d
 - name: gopkg.in/urfave/cli.v2
   version: 0bdeddeeb0f650497d603c4ad7b20cfe685682f6
 - name: gopkg.in/yaml.v2

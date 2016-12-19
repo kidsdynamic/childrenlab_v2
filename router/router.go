@@ -10,6 +10,7 @@ func New() *gin.Engine {
 	initUserRouter(r)
 	initKidRouter(r)
 	initAvatarRouter(r)
+	initActivityRouter(r)
 
 	return r
 }

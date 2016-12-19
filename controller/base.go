@@ -48,14 +48,10 @@ func randToken() string {
 }
 
 func checkInsertResult(result sql.Result) bool {
-	updated, err := result.RowsAffected()
+	_, err := result.RowsAffected()
 
 	if err != nil {
 		log.Println(err)
-		return false
-	}
-
-	if updated == 0 {
 		return false
 	}
 
@@ -172,4 +168,11 @@ func GetKidsByUser(user model.User) ([]model.Kid, error) {
 		" device.kid_id = kids.id WHERE parent_id = ?", user.ID)
 
 	return kids, err
+}
+
+func GetDeviceByMacID(db *sqlx.DB, macId string) (model.Device, error) {
+	var device model.Device
+	err := db.Get(&device, "SELECT id, mac_id, date_created FROM device WHERE mac_id = ?", macId)
+
+	return device, err
 }
