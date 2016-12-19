@@ -1,4 +1,18 @@
-## /v1/user/login -POST
+## Overview API
+* [POST   /v1/user/login](#v1userlogin--post)
+* [POST   /v1/user/register      ](#v1userregister---post)
+* [POST   /v1/user/isTokenValid  ](#v1useristokenvalid---post)
+* [PUT    /v1/user/updateProfile ](#v1userupdateprofile---put)
+* [GET    /v1/user/retrieveUserProfile](#v1userretrieveuserprofile---get)
+* [POST   /v1/kids/add             ](#v1kidsadd---post)
+* [PUT    /v1/kids/update          ](#v1kidsupdate---put)
+* [POST   /v1/user/avatar/upload   ](#v1useravatarupload---post)
+* [POST   /v1/user/avatar/uploadKid](#v1useravataruploadkid---post)
+* [POST   /v1/activity/uploadRawData](#v1activityuploadrawdata---post)
+
+
+
+## /v1/user/login - POST
 * Content-Type: application/json
 
 #### Request Parameters
