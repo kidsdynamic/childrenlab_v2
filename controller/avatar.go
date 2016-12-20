@@ -47,9 +47,19 @@ func UploadAvatar(c *gin.Context) {
 		log.Println(err)
 	}
 
-	if err := UploadFileToS3(f, fileName); err == nil {
+	bucketName, ok := c.Get("aws_bucket")
+
+	if !ok {
+		bucketName = "childrenlabqa"
+	}
+
+	if err = UploadFileToS3(f, fileName, bucketName.(string)); err == nil {
 		db := database.New()
 		defer db.Close()
+
+		s := db.MustExec("UPDATE user SET profile = ? WHERE id = ?", fileName, user.ID)
+
+		log.Println(s)
 
 		if err := db.MustExec("UPDATE user SET profile = ? WHERE id = ?", fileName, user.ID); err != nil {
 			log.Printf("Error on update profile. Error: %#v\n", err)
@@ -131,8 +141,12 @@ func UploadKidAvatar(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
+	bucketName, ok := c.Get("aws_bucket")
 
-	if UploadFileToS3(f, fileName) == nil {
+	if !ok {
+		bucketName = "childrenlabqa"
+	}
+	if UploadFileToS3(f, fileName, bucketName.(string)) == nil {
 
 		if err := db.MustExec("UPDATE kids SET profile = ? WHERE id = ?", fileName, kid.ID); err != nil {
 			log.Printf("Error on update profile. Error: %#v", err)

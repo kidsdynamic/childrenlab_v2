@@ -128,9 +128,17 @@ func GetKidByUserIdAndKidId(db *sqlx.DB, userId, kidId int64) (model.Kid, error)
 	return kid, nil
 }
 
-func UploadFileToS3(file *os.File, fileName string) error {
+func UploadFileToS3(file *os.File, fileName, bucketName string) error {
 
-	svc := s3.New(session.New(&aws.Config{Region: aws.String("us-east-1")}))
+	ss, err := session.NewSession()
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = ss.Config.Credentials.Get()
+	if err != nil {
+		log.Fatal(err)
+	}
+	svc := s3.New(session.New(&aws.Config{}))
 
 	fileInfo, _ := file.Stat()
 	var size int64 = fileInfo.Size()
@@ -142,7 +150,7 @@ func UploadFileToS3(file *os.File, fileName string) error {
 
 	uploadResult, err := svc.PutObject(&s3.PutObjectInput{
 		Body:          fileBytes,
-		Bucket:        aws.String("childrenlabqa"),
+		Bucket:        aws.String(bucketName),
 		Key:           aws.String(fmt.Sprintf("/userProfile/%s", fileName)),
 		ContentLength: aws.Int64(size),
 		ContentType:   aws.String(fileType),

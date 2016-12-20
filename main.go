@@ -40,6 +40,12 @@ func main() {
 			Usage:  "Database name",
 			Value:  "swing_test_record",
 		},
+		cli.StringFlag{
+			EnvVar: "AWS_BUCKET",
+			Name:   "aws_bucket",
+			Usage:  "bucket name",
+			Value:  "",
+		},
 	}
 
 	app.Action = func(c *cli.Context) error {
@@ -49,6 +55,7 @@ func main() {
 			Password: c.String("database_password"),
 			IP:       c.String("database_IP"),
 		}
+		c.Set("aws_bucket", c.String("aws_bucket"))
 
 		fmt.Printf("Database: %v", database.DatabaseInfo)
 
