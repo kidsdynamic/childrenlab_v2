@@ -9,6 +9,7 @@
 * [POST   /v1/user/avatar/upload   ](#v1useravatarupload---post)
 * [POST   /v1/user/avatar/uploadKid](#v1useravataruploadkid---post)
 * [POST   /v1/activity/uploadRawData](#v1activityuploadrawdata---post)
+* [GET   /v1/activity/dailyData](#v1activitydailydata---get)
 
 
 
@@ -434,3 +435,61 @@ curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Typ
 ```
 
 
+## /v1/activity/dailyData - GET
+* It's ***GET*** method, so no content-type. Add parameters to the ***URL***
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| :-----|
+| kidId      | Yes | Integer | 20 |
+| period     | Yes | String | DAILY, MONTHLY, YEARLY  |
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Receiving Data successfully |
+| 400     | Bad request. Missing some parameters, or the type is wrong |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X GET -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" "http://localhost:8111/v1/activity/dailyData?kidId=20&period=DAILY"
+```
+
+* Success - 
+```
+{
+  "activities": [
+    {
+      "id": 121,
+      "macId": "hgweorahgbkljwhnpi2",
+      "kidId": "20",
+      "type": "INDOOR",
+      "steps": 3298,
+      "distance": 0,
+      "receivedDate": "2016-12-13T19:55:02Z"
+    },
+    {
+      "id": 122,
+      "macId": "hgweorahgbkljwhnpi2",
+      "kidId": "20",
+      "type": "OUTDOOR",
+      "steps": 42,
+      "distance": 0,
+      "receivedDate": "2016-12-13T19:55:02Z"
+    }
+  ]
+}
+```
+
+* 400 Bad Request - 
+```
+{
+  "error": {
+    "Func": "ParseInt",
+    "Num": "",
+    "Err": {}
+  },
+  "message": "kidId should be int type."
+}
+```

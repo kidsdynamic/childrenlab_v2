@@ -6,7 +6,8 @@ import (
 )
 
 func initActivityRouter(r *gin.Engine) {
-	avatarAPI := r.Group("/v1/activity")
-	avatarAPI.Use(controller.Auth)
-	avatarAPI.POST("/uploadRawData", controller.UploadRawActivityData)
+	activityAPI := r.Group("/v1/activity")
+	activityAPI.Use(controller.Auth)
+	activityAPI.POST("/uploadRawData", controller.UploadRawActivityData)
+	activityAPI.GET("/dailyData", controller.GetDailyActivity)
 }

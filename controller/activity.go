@@ -67,6 +67,7 @@ func UploadRawActivityData(c *gin.Context) {
 	var indoorActivity model.ActivityInsight
 	indoorActivity.Steps, err = strconv.ParseInt(indoor[2], 10, 64)
 	indoorActivity.Time = time.Unix(indoorActivityLong, 0)
+	log.Printf("Received Indoor Activity Time: %s", indoorActivity.Time)
 
 	outdoor := strings.Split(request.Outdoor, ",")
 	outdoorActivityLong, err := strconv.ParseInt(outdoor[0], 0, 64)
@@ -101,14 +102,15 @@ func UploadRawActivityData(c *gin.Context) {
 
 	log.Printf("%d, %d, %d", indoorActivity.Time.Year(), indoorActivity.Time.Month(), indoorActivity.Time.Day())
 
-	err = db.Select(&todayActivity, "SELECT a.id, steps, distance, received_date, type, a.date_created, d.mac_id FROM activity a "+
+	retrieveError := db.Select(&todayActivity, "SELECT a.id, steps, distance, received_date, type, a.date_created, d.mac_id FROM activity a "+
 		"JOIN device d ON a.device_id = d.id WHERE d.id = ? AND YEAR(received_date) = ? AND MONTH(received_date) = ? AND DAY(received_date) = ?",
 		device.ID, indoorActivity.Time.Year(), indoorActivity.Time.Month(), indoorActivity.Time.Day())
 
-	if err != nil {
+	if retrieveError != nil {
+		log.Printf("Error on retreing today's activity. %#v", retrieveError)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error on retrieve today's activity",
-			"error":   err,
+			"error":   retrieveError,
 		})
 		return
 
@@ -147,4 +149,53 @@ func UploadRawActivityData(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{})
+}
+
+func GetDailyActivity(c *gin.Context) {
+	user := GetSignedInUser(c)
+
+	fmt.Printf("Query: %s, %s", c.Query("kidId"), c.Query("period"))
+
+	kidIdString := c.Query("kidId")
+	kidId, err := strconv.ParseInt(kidIdString, 10, 64)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "kidId should be int type.",
+			"error":   err,
+		})
+		return
+	}
+
+	var activityRequest model.ActivityRequest
+	activityRequest.KidID = kidId
+	activityRequest.Period = c.Query("period")
+
+	if activityRequest.KidID == 0 || activityRequest.Period == "" {
+		log.Printf("Error on parsing activity request. %#v\n", activityRequest)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": fmt.Sprintf("One of parameter is missing: %#v", activityRequest),
+		})
+		return
+	}
+
+	db := database.New()
+	defer db.Close()
+
+	var activity []model.Activity
+	err = db.Select(&activity, "SELECT a.id, d.mac_id, d.kid_id, distance, a.received_date, steps, a.type FROM activity a JOIN device d ON a.device_id = d.id JOIN kids k ON "+
+		"k.id = d.kid_id WHERE k.id = ? AND parent_id = ?", activityRequest.KidID, user.ID)
+
+	if err != nil {
+		log.Printf("Error on retrieve Activity: %#v\n", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": fmt.Sprintf("Error on retriving activity: %#v", activityRequest),
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"activities": activity,
+	})
 }

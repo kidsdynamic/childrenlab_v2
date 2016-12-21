@@ -25,9 +25,14 @@ type ActivityRawDataRequest struct {
 type Activity struct {
 	ID           int64     `json:"id" db:"id"`
 	MacID        string    `json:"macId" db:"mac_id"`
+	KidID        string    `json:"kidId" db:"kid_id"`
 	Type         string    `json:"type" db:"type"`
 	Steps        int64     `json:"steps" db:"steps"`
 	Distance     int64     `json:"distance" db:"distance"`
-	DateCreated  time.Time `json:"dateCreated" db:"date_created"`
 	ReceivedDate time.Time `json:"receivedDate" db:"received_date"`
+}
+
+type ActivityRequest struct {
+	KidID  int64  `json:"kidId" binding:"required"`
+	Period string `json:"period" binding:"required"`
 }
