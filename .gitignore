@@ -34,3 +34,7 @@ run
 Childrenlab
 
 .aws/credentials
+
+.ssh/childrenlab.chained.crt
+
+.ssh/childrenlab.com.key

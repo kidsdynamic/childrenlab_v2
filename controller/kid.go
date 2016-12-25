@@ -129,10 +129,6 @@ func UpdateKid(c *gin.Context) {
 		tx.MustExec("UPDATE kids SET last_name = ? WHERE id = ?", request.LastName, kid.ID)
 	}
 
-	/*	if request.MacID != "" {
-		tx.MustExec("UPDATE kids SET phone_number = ? WHERE id = ?", request.PhoneNumber, kid.ID)
-	}*/
-
 	tx.MustExec("UPDATE user SET last_updated = NOW() WHERE id = ?", kid.ID)
 	tx.Commit()
 

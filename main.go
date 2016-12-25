@@ -61,7 +61,7 @@ func main() {
 
 		r := router.New()
 
-		return r.Run(":8111")
+		return r.RunTLS(":8110", "./.ssh/childrenlab.chained.crt", "./.ssh/childrenlab.com.key")
 
 	}
 
