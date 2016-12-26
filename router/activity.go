@@ -9,5 +9,5 @@ func initActivityRouter(r *gin.Engine) {
 	activityAPI := r.Group("/v1/activity")
 	activityAPI.Use(controller.Auth)
 	activityAPI.POST("/uploadRawData", controller.UploadRawActivityData)
-	activityAPI.GET("/dailyData", controller.GetDailyActivity)
+	activityAPI.GET("/retrieveData", controller.GetActivity)
 }

@@ -11,6 +11,8 @@ import (
 
 	"time"
 
+	"errors"
+
 	"github.com/gin-gonic/gin"
 	"github.com/kidsdynamic/childrenlab_v2/database"
 	"github.com/kidsdynamic/childrenlab_v2/model"
@@ -151,12 +153,13 @@ func UploadRawActivityData(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{})
 }
 
-func GetDailyActivity(c *gin.Context) {
+func GetActivity(c *gin.Context) {
 	user := GetSignedInUser(c)
 
-	fmt.Printf("Query: %s, %s", c.Query("kidId"), c.Query("period"))
+	fmt.Printf("Daily Actiivty Request: %s, %s", c.Query("kidId"), c.Query("period"))
 
 	kidIdString := c.Query("kidId")
+	period := c.Query("period")
 	kidId, err := strconv.ParseInt(kidIdString, 10, 64)
 
 	if err != nil {
@@ -169,12 +172,11 @@ func GetDailyActivity(c *gin.Context) {
 
 	var activityRequest model.ActivityRequest
 	activityRequest.KidID = kidId
-	activityRequest.Period = c.Query("period")
 
-	if activityRequest.KidID == 0 || activityRequest.Period == "" {
+	if activityRequest.KidID == 0 || period == "" {
 		log.Printf("Error on parsing activity request. %#v\n", activityRequest)
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": fmt.Sprintf("One of parameter is missing: %#v", activityRequest),
+			"message": fmt.Sprintf("One of parameter is missing: %#v\n", activityRequest),
 		})
 		return
 	}
@@ -183,13 +185,30 @@ func GetDailyActivity(c *gin.Context) {
 	defer db.Close()
 
 	var activity []model.Activity
-	err = db.Select(&activity, "SELECT a.id, d.mac_id, d.kid_id, distance, a.received_date, steps, a.type FROM activity a JOIN device d ON a.device_id = d.id JOIN kids k ON "+
-		"k.id = d.kid_id WHERE k.id = ? AND parent_id = ?", activityRequest.KidID, user.ID)
+	switch period {
+	case "DAILY":
+		err = db.Select(&activity, "SELECT a.id, d.mac_id, d.kid_id, distance, a.received_date, steps, a.type FROM activity a JOIN device d ON a.device_id = d.id JOIN kids k ON "+
+			"k.id = d.kid_id WHERE k.id = ? AND parent_id = ? AND a.received_Date > ?", activityRequest.KidID, user.ID, getTodayDate())
+		break
+	case "WEEKLY":
+		err = db.Select(&activity, "SELECT a.id, d.mac_id, d.kid_id, distance, a.received_date, steps, a.type FROM activity a JOIN device d ON a.device_id = d.id JOIN kids k ON "+
+			"k.id = d.kid_id WHERE k.id = ? AND parent_id = ? AND received_date > ?", activityRequest.KidID, user.ID, getBeginningOfWeek())
+		break
+	case "MONTHLY":
+		err = db.Select(&activity, "SELECT a.id, d.mac_id, d.kid_id, distance, a.received_date, steps, a.type FROM activity a JOIN device d ON a.device_id = d.id JOIN kids k ON "+
+			"k.id = d.kid_id WHERE k.id = ? AND parent_id = ? AND received_date > ?", activityRequest.KidID, user.ID, getBeginningOfMonth())
+	case "YEARLY":
+		err = db.Select(&activity, "SELECT a.id, d.mac_id, d.kid_id, distance, a.received_date, steps, a.type FROM activity a JOIN device d ON a.device_id = d.id JOIN kids k ON "+
+			"k.id = d.kid_id WHERE k.id = ? AND parent_id = ? AND received_date > ?", activityRequest.KidID, user.ID, getBeginningOfYear())
+		break
+	default:
+		err = errors.New(fmt.Sprintf("Can't recognize the period: %s", period))
+	}
 
 	if err != nil {
 		log.Printf("Error on retrieve Activity: %#v\n", err)
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": fmt.Sprintf("Error on retriving activity: %#v", activityRequest),
+			"message": fmt.Sprintf("Error on retriving activity: %#v\n", activityRequest),
 			"error":   err,
 		})
 		return
@@ -198,4 +217,54 @@ func GetDailyActivity(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"activities": activity,
 	})
+}
+
+func getTodayDate() *time.Time {
+	now := time.Now()
+	year, month, day := now.Date()
+	today := time.Date(year, month, day, 0, 0, 0, 0, now.Location())
+
+	fmt.Println("get beginning of day: ", today)
+	return &today
+}
+
+func getBeginningOfWeek() *time.Time {
+	now := time.Now()
+
+	//now = now.Add(24 * time.Hour)
+
+	fmt.Printf("Week of day: %d\n", int(now.Weekday()))
+
+	days := int(now.Weekday())
+	if days == 0 {
+		days = 7
+	}
+
+	fmt.Printf("Days passed from fist day of week: %d\n", days)
+
+	now = now.AddDate(0, 0, -days+1)
+
+	year, month, day := now.Date()
+	today := time.Date(year, month, day, 0, 0, 0, 0, now.Location())
+
+	fmt.Println("get beginning of week: ", today)
+	return &today
+}
+
+func getBeginningOfMonth() *time.Time {
+	now := time.Now()
+	year, month, _ := now.Date()
+	today := time.Date(year, month, 1, 0, 0, 0, 0, now.Location())
+
+	fmt.Println("get beginning of Month: ", today)
+	return &today
+}
+
+func getBeginningOfYear() *time.Time {
+	now := time.Now()
+	year, _, _ := now.Date()
+	today := time.Date(year, 1, 1, 0, 0, 0, 0, now.Location())
+
+	fmt.Println("get beginning of Year: ", today)
+	return &today
 }

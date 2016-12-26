@@ -38,3 +38,5 @@ Childrenlab
 .ssh/childrenlab.chained.crt
 
 .ssh/childrenlab.com.key
+
+gin-bin
