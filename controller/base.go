@@ -58,6 +58,17 @@ func checkInsertResult(result sql.Result) bool {
 	return true
 }
 
+func getInsertedID(result sql.Result) int64 {
+	ID, err := result.LastInsertId()
+
+	if err != nil {
+		log.Println(err)
+		return -1
+	}
+
+	return ID
+}
+
 func Auth(c *gin.Context) {
 	authToken := c.Request.Header.Get("x-auth-token")
 	log.Printf("TOKEN: %s", authToken)
@@ -89,18 +100,19 @@ func Auth(c *gin.Context) {
 
 }
 
-func GetSignedInUser(c *gin.Context) model.User {
-	user, ok := c.Get(SignedUserKey)
+func GetSignedInUser(c *gin.Context) *model.User {
+	signedUser, ok := c.Get(SignedUserKey)
 
 	if !ok {
 		c.JSON(http.StatusForbidden, gin.H{
 			"message": "can't find login user",
 		})
 		c.Abort()
-		return model.User{}
+		return nil
 	}
 
-	return user.(model.User)
+	user := signedUser.(model.User)
+	return &user
 }
 
 func GetUserByID(db *sqlx.DB, id int64) (model.User, error) {
@@ -167,7 +179,7 @@ func UploadFileToS3(file *os.File, fileName, bucketName string) error {
 
 }
 
-func GetKidsByUser(user model.User) ([]model.Kid, error) {
+func GetKidsByUser(user *model.User) ([]model.Kid, error) {
 	db := database.New()
 	defer db.Close()
 	var kids []model.Kid

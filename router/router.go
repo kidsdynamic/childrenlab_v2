@@ -11,6 +11,7 @@ func New() *gin.Engine {
 	initKidRouter(r)
 	initAvatarRouter(r)
 	initActivityRouter(r)
+	initCalendarRouter(r)
 
 	return r
 }

@@ -10,6 +10,7 @@
 * [POST   /v1/user/avatar/uploadKid](#v1useravataruploadkid---post)
 * [POST   /v1/activity/uploadRawData](#v1activityuploadrawdata---post)
 * [GET   /v1/activity/dailyData](#v1activitydailydata---get)
+* [POST   /v1/calendar/add](#v1acalendaradd---post)
 
 
 
@@ -491,5 +492,93 @@ curl -X GET -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" "http://localhos
     "Err": {}
   },
   "message": "kidId should be int type."
+}
+```
+
+## /v1/calendar/add - POST
+* Content-Type: application/json
+* Date Time format is ***YYYY-MM-ddThh:mm:ss***
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| :-----|
+| kidId             | Yes | Integer | 20 |
+| name               | Yes | String | Test event name |
+| startDate           | Yes | String |   2015-08-30T08:20:00 |
+| endDate             | Yes | String |   2015-08-31T08:20:00 |
+| color               | Yes | String |   #F05D25 |
+| description         | No | String |   Test description |
+| alert               | No | Integer |   49 |
+| city               | No | String |   New York |
+| state               | No | String |   New York |
+| repeat               | No | String |   DAILY, MONTHLY |
+| timezoneOffset       Yes | Integer |   300 |
+| todo               | No | Array |   ["test todo 1", "test todo 2"] |
+
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Added successfully |
+| 400     | Bad request. Missing some parameters, or the type is wrong |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -d '{
+  "kidId": 20,
+  "Name": "Test event name",
+  "startDate": "2015-08-30T08:20:00",
+  "endDate": "2015-08-31T08:20:00",
+  "timezoneOffset": 300,
+  "color": "#F05D25",
+  "description": "Hahah",
+  "alert": 49,
+  "city": "New York",
+  "state": "New York",
+  "todo": [
+  	"test todo 1", "test todo 2"	
+  ]
+  
+}' "http://localhost:8111/v1/calendar/add"
+```
+
+* Success - Returns added event
+```
+{
+  "event": {
+    "id": 398,
+    "userId": 29,
+    "kidId": 20,
+    "name": "Test event name",
+    "startDate": "2015-08-30T08:20:00Z",
+    "endDate": "2015-08-31T08:20:00Z",
+    "color": "#F05D25",
+    "status": "OPEN",
+    "description": "Hahah",
+    "alert": 49,
+    "city": "New York",
+    "state": "New York",
+    "repeat": "",
+    "timezoneOffset": 300,
+    "dateCreated": "2016-12-26T06:25:19Z",
+    "lastUpdated": "2016-12-26T06:25:19Z",
+    "todo": [
+      {
+        "id": 38,
+        "text": "test todo 1",
+        "status": "PENDING",
+        "dateCreated": "2016-12-26T06:25:19Z",
+        "lastUpdated": "2016-12-26T06:25:19Z"
+      },
+      {
+        "id": 39,
+        "text": "test todo 2",
+        "status": "PENDING",
+        "dateCreated": "2016-12-26T06:25:19Z",
+        "lastUpdated": "2016-12-26T06:25:19Z"
+      }
+    ]
+  }
 }
 ```
