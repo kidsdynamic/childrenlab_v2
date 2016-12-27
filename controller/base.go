@@ -28,6 +28,7 @@ import (
 const (
 	SignedUserKey = "SignedUser"
 	S3ProfilePath = "userProfile"
+	TimeLayout    = "2006-01-02T15:04:05"
 )
 
 func EncryptPassword(password string) string {

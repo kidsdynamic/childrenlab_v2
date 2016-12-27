@@ -10,7 +10,10 @@
 * [POST   /v1/user/avatar/uploadKid](#v1useravataruploadkid---post)
 * [POST   /v1/activity/uploadRawData](#v1activityuploadrawdata---post)
 * [GET   /v1/activity/dailyData](#v1activitydailydata---get)
-* [POST   /v1/calendar/add](#v1acalendaradd---post)
+* [POST   /v1/calendar/add](#v1calendaradd---post)
+* [PUT   /v1/calendar/update](#v1calendarupdate---put)
+* [DELETE   /v1/calendar/delete](#v1calendardelete---delete)
+* [GET   /v1/calendar/retrieveEvents](#v1calendarupdate---get)
 
 
 
@@ -580,5 +583,283 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7
       }
     ]
   }
+}
+```
+
+## /v1/calendar/update - PUT
+* Content-Type: application/json
+* Date Time format is ***YYYY-MM-ddThh:mm:ss***
+* Send the parameter even user does not change it
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| :-----|
+| eventId             | Yes | Integer | 414 |
+| name               | Yes | String | Test event name |
+| startDate           | Yes | String |   2015-08-30T08:20:00 |
+| endDate             | Yes | String |   2015-08-31T08:20:00 |
+| color               | Yes | String |   #F05D25 |
+| description         | No | String |   Test description |
+| alert               | No | Integer |   49 |
+| city               | No | String |   New York |
+| state               | No | String |   New York |
+| repeat               | No | String |   DAILY, MONTHLY |
+| timezoneOffset       Yes | Integer |   300 |
+| todo               | No | Array |   ["test todo 1"] |
+
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Updated successfully |
+| 400     | Bad request. Missing some parameters, or the type is wrong |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -d '{
+  "eventId": 414,
+  "Name": "Test event name2",
+  "startDate": "2015-08-30T08:20:00",
+  "endDate": "2015-08-31T08:20:00",
+  "timezoneOffset": 300,
+  "color": "#F05D25",
+  "description": "Hahah",
+  "alert": 49,
+  "city": "New York",
+  "state": "New York",
+  "todo": [
+  	"test todo 1"	
+  ]
+  
+}' "http://localhost:8111/v1/calendar/update"
+```
+
+* Success - Returns updated event
+```
+{
+  "event": {
+    "id": 414,
+    "userId": 29,
+    "kidId": 20,
+    "name": "Test event name2",
+    "startDate": "2015-08-30T08:20:00Z",
+    "endDate": "2015-08-31T08:20:00Z",
+    "color": "#F05D25",
+    "status": "OPEN",
+    "description": "Hahah",
+    "alert": 49,
+    "city": "New York",
+    "state": "New York",
+    "repeat": "",
+    "timezoneOffset": 300,
+    "dateCreated": "2016-12-26T21:21:53Z",
+    "lastUpdated": "2016-12-27T00:59:28Z",
+    "todo": [
+      {
+        "id": 83,
+        "text": "test todo 1",
+        "status": "PENDING",
+        "dateCreated": "2016-12-27T00:59:28Z",
+        "lastUpdated": "2016-12-27T00:59:28Z"
+      }
+    ]
+  }
+}
+```
+
+## /v1/calendar/delete - DELETE
+* Content-Type: application/json
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| :-----|
+| eventId             | Yes | Integer | 414 |
+
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Delete successfully |
+| 400     | Bad request. Missing some parameters, or the type is wrong |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X DELETE -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -d '{
+  "eventId": 414
+}' "http://localhost:8111/v1/calendar/delete"
+```
+
+* Success - Returns empty json
+```
+{}
+```
+
+## /v1/calendar/retrieveEvents - GET
+* Date Time format is ***YYYY-MM-ddThh:mm:ss***
+* If trying to retrieve month events, do not use '00' as month value. Example: 2016-12-01T00:00:00 to retrieve 2016-12 events.
+
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| :-----|
+| period        | Yes | String | MONTH, DAY |
+| date          | Yes | String | 2016-12-26T01:00:00 |
+
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Retrieve successfully |
+| 400     | Bad request. Missing some parameters, or the type is wrong |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" "http://localhost:8111/v1/calendar/retrieveEvents?period=MONTH&date=2016-12-01T00:00:00"
+```
+
+* Success - Returns updated event
+```
+{
+  "events": [
+    {
+      "id": 410,
+      "userId": 29,
+      "kidId": 20,
+      "name": "Test event name",
+      "startDate": "2016-12-27T21:21:53Z",
+      "endDate": "2015-08-31T08:20:00Z",
+      "color": "#F05D25",
+      "status": "OPEN",
+      "description": "Hahah",
+      "alert": 49,
+      "city": "New York",
+      "state": "New York",
+      "repeat": "",
+      "timezoneOffset": 300,
+      "dateCreated": "2016-12-26T21:17:30Z",
+      "lastUpdated": "2016-12-26T21:17:30Z",
+      "todo": [
+        {
+          "id": 66,
+          "text": "test todo 1",
+          "status": "PENDING",
+          "dateCreated": "2016-12-26T21:17:30Z",
+          "lastUpdated": "2016-12-26T21:17:30Z"
+        },
+        {
+          "id": 67,
+          "text": "test todo 2",
+          "status": "PENDING",
+          "dateCreated": "2016-12-26T21:17:30Z",
+          "lastUpdated": "2016-12-26T21:17:30Z"
+        }
+      ]
+    },
+    {
+      "id": 411,
+      "userId": 29,
+      "kidId": 20,
+      "name": "Test event name",
+      "startDate": "2016-12-26T21:21:53Z",
+      "endDate": "2015-08-31T08:20:00Z",
+      "color": "#F05D25",
+      "status": "OPEN",
+      "description": "Hahah",
+      "alert": 49,
+      "city": "New York",
+      "state": "New York",
+      "repeat": "",
+      "timezoneOffset": 300,
+      "dateCreated": "2016-12-26T21:17:35Z",
+      "lastUpdated": "2016-12-26T21:17:35Z",
+      "todo": [
+        {
+          "id": 68,
+          "text": "test todo 1",
+          "status": "PENDING",
+          "dateCreated": "2016-12-26T21:17:35Z",
+          "lastUpdated": "2016-12-26T21:17:35Z"
+        },
+        {
+          "id": 69,
+          "text": "test todo 2",
+          "status": "PENDING",
+          "dateCreated": "2016-12-26T21:17:35Z",
+          "lastUpdated": "2016-12-26T21:17:35Z"
+        }
+      ]
+    },
+    {
+      "id": 412,
+      "userId": 29,
+      "kidId": 20,
+      "name": "Test event name",
+      "startDate": "2016-12-26T21:21:53Z",
+      "endDate": "2015-08-31T08:20:00Z",
+      "color": "#F05D25",
+      "status": "OPEN",
+      "description": "Hahah",
+      "alert": 49,
+      "city": "",
+      "state": "",
+      "repeat": "",
+      "timezoneOffset": 300,
+      "dateCreated": "2016-12-26T21:17:45Z",
+      "lastUpdated": "2016-12-26T21:17:45Z",
+      "todo": [
+        {
+          "id": 70,
+          "text": "test todo 1",
+          "status": "PENDING",
+          "dateCreated": "2016-12-26T21:17:45Z",
+          "lastUpdated": "2016-12-26T21:17:45Z"
+        },
+        {
+          "id": 71,
+          "text": "test todo 2",
+          "status": "PENDING",
+          "dateCreated": "2016-12-26T21:17:45Z",
+          "lastUpdated": "2016-12-26T21:17:45Z"
+        }
+      ]
+    },
+    {
+      "id": 413,
+      "userId": 29,
+      "kidId": 20,
+      "name": "Test event name",
+      "startDate": "2016-12-26T21:21:53Z",
+      "endDate": "2015-08-31T08:20:00Z",
+      "color": "#F05D25",
+      "status": "OPEN",
+      "description": "Hahah",
+      "alert": 49,
+      "city": "New York",
+      "state": "New York",
+      "repeat": "",
+      "timezoneOffset": 300,
+      "dateCreated": "2016-12-26T21:19:16Z",
+      "lastUpdated": "2016-12-26T21:19:16Z",
+      "todo": [
+        {
+          "id": 72,
+          "text": "test todo 1",
+          "status": "PENDING",
+          "dateCreated": "2016-12-26T21:19:16Z",
+          "lastUpdated": "2016-12-26T21:19:16Z"
+        },
+        {
+          "id": 73,
+          "text": "test todo 2",
+          "status": "PENDING",
+          "dateCreated": "2016-12-26T21:19:16Z",
+          "lastUpdated": "2016-12-26T21:19:16Z"
+        }
+      ]
+    }
+  ]
 }
 ```

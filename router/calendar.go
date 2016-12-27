@@ -9,8 +9,9 @@ func initCalendarRouter(r *gin.Engine) {
 	calendarAPI := r.Group("/v1/calendar")
 	calendarAPI.Use(controller.Auth)
 	calendarAPI.POST("/add", controller.AddCalendarEvent)
-	calendarAPI.PUT("/edit", controller.UploadKidAvatar)
-	calendarAPI.DELETE("/delete", nil)
+	calendarAPI.PUT("/update", controller.UpdateCalendarEvent)
+	calendarAPI.DELETE("/delete", controller.DeleteEvent)
+	calendarAPI.GET("/retrieveEvents", controller.GetCalendarEvent)
 
 	todoAPI := r.Group("/v1/calendar/todo")
 	todoAPI.Use(controller.Auth)

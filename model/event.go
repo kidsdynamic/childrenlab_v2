@@ -30,7 +30,7 @@ type Todo struct {
 	LastUpdated time.Time `json:"lastUpdated" db:"last_updated"`
 }
 
-type AddEventRequest struct {
+type EventRequest struct {
 	UserID         int64       `db:"user_id"`
 	KidID          int64       `json:"kidId" db:"kid_id" binding:"required"`
 	Name           string      `json:"name" db:"event_name" binding:"required"`
@@ -45,4 +45,28 @@ type AddEventRequest struct {
 	Repeat         string      `json:"repeat" db:"event_repeat"`
 	TimezoneOffset int64       `json:"timezoneOffset" db:"timezone_offset" binding:"required"`
 	Todo           []string    `json:"todo"`
+}
+
+type UpdateEventRequest struct {
+	ID             int64       `json:"eventId" db:"id" binding:"required"`
+	Name           string      `json:"name" db:"event_name" binding:"required"`
+	Start          interface{} `json:"startDate" db:"start_date" binding:"required"`
+	End            interface{} `json:"endDate" db:"end_date" binding:"required"`
+	Color          string      `json:"color" db:"color" binding:"required"`
+	Description    string      `json:"description" db:"description"`
+	Alert          int64       `json:"alert" db:"alert"`
+	City           string      `json:"city" db:"city"`
+	State          string      `json:"state" db:"state"`
+	Repeat         string      `json:"repeat" db:"event_repeat"`
+	TimezoneOffset int64       `json:"timezoneOffset" db:"timezone_offset" binding:"required"`
+	Todo           []string    `json:"todo"`
+}
+
+type DeleteEventRequest struct {
+	EventID int64 `json:"eventId" db:"id" binding:"required"`
+}
+
+type GetEventRequest struct {
+	Period string `json:"period" binding:"required"`
+	Date   string `json:"date" binding:"required"`
 }

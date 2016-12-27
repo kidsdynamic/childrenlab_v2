@@ -17,6 +17,12 @@ func main() {
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
+			EnvVar: "DEBUG",
+			Name:   "debug",
+			Usage:  "Debug",
+			Value:  "false",
+		},
+		cli.StringFlag{
 			EnvVar: "DATABASE_USER",
 			Name:   "database_user",
 			Usage:  "Database user name",
@@ -61,9 +67,11 @@ func main() {
 
 		r := router.New()
 
-		//return r.Run(":8111")
-
-		return r.RunTLS(":8111", ".ssh/childrenlab.chained.crt", ".ssh/childrenlab.com.key")
+		if c.Bool("debug") {
+			return r.Run(":8111")
+		} else {
+			return r.RunTLS(":8111", ".ssh/childrenlab.chained.crt", ".ssh/childrenlab.com.key")
+		}
 
 	}
 
