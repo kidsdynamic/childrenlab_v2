@@ -6,6 +6,7 @@
 * [GET    /v1/user/retrieveUserProfile](#v1userretrieveuserprofile---get)
 * [POST   /v1/kids/add             ](#v1kidsadd---post)
 * [PUT    /v1/kids/update          ](#v1kidsupdate---put)
+* [GET    /v1/kids/whoRegisteredMacID          ](#v1kidswhoregisteredmacid---get)
 * [POST   /v1/user/avatar/upload   ](#v1useravatarupload---post)
 * [POST   /v1/user/avatar/uploadKid](#v1useravataruploadkid---post)
 * [POST   /v1/activity/uploadRawData](#v1activityuploadrawdata---post)
@@ -13,7 +14,7 @@
 * [POST   /v1/calendar/add](#v1calendaradd---post)
 * [PUT   /v1/calendar/update](#v1calendarupdate---put)
 * [DELETE   /v1/calendar/delete](#v1calendardelete---delete)
-* [GET   /v1/calendar/retrieveEvents](#v1calendarupdate---get)
+* [GET   /v1/calendar/retrieveEvents](#v1calendarretrieveevents---get)
 
 
 
@@ -359,6 +360,7 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
 | ------------- |:-------------:|:-------------:| -----:|
+| kidId    | Yes | String |   19 |
 | firstName    | No | String |   Jay |
 | lastName     | No | String |   Chen |
 
@@ -395,6 +397,53 @@ curl -X PUT -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Type
 {
   "message": "Error when insert data",
   "error": "Test error"
+}
+```
+
+## /v1/kids/whoRegisteredMacID - GET
+* Retrieve kid and user information by MAC ID
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| -----:|
+| macId    | Yes | String |   hgweorahgbkljwhnpi2 |
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Retrieve successfully |
+| 404     | The user not found which means the MAC ID is not registered by anyone |
+| 400     | Bad request. Missing some parameters |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" "http://localhost:8111/v1/kids/whoRegisteredMacID?macId=hgweorahgbkljwhnpi2"
+```
+
+* Success - 
+```
+{
+  "kid": {
+    "id": 20,
+    "firstName": "KIDLLE",
+    "lastName": "YES",
+    "dateCreated": "2016-12-21T03:24:57Z",
+    "macId": "",
+    "profile": "",
+    "ParentID": 29
+  },
+  "user": {
+    "id": 29,
+    "email": "lwz1@swing.com",
+    "firstName": "q",
+    "lastName": "w",
+    "lastUpdate": "2016-12-19T22:28:07Z",
+    "dateCreated": "2016-12-06T00:40:10Z",
+    "zipCode": "",
+    "phoneNumber": "555",
+    "profile": ""
+  }
 }
 ```
 

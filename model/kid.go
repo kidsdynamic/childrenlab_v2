@@ -9,6 +9,7 @@ type Kid struct {
 	DateCreated time.Time `json:"dateCreated" db:"date_created"`
 	MacID       string    `json:"macId" db:"mac_id"`
 	Profile     string    `json:"profile" db:"profile"`
+	ParentID    int64     `db:"parent_id"`
 }
 
 type Device struct {

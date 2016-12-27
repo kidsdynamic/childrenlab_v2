@@ -131,8 +131,20 @@ func GetUserByID(db *sqlx.DB, id int64) (model.User, error) {
 
 func GetKidByUserIdAndKidId(db *sqlx.DB, userId, kidId int64) (model.Kid, error) {
 	var kid model.Kid
-	err := db.Get(&kid, "SELECT k.id, COALESCE(k.first_name, '') as first_name, COALESCE(k.last_name, '') as last_name, "+
+	err := db.Get(&kid, "SELECT k.id, parent_id, COALESCE(k.first_name, '') as first_name, COALESCE(k.last_name, '') as last_name, "+
 		"k.date_created FROM user u JOIN kids k ON u.id = k.parent_id  WHERE u.id = ? AND k.id = ?", userId, kidId)
+
+	if err != nil {
+		return kid, err
+	}
+
+	return kid, nil
+}
+
+func GetKidByMacID(db *sqlx.DB, macID string) (model.Kid, error) {
+	var kid model.Kid
+	err := db.Get(&kid, "SELECT k.id, parent_id, COALESCE(k.first_name, '') as first_name, COALESCE(k.last_name, '') as last_name, "+
+		"k.date_created FROM kids k JOIN device d ON k.id = d.kid_id WHERE mac_id = ?", macID)
 
 	if err != nil {
 		return kid, err
