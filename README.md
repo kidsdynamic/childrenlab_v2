@@ -10,7 +10,7 @@
 * [POST   /v1/user/avatar/upload   ](#v1useravatarupload---post)
 * [POST   /v1/user/avatar/uploadKid](#v1useravataruploadkid---post)
 * [POST   /v1/activity/uploadRawData](#v1activityuploadrawdata---post)
-* [GET   /v1/activity/retrieveData](#v1activityretrieveData---get)
+* [GET   /v1/activity/retrieveData](#v1activityretrievedata---get)
 * [POST   /v1/calendar/add](#v1calendaradd---post)
 * [PUT   /v1/calendar/update](#v1calendarupdate---put)
 * [DELETE   /v1/calendar/delete](#v1calendardelete---delete)
