@@ -1,5 +1,5 @@
 ## Overview API
-* [POST   /v1/user/login](#v1userlogin--post)
+* [POST   /v1/user/login](#v1userlogin---post)
 * [POST   /v1/user/register      ](#v1userregister---post)
 * [POST   /v1/user/isTokenValid  ](#v1useristokenvalid---post)
 * [PUT    /v1/user/updateProfile ](#v1userupdateprofile---put)
@@ -10,7 +10,7 @@
 * [POST   /v1/user/avatar/upload   ](#v1useravatarupload---post)
 * [POST   /v1/user/avatar/uploadKid](#v1useravataruploadkid---post)
 * [POST   /v1/activity/uploadRawData](#v1activityuploadrawdata---post)
-* [GET   /v1/activity/dailyData](#v1activitydailydata---get)
+* [GET   /v1/activity/retrieveData](#v1activityretrieveData---get)
 * [POST   /v1/calendar/add](#v1calendaradd---post)
 * [PUT   /v1/calendar/update](#v1calendarupdate---put)
 * [DELETE   /v1/calendar/delete](#v1calendardelete---delete)
@@ -488,7 +488,7 @@ curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Typ
 ```
 
 
-## /v1/activity/dailyData - GET
+## /v1/activity/retrieveData - GET
 * It's ***GET*** method, so no content-type. Add parameters to the ***URL***
 
 #### Request Parameters
