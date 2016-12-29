@@ -5,15 +5,15 @@ import (
 	"github.com/kidsdynamic/childrenlab_v2/controller"
 )
 
-func initCalendarRouter(r *gin.Engine) {
-	calendarAPI := r.Group("/v1/calendar")
+func initEventRouter(r *gin.Engine) {
+	calendarAPI := r.Group("/v1/event")
 	calendarAPI.Use(controller.Auth)
 	calendarAPI.POST("/add", controller.AddCalendarEvent)
 	calendarAPI.PUT("/update", controller.UpdateCalendarEvent)
 	calendarAPI.DELETE("/delete", controller.DeleteEvent)
 	calendarAPI.GET("/retrieveEvents", controller.GetCalendarEvent)
 
-	todoAPI := r.Group("/v1/calendar/todo")
+	todoAPI := r.Group("/v1/event/todo")
 	todoAPI.Use(controller.Auth)
 	todoAPI.POST("/add", controller.UploadAvatar)
 	todoAPI.PUT("/edit", controller.UploadKidAvatar)

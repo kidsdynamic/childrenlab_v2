@@ -11,10 +11,10 @@
 * [POST   /v1/user/avatar/uploadKid](#v1useravataruploadkid---post)
 * [POST   /v1/activity/uploadRawData](#v1activityuploadrawdata---post)
 * [GET   /v1/activity/retrieveData](#v1activityretrievedata---get)
-* [POST   /v1/calendar/add](#v1calendaradd---post)
-* [PUT   /v1/calendar/update](#v1calendarupdate---put)
-* [DELETE   /v1/calendar/delete](#v1calendardelete---delete)
-* [GET   /v1/calendar/retrieveEvents](#v1calendarretrieveevents---get)
+* [POST   /v1/event/add](#v1eventadd---post)
+* [PUT   /v1/event/update](#v1eventupdate---put)
+* [DELETE   /v1/event/delete](#v1eventdelete---delete)
+* [GET   /v1/event/retrieveEvents](#v1eventretrieveevents---get)
 
 
 
@@ -547,7 +547,7 @@ curl -X GET -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" "http://localhos
 }
 ```
 
-## /v1/calendar/add - POST
+## /v1/event/add - POST
 * Content-Type: application/json
 * Date Time format is ***YYYY-MM-ddThh:mm:ss***
 
@@ -592,7 +592,7 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7
   	"test todo 1", "test todo 2"	
   ]
   
-}' "http://localhost:8111/v1/calendar/add"
+}' "http://localhost:8111/v1/event/add"
 ```
 
 * Success - Returns added event
@@ -635,7 +635,7 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7
 }
 ```
 
-## /v1/calendar/update - PUT
+## /v1/event/update - PUT
 * Content-Type: application/json
 * Date Time format is ***YYYY-MM-ddThh:mm:ss***
 * Send the parameter even user does not change it
@@ -681,7 +681,7 @@ curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
   	"test todo 1"	
   ]
   
-}' "http://localhost:8111/v1/calendar/update"
+}' "http://localhost:8111/v1/event/update"
 ```
 
 * Success - Returns updated event
@@ -717,7 +717,7 @@ curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 }
 ```
 
-## /v1/calendar/delete - DELETE
+## /v1/event/delete - DELETE
 * Content-Type: application/json
 
 #### Request Parameters
@@ -737,7 +737,7 @@ curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 ```
 curl -X DELETE -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -d '{
   "eventId": 414
-}' "http://localhost:8111/v1/calendar/delete"
+}' "http://localhost:8111/v1/event/delete"
 ```
 
 * Success - Returns empty json
@@ -745,7 +745,7 @@ curl -X DELETE -H "Content-Type: application/json" -H "x-auth-token: pej57nakctv
 {}
 ```
 
-## /v1/calendar/retrieveEvents - GET
+## /v1/event/retrieveEvents - GET
 * Date Time format is ***YYYY-MM-ddThh:mm:ss***
 * If trying to retrieve month events, do not use '00' as month value. Example: 2016-12-01T00:00:00 to retrieve 2016-12 events.
 
@@ -766,7 +766,7 @@ curl -X DELETE -H "Content-Type: application/json" -H "x-auth-token: pej57nakctv
 
 ### curl
 ```
-curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" "http://localhost:8111/v1/calendar/retrieveEvents?period=MONTH&date=2016-12-01T00:00:00"
+curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" "http://localhost:8111/v1/event/retrieveEvents?period=MONTH&date=2016-12-01T00:00:00"
 ```
 
 * Success - Returns updated event
