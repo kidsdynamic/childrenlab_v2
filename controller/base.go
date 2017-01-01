@@ -144,7 +144,7 @@ func GetKidByUserIdAndKidId(db *sqlx.DB, userId, kidId int64) (model.Kid, error)
 func GetKidByMacID(db *sqlx.DB, macID string) (model.Kid, error) {
 	var kid model.Kid
 	err := db.Get(&kid, "SELECT k.id, parent_id, COALESCE(k.first_name, '') as first_name, COALESCE(k.last_name, '') as last_name, "+
-		"k.date_created FROM kids k JOIN device d ON k.id = d.kid_id WHERE mac_id = ?", macID)
+		"k.date_created, mac_id, COALESCE(profile, '') as profile FROM kids k JOIN device d ON k.id = d.kid_id WHERE mac_id = ?", macID)
 
 	if err != nil {
 		return kid, err

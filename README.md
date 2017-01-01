@@ -1,22 +1,33 @@
 ## Overview API
+
+### User API
 * [POST   /v1/user/login](#v1userlogin---post)
 * [POST   /v1/user/register      ](#v1userregister---post)
 * [POST   /v1/user/isTokenValid  ](#v1useristokenvalid---post)
 * [PUT    /v1/user/updateProfile ](#v1userupdateprofile---put)
 * [GET    /v1/user/retrieveUserProfile](#v1userretrieveuserprofile---get)
+---
+### Kid API
 * [POST   /v1/kids/add             ](#v1kidsadd---post)
 * [PUT    /v1/kids/update          ](#v1kidsupdate---put)
 * [GET    /v1/kids/whoRegisteredMacID          ](#v1kidswhoregisteredmacid---get)
+---
+### Avatar
 * [POST   /v1/user/avatar/upload   ](#v1useravatarupload---post)
 * [POST   /v1/user/avatar/uploadKid](#v1useravataruploadkid---post)
+---
+### Activity
 * [POST   /v1/activity/uploadRawData](#v1activityuploadrawdata---post)
 * [GET   /v1/activity/retrieveData](#v1activityretrievedata---get)
+---
+### Event
 * [POST   /v1/event/add](#v1eventadd---post)
 * [PUT   /v1/event/update](#v1eventupdate---put)
 * [DELETE   /v1/event/delete](#v1eventdelete---delete)
 * [GET   /v1/event/retrieveEvents](#v1eventretrieveevents---get)
-
-
+---
+### Multi-Host API
+* [POST   /v1/subHost/add](#v1subhostadd---post)
 
 ## /v1/user/login - POST
 * Content-Type: application/json
@@ -910,5 +921,66 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
       ]
     }
   ]
+}
+```
+
+## /v1/subHost/add - POST
+* Content-Type: application/json
+* Get ```hostId``` from [/v1/kids/whoRegisteredMacID](#v1kidswhoregisteredmacid---get) API
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| :-----|
+| macId             | Yes | String | 13031FCFE5E0 |
+| hostId            | Yes | Integer | 35 |
+
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Added successfully |
+| 400     | Bad request. Missing some parameters, or the type is wrong |
+| 409     | Conflict. The request is already exists |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -d '{
+  "kidId": 20,
+  "Name": "Test event name",
+  "startDate": "2015-08-30T08:20:00",
+  "endDate": "2015-08-31T08:20:00",
+  "timezoneOffset": 300,
+  "color": "#F05D25",
+  "description": "Hahah",
+  "alert": 49,
+  "city": "New York",
+  "state": "New York",
+  "todo": [
+  	"test todo 1", "test todo 2"	
+  ]
+  
+}' "http://localhost:8111/v1/event/add"
+```
+
+* Success - Returns added request
+```
+{
+  "SubHostRequest": {
+    "id": 10,
+    "macId": "13031FCFE5E0",
+    "requestFromID": 29,
+    "requestToID": 35,
+    "status": "PENDING",
+    "createdDate": "2017-01-01T03:00:06Z",
+    "lastUpdated": "2017-01-01T03:00:06Z"
+  }
+}
+```
+
+* Fail (409) -
+```
+{
+  "message": "The request is already exist"
 }
 ```
