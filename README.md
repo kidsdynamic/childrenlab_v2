@@ -6,26 +6,27 @@
 * [POST   /v1/user/isTokenValid  ](#v1useristokenvalid---post)
 * [PUT    /v1/user/updateProfile ](#v1userupdateprofile---put)
 * [GET    /v1/user/retrieveUserProfile](#v1userretrieveuserprofile---get)
----
+
+
 ### Kid API
 * [POST   /v1/kids/add             ](#v1kidsadd---post)
 * [PUT    /v1/kids/update          ](#v1kidsupdate---put)
 * [GET    /v1/kids/whoRegisteredMacID          ](#v1kidswhoregisteredmacid---get)
----
+
 ### Avatar
 * [POST   /v1/user/avatar/upload   ](#v1useravatarupload---post)
 * [POST   /v1/user/avatar/uploadKid](#v1useravataruploadkid---post)
----
+
 ### Activity
 * [POST   /v1/activity/uploadRawData](#v1activityuploadrawdata---post)
 * [GET   /v1/activity/retrieveData](#v1activityretrievedata---get)
----
+
 ### Event
 * [POST   /v1/event/add](#v1eventadd---post)
 * [PUT   /v1/event/update](#v1eventupdate---put)
 * [DELETE   /v1/event/delete](#v1eventdelete---delete)
 * [GET   /v1/event/retrieveEvents](#v1eventretrieveevents---get)
----
+
 ### Multi-Host API
 * [POST   /v1/subHost/add](#v1subhostadd---post)
 
