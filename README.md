@@ -29,6 +29,9 @@
 
 ### Multi-Host API
 * [POST   /v1/subHost/add](#v1subhostadd---post)
+* [POST   /v1/subHost/accept](#v1subhostaccept---post)
+* [POST   /v1/subHost/deny](#v1subhostdeny---post)
+* [GET   /v1/subHost/list](#v1subhostlist---get)
 
 ## /v1/user/login - POST
 * Content-Type: application/json
@@ -947,21 +950,9 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 ### curl
 ```
 curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -d '{
-  "kidId": 20,
-  "Name": "Test event name",
-  "startDate": "2015-08-30T08:20:00",
-  "endDate": "2015-08-31T08:20:00",
-  "timezoneOffset": 300,
-  "color": "#F05D25",
-  "description": "Hahah",
-  "alert": 49,
-  "city": "New York",
-  "state": "New York",
-  "todo": [
-  	"test todo 1", "test todo 2"	
-  ]
-  
-}' "http://localhost:8111/v1/event/add"
+  "macId": "13031FCFE5E0",
+  "hostId": 35
+}' "http://localhost:8111/v1/subHost/add"
 ```
 
 * Success - Returns added request
@@ -983,5 +974,121 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7
 ```
 {
   "message": "The request is already exist"
+}
+```
+
+## /v1/subHost/accept - POST
+* Content-Type: application/json
+* Get ```requestId``` from [GET   /v1/subHost/list](#v1subhostlist---get) API
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| :-----|
+| requestId             | Yes | Integer | 10 |
+
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Accept successfully |
+| 400     | Bad request. Missing some parameters, or the type is wrong |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X POST -H "Content-Type: application/json" -H "x-auth-token: 58lkp329ejbr4498st59ur2na7e0rmtg" -d '{
+  "requestId": 10
+}' "http://localhost:8111/v1/subHost/accept"
+```
+
+* Success - Returns updated request
+```
+{
+  "SubHostRequest": {
+    "id": 10,
+    "macId": "13031FCFE5E0",
+    "requestFromID": 29,
+    "requestToID": 35,
+    "status": "ACCEPTED",
+    "createdDate": "2017-01-01T03:00:06Z",
+    "lastUpdated": "2017-01-01T05:20:09Z"
+  }
+}
+```
+
+## /v1/subHost/deny - POST
+* Content-Type: application/json
+* Get ```requestId``` from [GET   /v1/subHost/list](#v1subhostlist---get) API
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| :-----|
+| requestId             | Yes | Integer | 10 |
+
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Accept successfully |
+| 400     | Bad request. Missing some parameters, or the type is wrong |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X POST -H "Content-Type: application/json" -H "x-auth-token: 58lkp329ejbr4498st59ur2na7e0rmtg" -d '{
+  "requestId": 10
+}' "http://localhost:8111/v1/subHost/deny"
+```
+
+* Success - Returns updated request
+```
+{
+  "SubHostRequest": {
+    "id": 10,
+    "macId": "13031FCFE5E0",
+    "requestFromID": 29,
+    "requestToID": 35,
+    "status": "DENIED",
+    "createdDate": "2017-01-01T03:00:06Z",
+    "lastUpdated": "2017-01-01T05:22:30Z"
+  }
+}
+```
+
+## /v1/subHost/list - GET
+* Content-Type: application/json
+* If no status parameter, the API returns PENDING sub host request
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| :-----|
+| status        | No | String | PENDING, ACCEPTED, DENIED |
+
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Receive list successfully |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X GET -H "Content-Type: application/json" -H "x-auth-token: 58lkp329ejbr4498st59ur2na7e0rmtg" "http://localhost:8111/v1/subHost/list?status=DENIED"
+```
+
+* Success - Returns updated request
+```
+{
+  "subHost": [
+    {
+      "id": 10,
+      "macId": "13031FCFE5E0",
+      "requestFromID": 29,
+      "requestToID": 35,
+      "status": "DENIED",
+      "createdDate": "2017-01-01T03:00:06Z",
+      "lastUpdated": "2017-01-01T05:22:30Z"
+    }
+  ]
 }
 ```

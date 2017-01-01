@@ -19,3 +19,7 @@ type RequestSubHostRequest struct {
 	Status   string `db:"status"`
 	DeviceID int64  `db:"device_id"`
 }
+
+type AcceptSubHostRequest struct {
+	RequestID int64 `json:"requestId"`
+}

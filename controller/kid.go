@@ -12,12 +12,6 @@ import (
 	"github.com/kidsdynamic/childrenlab_v2/model"
 )
 
-const (
-	SubHostStatusPending  = "PENDING"
-	SubHostStatusApproved = "APPROVED"
-	SubHostStatusDenied   = "DENIED"
-)
-
 func AddKid(c *gin.Context) {
 	user := GetSignedInUser(c)
 
