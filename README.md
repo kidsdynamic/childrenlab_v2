@@ -26,6 +26,7 @@
 * [PUT   /v1/event/update](#v1eventupdate---put)
 * [DELETE   /v1/event/delete](#v1eventdelete---delete)
 * [GET   /v1/event/retrieveEvents](#v1eventretrieveevents---get)
+* [GET   /v1/event/retrieveAllEventsWithTodo](#v1eventretrievealleventswithtodo---get)
 
 ### Multi-Host API
 * [POST   /v1/subHost/add](#v1subhostadd---post)
@@ -926,6 +927,25 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
     }
   ]
 }
+```
+
+## /v1/event/retrieveAllEventsWithTodo - GET
+* Date Time format is ***YYYY-MM-ddThh:mm:ss***
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Retrieve successfully |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" "http://localhost:8111/v1/event/retrieveAllEvents"
+```
+
+* Success - Returns updated event
+```
+Save as retrieveEvents
 ```
 
 ## /v1/subHost/add - POST

@@ -255,6 +255,39 @@ func GetCalendarEvent(c *gin.Context) {
 	})
 }
 
+func RetrieveAllEventWithTodoByUser(c *gin.Context) {
+	user := GetSignedInUser(c)
+
+	db := database.New()
+	defer db.Close()
+	var events []model.Event
+
+	err := db.Select(&events, "SELECT id, user_id, event_name, status, kid_id, start_date, end_date, color, COALESCE(description, '') as description, "+
+		"alert, COALESCE(city, '') as city, COALESCE(state, '') as state, COALESCE(event_repeat, '') as event_repeat, timezone_offset, date_created, last_updated FROM calendar_event WHERE "+
+		"user_id=?", user.ID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Something wrong when retrieving todos",
+			"error":   err,
+		})
+		return
+	}
+
+	for key, _ := range events {
+		events[key].Todo, err = retrieveTodosByEventID(db, events[key].ID)
+
+		if err != nil {
+			log.Printf("Error on retreive todo list by Event id from retrieveAllEventByUser. Error: %v", err)
+
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"events": events,
+	})
+}
+
 func retrieveTodosByEventID(db *sqlx.DB, eventID int64) ([]model.Todo, error) {
 	var todoList []model.Todo
 
