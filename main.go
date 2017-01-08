@@ -65,6 +65,8 @@ func main() {
 
 		fmt.Printf("Database: %v", database.DatabaseInfo)
 
+		database.InitDatabase()
+
 		r := router.New()
 
 		if c.Bool("debug") {

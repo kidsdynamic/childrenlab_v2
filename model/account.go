@@ -13,10 +13,11 @@ type TokenRequest struct {
 }
 
 type AccessToken struct {
-	ID          int64     `db:"id"`
-	Email       string    `db:"email"`
-	Token       string    `db:"token"`
-	LastUpdated time.Time `db:"last_updated"`
+	ID          int64     `gorm:"AUTO_INCREMENT"`
+	Email       string    `gorm:"unique;not null"`
+	Token       string    `gorm:"not null"`
+	LastUpdated time.Time `gorm:"not null"`
+	AccessCount int
 }
 
 type ProfileUpdateRequest struct {
@@ -27,22 +28,42 @@ type ProfileUpdateRequest struct {
 }
 
 type User struct {
-	ID          int64     `json:"id" db:"id"`
-	Email       string    `json:"email" db:"email"`
-	FirstName   string    `json:"firstName" db:"first_name"`
-	LastName    string    `json:"lastName" db:"last_name"`
-	LastUpdated string    `json:"lastUpdate" db:"last_updated"`
-	DateCreated time.Time `json:"dateCreated" db:"date_created"`
-	ZipCode     string    `json:"zipCode" db:"zip_code"`
-	PhoneNumber string    `json:"phoneNumber" db:"phone_number"`
-	Profile     string    `json:"profile" db:"profile"`
+	ID          int64     `json:"id" gorm:"AUTO_INCREMENT"`
+	Email       string    `json:"email"gorm:"unique"`
+	Password    string    `json:"-" gorm:"unique"`
+	FirstName   string    `json:"firstName" gorm:"not null"`
+	LastName    string    `json:"lastName" gorm:"not null"`
+	LastUpdated time.Time `json:"lastUpdate"`
+	DateCreated time.Time `json:"dateCreated"`
+	ZipCode     string    `json:"zipCode"`
+	PhoneNumber string    `json:"phoneNumber"`
+	Profile     string    `json:"profile"`
+	Role        Role      `json:"role"`
+	RoleID      int64     `json:"-"`
 }
 
-type Register struct {
+type Role struct {
+	ID        int64  `json:"-" gorm:"AUTO_INCREMENT"`
+	Authority string `json:"authority" gorm:"unique"`
+}
+
+type RegisterRequest struct {
 	Email       string `json:"email" db:"email" binding:"required"`
 	Password    string `json:"password" db:"password" binding:"required"`
 	FirstName   string `json:"firstName" db:"first_name" binding:"required"`
 	LastName    string `json:"lastName" db:"last_name" binding:"required"`
 	PhoneNumber string `json:"phoneNumber" db:"phone_number"`
 	ZipCode     string `json:"zipCode" db:"zip_code"`
+}
+
+func (User) TableName() string {
+	return "user"
+}
+
+func (Role) TableName() string {
+	return "role"
+}
+
+func (AccessToken) TableName() string {
+	return "authentication_token"
 }

@@ -3,7 +3,6 @@ package controller
 import (
 	"crypto/md5"
 	"crypto/rand"
-	"crypto/sha256"
 	"database/sql"
 	"fmt"
 	"io"
@@ -20,6 +19,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	"github.com/jmoiron/sqlx"
 	"github.com/kidsdynamic/childrenlab_v2/database"
 	"github.com/kidsdynamic/childrenlab_v2/model"
@@ -30,15 +30,6 @@ const (
 	S3ProfilePath = "userProfile"
 	TimeLayout    = "2006-01-02T15:04:05"
 )
-
-func EncryptPassword(password string) string {
-	h := sha256.New()
-	io.WriteString(h, password)
-	fmt.Printf("\n%x\n", h.Sum(nil))
-
-	return fmt.Sprintf("%x", h.Sum(nil))
-
-}
 
 func randToken() string {
 	b := make([]byte, 8)
@@ -208,4 +199,13 @@ func GetDeviceByMacID(db *sqlx.DB, macId string) (model.Device, error) {
 	err := db.Get(&device, "SELECT id, mac_id, date_created FROM device WHERE mac_id = ?", macId)
 
 	return device, err
+}
+
+func GetUserRole(db *gorm.DB) model.Role {
+	var role model.Role
+	if err := db.Where("authority = ?", "ROLE_USER").First(&role).Error; err != nil {
+		panic(err)
+	}
+
+	return role
 }

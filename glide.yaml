@@ -8,3 +8,4 @@ import:
 - package: github.com/gin-gonic/gin
 - package: github.com/urfave/cli
 - package: gopkg.in/gin-gonic/gin.v1
+- package: github.com/jinzhu/gorm
