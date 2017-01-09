@@ -30,8 +30,8 @@
 
 ### Multi-Host API
 * [POST   /v1/subHost/add](#v1subhostadd---post)
-* [POST   /v1/subHost/accept](#v1subhostaccept---post)
-* [POST   /v1/subHost/deny](#v1subhostdeny---post)
+* [PUT   /v1/subHost/accept](#v1subhostaccept---put)
+* [PUT   /v1/subHost/deny](#v1subhostdeny---put)
 * [GET   /v1/subHost/list](#v1subhostlist---get)
 
 ## /v1/user/login - POST
