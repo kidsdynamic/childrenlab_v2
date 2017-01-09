@@ -949,13 +949,13 @@ Save as retrieveEvents
 ```
 
 ## /v1/subHost/add - POST
+* Send sub host request to the host account
 * Content-Type: application/json
 * Get ```hostId``` from [/v1/kids/whoRegisteredMacID](#v1kidswhoregisteredmacid---get) API
 
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
 | ------------- |:-------------:|:-------------:| :-----|
-| macId             | Yes | String | 13031FCFE5E0 |
 | hostId            | Yes | Integer | 35 |
 
 
@@ -970,7 +970,6 @@ Save as retrieveEvents
 ### curl
 ```
 curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -d '{
-  "macId": "13031FCFE5E0",
   "hostId": 35
 }' "http://localhost:8111/v1/subHost/add"
 ```
@@ -978,15 +977,14 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7
 * Success - Returns added request
 ```
 {
-  "SubHostRequest": {
-    "id": 10,
-    "macId": "13031FCFE5E0",
-    "requestFromID": 29,
-    "requestToID": 35,
-    "status": "PENDING",
-    "createdDate": "2017-01-01T03:00:06Z",
-    "lastUpdated": "2017-01-01T03:00:06Z"
-  }
+  "id": 2,
+  "macId": "",
+  "requestFromID": 29,
+  "requestToID": 35,
+  "status": "PENDING",
+  "createdDate": "2017-01-09T01:47:16Z",
+  "lastUpdated": "2017-01-09T01:47:16Z",
+  "kid": null
 }
 ```
 
@@ -997,53 +995,64 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7
 }
 ```
 
-## /v1/subHost/accept - POST
+## /v1/subHost/accept - PUT
 * Content-Type: application/json
-* Get ```requestId``` from [GET   /v1/subHost/list](#v1subhostlist---get) API
+* Get ```subHostId``` from [GET   /v1/subHost/list](#v1subhostlist---get) API
 
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
 | ------------- |:-------------:|:-------------:| :-----|
-| requestId             | Yes | Integer | 10 |
+| subHostId             | Yes | Integer | 10 |
+| KidId             | Yes | Integer Array | [22, 10] |
 
 
 #### Response Status
 | Status Code    | Meaning      |
 | ------------- |:-------------|
 | 200     | Accept successfully |
-| 400     | Bad request. Missing some parameters, or the type is wrong |
+| 400     | Bad request. Missing some parameters, or the type is wrong. Or the logged in user doesn't have permission |
 | 500     | Internal error. Please send me the error. I will fix it |
 
 ### curl
 ```
-curl -X POST -H "Content-Type: application/json" -H "x-auth-token: 58lkp329ejbr4498st59ur2na7e0rmtg" -d '{
-  "requestId": 10
+curl -X POST -H "Content-Type: application/json" -H "x-auth-token: 58lkp329ejbr4498st59ur2na7e0rmtg" -H -d '{
+  "subHostId": 2,
+  "kidId": [22]
 }' "http://localhost:8111/v1/subHost/accept"
 ```
 
 * Success - Returns updated request
 ```
 {
-  "SubHostRequest": {
-    "id": 10,
-    "macId": "13031FCFE5E0",
-    "requestFromID": 29,
-    "requestToID": 35,
-    "status": "ACCEPTED",
-    "createdDate": "2017-01-01T03:00:06Z",
-    "lastUpdated": "2017-01-01T05:20:09Z"
-  }
+  "id": 2,
+  "macId": "",
+  "requestFromID": 29,
+  "requestToID": 35,
+  "status": "ACCEPTED",
+  "createdDate": "2017-01-09T01:47:16Z",
+  "lastUpdated": "2017-01-09T01:49:28Z",
+  "kid": [
+    {
+      "id": 22,
+      "firstName": "KIDLLE123",
+      "lastName": "YES_NO",
+      "dateCreated": "2016-12-27T02:06:01Z",
+      "macId": "",
+      "profile": "",
+      "ParentID": 29
+    }
+  ]
 }
 ```
 
-## /v1/subHost/deny - POST
+## /v1/subHost/deny - PUT
 * Content-Type: application/json
-* Get ```requestId``` from [GET   /v1/subHost/list](#v1subhostlist---get) API
+* Get ```subHostId``` from [GET   /v1/subHost/list](#v1subhostlist---get) API
 
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
 | ------------- |:-------------:|:-------------:| :-----|
-| requestId             | Yes | Integer | 10 |
+| subHostId             | Yes | Integer | 2 |
 
 
 #### Response Status
@@ -1055,29 +1064,38 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: 58lkp329ejbr4
 
 ### curl
 ```
-curl -X POST -H "Content-Type: application/json" -H "x-auth-token: 58lkp329ejbr4498st59ur2na7e0rmtg" -d '{
-  "requestId": 10
+curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: 58lkp329ejbr4498st59ur2na7e0rmtg" -d '{
+  "subHostId": 2
 }' "http://localhost:8111/v1/subHost/deny"
 ```
 
 * Success - Returns updated request
 ```
 {
-  "SubHostRequest": {
-    "id": 10,
-    "macId": "13031FCFE5E0",
-    "requestFromID": 29,
-    "requestToID": 35,
-    "status": "DENIED",
-    "createdDate": "2017-01-01T03:00:06Z",
-    "lastUpdated": "2017-01-01T05:22:30Z"
-  }
+  "id": 2,
+  "macId": "",
+  "requestFromID": 29,
+  "requestToID": 35,
+  "status": "DENIED",
+  "createdDate": "2017-01-09T01:47:16Z",
+  "lastUpdated": "2017-01-09T02:02:05Z",
+  "kid": [
+    {
+      "id": 22,
+      "firstName": "KIDLLE123",
+      "lastName": "YES_NO",
+      "dateCreated": "2016-12-27T02:06:01Z",
+      "macId": "",
+      "profile": "",
+      "ParentID": 29
+    }
+  ]
 }
 ```
 
 ## /v1/subHost/list - GET
 * Content-Type: application/json
-* If no status parameter, the API returns PENDING sub host request
+* If no status parameter, the API returns ALL of sub host belong to the user
 
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
@@ -1093,22 +1111,31 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: 58lkp329ejbr4
 
 ### curl
 ```
-curl -X GET -H "Content-Type: application/json" -H "x-auth-token: 58lkp329ejbr4498st59ur2na7e0rmtg" "http://localhost:8111/v1/subHost/list?status=DENIED"
+curl -X GET -H "Content-Type: application/json" -H "x-auth-token: 58lkp329ejbr4498st59ur2na7e0rmtg" "http://localhost:8111/v1/subHost/list"
 ```
 
 * Success - Returns updated request
 ```
-{
-  "subHost": [
-    {
-      "id": 10,
-      "macId": "13031FCFE5E0",
-      "requestFromID": 29,
-      "requestToID": 35,
-      "status": "DENIED",
-      "createdDate": "2017-01-01T03:00:06Z",
-      "lastUpdated": "2017-01-01T05:22:30Z"
-    }
-  ]
-}
+[
+  {
+    "id": 2,
+    "macId": "",
+    "requestFromID": 29,
+    "requestToID": 35,
+    "status": "DENIED",
+    "createdDate": "2017-01-09T01:47:16Z",
+    "lastUpdated": "2017-01-09T02:02:05Z",
+    "kid": [
+      {
+        "id": 22,
+        "firstName": "KIDLLE123",
+        "lastName": "YES_NO",
+        "dateCreated": "2016-12-27T02:06:01Z",
+        "macId": "",
+        "profile": "",
+        "ParentID": 29
+      }
+    ]
+  }
+]
 ```

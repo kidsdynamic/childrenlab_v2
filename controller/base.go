@@ -132,7 +132,7 @@ func GetUserByID(db *sqlx.DB, id int64) (model.User, error) {
 func GetKidByUserIdAndKidId(db *sqlx.DB, userId, kidId int64) (model.Kid, error) {
 	var kid model.Kid
 	err := db.Get(&kid, "SELECT k.id, parent_id, COALESCE(k.first_name, '') as first_name, COALESCE(k.last_name, '') as last_name, "+
-		"k.date_created FROM user u JOIN kids k ON u.id = k.parent_id  WHERE u.id = ? AND k.id = ?", userId, kidId)
+		"COALESCE(mac_id, '') as mac_id, k.date_created FROM user u JOIN kids k ON u.id = k.parent_id  WHERE u.id = ? AND k.id = ?", userId, kidId)
 
 	if err != nil {
 		return kid, err
@@ -143,8 +143,8 @@ func GetKidByUserIdAndKidId(db *sqlx.DB, userId, kidId int64) (model.Kid, error)
 
 func GetKidByMacID(db *sqlx.DB, macID string) (model.Kid, error) {
 	var kid model.Kid
-	err := db.Get(&kid, "SELECT k.id, parent_id, COALESCE(k.first_name, '') as first_name, COALESCE(k.last_name, '') as last_name, "+
-		"k.date_created, mac_id, COALESCE(profile, '') as profile FROM kids k JOIN device d ON k.id = d.kid_id WHERE mac_id = ?", macID)
+	err := db.Get(&kid, "SELECT id, parent_id, COALESCE(first_name, '') as first_name, COALESCE(last_name, '') as last_name, "+
+		"date_created, mac_id, COALESCE(profile, '') as profile FROM kids WHERE mac_id = ?", macID)
 
 	if err != nil {
 		return kid, err
@@ -197,8 +197,7 @@ func GetKidsByUser(user *model.User) ([]model.Kid, error) {
 	defer db.Close()
 	var kids []model.Kid
 
-	err := db.Select(&kids, "SELECT kids.id, first_name, last_name, kids.date_created, mac_id FROM kids JOIN device on"+
-		" device.kid_id = kids.id WHERE parent_id = ?", user.ID)
+	err := db.Select(&kids, "SELECT id, first_name, last_name, mac_id, kids.date_created, mac_id FROM kids WHERE parent_id = ?", user.ID)
 
 	return kids, err
 }
