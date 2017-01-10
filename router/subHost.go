@@ -8,8 +8,8 @@ import (
 func initSubHostRouter(r *gin.Engine) {
 	v1 := r.Group("/v1/subHost")
 	v1.Use(controller.Auth)
-	v1.POST("/add", controller.RequestSubHost)
-	v1.POST("/accept", controller.AcceptRequest)
-	v1.POST("/deny", controller.DenyRequest)
+	v1.POST("/add", controller.RequestSubHostToUser)
+	v1.PUT("/accept", controller.AcceptRequest)
+	v1.PUT("/deny", controller.DenyRequest)
 	v1.GET("/list", controller.SubHostList)
 }

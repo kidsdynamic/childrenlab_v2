@@ -46,8 +46,8 @@ func AddKid(c *gin.Context) {
 		return
 	}
 
-	result, err := db.Exec("INSERT INTO kids (first_name, last_name, parent_id, date_created, last_updated)"+
-		" VALUES (?, ?, ?, Now(), Now())", request.FirstName, request.LastName, user.ID)
+	result, err := db.Exec("INSERT INTO kids (first_name, last_name, parent_id, mac_id, date_created, last_updated)"+
+		" VALUES (?, ?, ?, ?, Now(), Now())", request.FirstName, request.LastName, user.ID, request.MacID)
 
 	if err != nil {
 		log.Println(err)
