@@ -27,15 +27,16 @@ type ProfileUpdateRequest struct {
 }
 
 type User struct {
-	ID          int64     `json:"id" db:"id"`
-	Email       string    `json:"email" db:"email"`
-	FirstName   string    `json:"firstName" db:"first_name"`
-	LastName    string    `json:"lastName" db:"last_name"`
-	LastUpdated string    `json:"lastUpdate" db:"last_updated"`
-	DateCreated time.Time `json:"dateCreated" db:"date_created"`
-	ZipCode     string    `json:"zipCode" db:"zip_code"`
-	PhoneNumber string    `json:"phoneNumber" db:"phone_number"`
-	Profile     string    `json:"profile" db:"profile"`
+	ID                int64     `json:"id" db:"id"`
+	Email             string    `json:"email" db:"email"`
+	FirstName         string    `json:"firstName" db:"first_name"`
+	LastName          string    `json:"lastName" db:"last_name"`
+	LastUpdated       string    `json:"lastUpdate" db:"last_updated"`
+	DateCreated       time.Time `json:"dateCreated" db:"date_created"`
+	ZipCode           string    `json:"zipCode" db:"zip_code"`
+	PhoneNumber       string    `json:"phoneNumber" db:"phone_number"`
+	Profile           string    `json:"profile" db:"profile"`
+	IOSRegistrationID string    `json:"registrationId,omitempty" db:"registration_id"`
 }
 
 type Register struct {

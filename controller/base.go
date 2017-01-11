@@ -120,7 +120,8 @@ func GetUserByID(db *sqlx.DB, id int64) (model.User, error) {
 	var user model.User
 
 	err := db.Get(&user, "SELECT id, email, COALESCE(first_name, '') as first_name, COALESCE(last_name, '') as last_name "+
-		", date_created, COALESCE(zip_code, '') as zip_code, last_updated, COALESCE(phone_number, '') as phone_number FROM user WHERE id = ?", id)
+		", date_created, COALESCE(zip_code, '') as zip_code, "+
+		"last_updated, COALESCE(phone_number, '') as phone_number, COALESCE(registration_id, '') as registration_id FROM user WHERE id = ?", id)
 
 	if err != nil {
 		return user, err

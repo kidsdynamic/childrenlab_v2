@@ -6,10 +6,17 @@ import (
 
 	"time"
 
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	"github.com/kidsdynamic/childrenlab_v2/database"
 	"github.com/kidsdynamic/childrenlab_v2/model"
+)
+
+const (
+	TODO_PENDING = "PENDING"
+	TODO_DONE    = "DONE"
 )
 
 func AddCalendarEvent(c *gin.Context) {
@@ -49,7 +56,7 @@ func AddCalendarEvent(c *gin.Context) {
 	tx := db.MustBegin()
 	for _, value := range eventRequest.Todo {
 		tx.MustExec("INSERT INTO todo_list (text, status, event_id, date_created, last_updated) VALUES (?, ?, ?, Now(), Now())",
-			value, "PENDING", insertedEventID)
+			value, TODO_PENDING, insertedEventID)
 	}
 	tx.Commit()
 
@@ -124,7 +131,7 @@ func UpdateCalendarEvent(c *gin.Context) {
 	tx := db.MustBegin()
 	for _, value := range eventRequest.Todo {
 		tx.MustExec("INSERT INTO todo_list (text, status, event_id, date_created, last_updated) VALUES (?, ?, ?, Now(), Now())",
-			value, "PENDING", eventRequest.ID)
+			value, TODO_PENDING, eventRequest.ID)
 	}
 	tx.Commit()
 
@@ -161,12 +168,20 @@ func UpdateCalendarEvent(c *gin.Context) {
 }
 
 func DeleteEvent(c *gin.Context) {
-	var deleteEventRequest model.DeleteEventRequest
+	eventIDString := c.Query("eventId")
 
-	if err := c.BindJSON(&deleteEventRequest); err != nil {
+	if eventIDString == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "missing some parameters",
-			"error":   err,
+		})
+		return
+	}
+
+	eventID, err := strconv.ParseInt(eventIDString, 10, 6)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "The event id has to be a number",
 		})
 		return
 	}
@@ -174,14 +189,19 @@ func DeleteEvent(c *gin.Context) {
 	db := database.New()
 	defer db.Close()
 
-	user := GetSignedInUser(c)
-	result := db.MustExec("DELETE FROM calendar_event WHERE id = ? AND user_id = ?", deleteEventRequest.EventID, user.ID)
-	if !checkInsertResult(result) {
+	_, err = db.Exec("DELETE FROM todo_list WHERE event_id = ?", eventID)
+
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{})
 		return
 	}
 
-	_ = db.MustExec("DELETE FROM todo_list WHERE event_id = ?", deleteEventRequest.EventID)
+	user := GetSignedInUser(c)
+	_, err = db.Exec("DELETE FROM calendar_event WHERE id = ? AND user_id = ?", eventID, user.ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{})
 }
@@ -298,4 +318,35 @@ func retrieveTodosByEventID(db *sqlx.DB, eventID int64) ([]model.Todo, error) {
 	}
 
 	return todoList, nil
+}
+
+type todoDoneRequest struct {
+	EventID int64 `json:"eventId" binding:"required"`
+	TodoID  int64 `json:"todoId" binding:"required"`
+}
+
+func TodoDone(c *gin.Context) {
+	var todoDoneRequest todoDoneRequest
+
+	if err := c.BindJSON(&todoDoneRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Date formate is wrong",
+			"error":   err,
+		})
+		return
+	}
+
+	db := database.New()
+	defer db.Close()
+	_, err := db.Exec("UPDATE todo_list SET status = ? WHERE id = ? AND event_id = ?", TODO_DONE, todoDoneRequest.EventID, todoDoneRequest.TodoID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Something wrong when retrieving todos",
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{})
 }
