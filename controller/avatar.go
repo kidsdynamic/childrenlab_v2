@@ -47,13 +47,7 @@ func UploadAvatar(c *gin.Context) {
 		log.Println(err)
 	}
 
-	bucketName, ok := c.Get("aws_bucket")
-
-	if !ok {
-		bucketName = "childrenlabqa"
-	}
-
-	if err = UploadFileToS3(f, fileName, bucketName.(string)); err == nil {
+	if err = UploadFileToS3(f, fileName); err == nil {
 		db := database.New()
 		defer db.Close()
 
@@ -141,12 +135,7 @@ func UploadKidAvatar(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-	bucketName, ok := c.Get("aws_bucket")
-
-	if !ok {
-		bucketName = "childrenlabqa"
-	}
-	if UploadFileToS3(f, fileName, bucketName.(string)) == nil {
+	if UploadFileToS3(f, fileName) == nil {
 
 		if err := db.MustExec("UPDATE kids SET profile = ? WHERE id = ?", fileName, kid.ID); err != nil {
 			log.Printf("Error on update profile. Error: %#v", err)

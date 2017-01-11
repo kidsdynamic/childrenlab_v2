@@ -72,7 +72,6 @@ func getInsertedID(result sql.Result) int64 {
 
 func Auth(c *gin.Context) {
 	authToken := c.Request.Header.Get("x-auth-token")
-	log.Printf("TOKEN: %s", authToken)
 	if authToken == "" {
 		c.JSON(http.StatusForbidden, gin.H{})
 		c.Abort()
@@ -84,7 +83,9 @@ func Auth(c *gin.Context) {
 
 	var user model.User
 	err := db.Get(&user, "SELECT u.id, u.email, COALESCE(first_name, '') as first_name, COALESCE(last_name, '') as last_name "+
-		", u.date_created, COALESCE(zip_code, '') as zip_code, u.last_updated FROM user u join "+
+		", u.date_created, COALESCE(zip_code, '') as zip_code, "+
+		"u.last_updated, COALESCE(phone_number, '') as phone_number,"+
+		" COALESCE(registration_id, '') as registration_id, COALESCE(profile, '') as profile FROM user u join "+
 		"authentication_token a ON u.email = a.email WHERE token = ?", authToken)
 
 	if err != nil {
@@ -121,7 +122,8 @@ func GetUserByID(db *sqlx.DB, id int64) (model.User, error) {
 
 	err := db.Get(&user, "SELECT id, email, COALESCE(first_name, '') as first_name, COALESCE(last_name, '') as last_name "+
 		", date_created, COALESCE(zip_code, '') as zip_code, "+
-		"last_updated, COALESCE(phone_number, '') as phone_number, COALESCE(registration_id, '') as registration_id FROM user WHERE id = ?", id)
+		"last_updated, COALESCE(phone_number, '') as phone_number,"+
+		" COALESCE(registration_id, '') as registration_id, COALESCE(profile, '') as profile FROM user WHERE id = ?", id)
 
 	if err != nil {
 		return user, err
@@ -154,7 +156,7 @@ func GetKidByMacID(db *sqlx.DB, macID string) (model.Kid, error) {
 	return kid, nil
 }
 
-func UploadFileToS3(file *os.File, fileName, bucketName string) error {
+func UploadFileToS3(file *os.File, fileName string) error {
 
 	ss, err := session.NewSession()
 	if err != nil {
@@ -176,7 +178,7 @@ func UploadFileToS3(file *os.File, fileName, bucketName string) error {
 
 	uploadResult, err := svc.PutObject(&s3.PutObjectInput{
 		Body:          fileBytes,
-		Bucket:        aws.String(bucketName),
+		Bucket:        aws.String(model.AwsConfig.Bucket),
 		Key:           aws.String(fmt.Sprintf("/userProfile/%s", fileName)),
 		ContentLength: aws.Int64(size),
 		ContentType:   aws.String(fileType),
