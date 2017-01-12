@@ -204,9 +204,7 @@ func UpdateProfile(c *gin.Context) {
 		})
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"user": user,
-	})
+	c.JSON(http.StatusOK, user)
 }
 
 func UserProfile(c *gin.Context) {

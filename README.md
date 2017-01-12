@@ -609,7 +609,7 @@ curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Typ
 | Parameters    | Required      | Type  | Example  |
 | ------------- |:-------------:|:-------------:| :-----|
 | kidId      | Yes | Integer | 20 |
-| period     | Yes | String | DAILY, MONTHLY, YEARLY  |
+| period     | Yes | String | DAILY, WEEKLY MONTHLY, YEARLY  |
 
 #### Response Status
 | Status Code    | Meaning      |
@@ -663,7 +663,7 @@ curl -X GET -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" "http://localhos
 
 ## /v1/event/add - POST
 * Content-Type: application/json
-* Date Time format is ***YYYY-MM-ddThh:mm:ss***
+* Date Time format is ***YYYY-MM-ddThh:mm:ssZ***
 
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
@@ -751,7 +751,7 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7
 
 ## /v1/event/update - PUT
 * Content-Type: application/json
-* Date Time format is ***YYYY-MM-ddThh:mm:ss***
+* Date Time format is ***YYYY-MM-ddThh:mm:ssZ***
 * Send the parameter even user does not change it
 
 #### Request Parameters
@@ -858,7 +858,7 @@ curl -X DELETE -H "x-auth-token: ec83d6e41db5168ddb0b1d28b2e262d6" "http://local
 ```
 
 ## /v1/event/retrieveEvents - GET
-* Date Time format is ***YYYY-MM-ddThh:mm:ss***
+* Date Time format is ***YYYY-MM-ddThh:mm:ssZ***
 * If trying to retrieve month events, do not use '00' as month value. Example: 2016-12-01T00:00:00 to retrieve 2016-12 events.
 
 
@@ -1026,7 +1026,7 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 ```
 
 ## /v1/event/retrieveAllEventsWithTodo - GET
-* Date Time format is ***YYYY-MM-ddThh:mm:ss***
+* Date Time format is ***YYYY-MM-ddThh:mm:ssZ***
 
 #### Response Status
 | Status Code    | Meaning      |

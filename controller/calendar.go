@@ -222,7 +222,7 @@ func GetCalendarEvent(c *gin.Context) {
 	defer db.Close()
 	var events []model.Event
 
-	t, err := time.Parse(TimeLayout, getEventRequest.Date)
+	t, err := time.Parse(model.TimeLayout, getEventRequest.Date)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Date formate is wrong",
