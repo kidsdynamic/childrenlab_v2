@@ -16,7 +16,6 @@ func initEventRouter(r *gin.Engine) {
 
 	todoAPI := r.Group("/v1/event/todo")
 	todoAPI.Use(controller.Auth)
-	todoAPI.POST("/add", controller.UploadAvatar)
-	todoAPI.PUT("/edit", controller.UploadKidAvatar)
-	todoAPI.DELETE("/delete", nil)
+	todoAPI.PUT("/done", controller.TodoDone)
+
 }

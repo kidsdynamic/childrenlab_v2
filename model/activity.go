@@ -2,6 +2,8 @@ package model
 
 import "time"
 
+const TimeLayout = "2006-01-02T15:04:05Z"
+
 type ActivityRawData struct {
 	ID      int64  `json:"id" db:"id"`
 	Indoor  string `json:"indoorActivity" db:"indoor_activity" binding:"required"`
@@ -36,3 +38,16 @@ type ActivityRequest struct {
 	KidID  int64  `json:"kidId" binding:"required"`
 	Period string `json:"period" binding:"required"`
 }
+
+/*
+func (t *Activity) MarshalJSON() ([]byte, error) {
+	type Alias Activity
+	return json.Marshal(&struct {
+		*Alias
+		ReceivedDate string `json:"receivedDate"`
+	}{
+		Alias:        (*Alias)(t),
+		ReceivedDate: t.ReceivedDate.Format(TimeLayout),
+	})
+}
+*/

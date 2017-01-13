@@ -52,6 +52,24 @@ func main() {
 			Usage:  "bucket name",
 			Value:  "",
 		},
+		cli.StringFlag{
+			EnvVar: "AWS_REGION",
+			Name:   "aws_region",
+			Usage:  "AWS region",
+			Value:  "",
+		},
+		cli.StringFlag{
+			EnvVar: "AWS_ACCESS_KEY_ID",
+			Name:   "aws_access_key",
+			Usage:  "bucket name",
+			Value:  "",
+		},
+		cli.StringFlag{
+			EnvVar: "AWS_SECRET_ACCESS_KEY",
+			Name:   "aws_secret_acess_key",
+			Usage:  "bucket name",
+			Value:  "",
+		},
 	}
 
 	app.Action = func(c *cli.Context) error {
@@ -61,7 +79,15 @@ func main() {
 			Password: c.String("database_password"),
 			IP:       c.String("database_IP"),
 		}
+		//fmt.Println(c.String("aws_bucket"))
 		c.Set("aws_bucket", c.String("aws_bucket"))
+
+		model.AwsConfig = model.AwsConfiguration{
+			Bucket:          c.String("aws_bucket"),
+			Region:          c.String("aws_region"),
+			AccessKey:       c.String("aws_access_key"),
+			SecretAccessKey: c.String("aws_secret_acess_key"),
+		}
 
 		fmt.Printf("Database: %v", database.DatabaseInfo)
 

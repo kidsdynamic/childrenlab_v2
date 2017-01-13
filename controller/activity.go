@@ -104,7 +104,7 @@ func UploadRawActivityData(c *gin.Context) {
 
 	log.Printf("%d, %d, %d", indoorActivity.Time.Year(), indoorActivity.Time.Month(), indoorActivity.Time.Day())
 
-	retrieveError := db.Select(&todayActivity, "SELECT a.id, steps, distance, received_date, type, a.date_created, d.mac_id FROM activity a "+
+	retrieveError := db.Select(&todayActivity, "SELECT a.id, steps, distance, received_date, type, d.mac_id FROM activity a "+
 		"JOIN device d ON a.device_id = d.id WHERE d.id = ? AND YEAR(received_date) = ? AND MONTH(received_date) = ? AND DAY(received_date) = ?",
 		device.ID, indoorActivity.Time.Year(), indoorActivity.Time.Month(), indoorActivity.Time.Day())
 

@@ -4,8 +4,10 @@
 * [POST   /v1/user/login](#v1userlogin---post)
 * [POST   /v1/user/register      ](#v1userregister---post)
 * [POST   /v1/user/isTokenValid  ](#v1useristokenvalid---post)
+* [GET   /v1/user/isEmailAvailableToRegister  ](#v1userisemailavailabletoregister---get)
 * [PUT    /v1/user/updateProfile ](#v1userupdateprofile---put)
 * [GET    /v1/user/retrieveUserProfile](#v1userretrieveuserprofile---get)
+* [PUT    /v1/user/updateIOSRegistrationId](#v1userupdateiosregistrationid---put)
 
 
 ### Kid API
@@ -27,6 +29,9 @@
 * [DELETE   /v1/event/delete](#v1eventdelete---delete)
 * [GET   /v1/event/retrieveEvents](#v1eventretrieveevents---get)
 * [GET   /v1/event/retrieveAllEventsWithTodo](#v1eventretrievealleventswithtodo---get)
+
+#### TODO
+* [PUT   /v1/event/todo/done](#v1eventtododone---put)
 
 ### Multi-Host API
 * [POST   /v1/subHost/add](#v1subhostadd---post)
@@ -109,6 +114,63 @@
 }
 ```
 
+## /v1/user/isEmailAvailableToRegister - GET
+* The API doesn't return any body
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| -----:|
+| email     | Yes | String |   test@kidsdynami.com |
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | The email is able to register |
+| 409     | Conflict. The email is already registered |
+
+### curl
+```
+curl -X GET "http://localhost:8111/v1/user/isEmailAvailableToRegister?email=jack083001@gmail.com"
+```
+
+
+
+## /v1/user/register - POST
+* Content-Type: application/json
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| -----:|
+| email     | Yes | String |   test@kidsdynami.com |
+| password     | Yes | String |   aaaaaa |
+| firstName     | Yes | String |   Jay |
+| lastName     | Yes | String |   Chen |
+| phoneNumber     | No | String |   3442314231 |
+| zipCode     | No | String |   11101 |
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Register success |
+| 400     | Bad request. Missing some parameters |
+| 409     | Conflict. The email is already registered |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+* Success - it doesn't return JSON
+* Fail - response body:
+```
+{
+  "message": "The email is already registered"
+}
+```
+* Internal error - response body:
+```
+{
+  "message": "Error when insert data",
+  "error": "Test error"
+}
+```
+
 ## /v1/user/updateProfile - PUT
 * Content-Type: application/json
 * The API doesn't support email and password update
@@ -152,7 +214,6 @@
 ```
 
 ## /v1/user/retrieveUserProfile - GET
-* Content-Type: application/json
 * Retrieve user data by the header token
 * No any parameter required, just need x-auth-token on the header
 * It retrieves with kids data that belong to the user
@@ -208,6 +269,43 @@ curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -d '' "http://l
     "phoneNumber": "",
     "profile": ""
   }
+}
+```
+
+## /v1/user/updateIOSRegistrationId - PUT
+* It's for IOS registration ID - push notification
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| -----:|
+| registrationId     | Yes | String |   TestRegistrationID |
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Update the registration id successfully |
+| 400     | Bad request. The token is invalid |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: ec83d6e41db5168ddb0b1d28b2e262d6" -d '{
+  "registrationId": "TestRegistrationID"
+}' "http://localhost:8111/v1/user/updateIOSRegistrationId"
+```
+* Success - Return user profile
+```
+{
+  "id": 6,
+  "email": "jack08300@gmail.com",
+  "firstName": "JJJ",
+  "lastName": "TTT",
+  "lastUpdate": "2017-01-11T03:17:31Z",
+  "dateCreated": "2017-01-11T03:17:31Z",
+  "zipCode": "11111",
+  "phoneNumber": "",
+  "profile": "",
+  "registrationId": "TestRegistrationID"
 }
 ```
 
@@ -511,7 +609,7 @@ curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Typ
 | Parameters    | Required      | Type  | Example  |
 | ------------- |:-------------:|:-------------:| :-----|
 | kidId      | Yes | Integer | 20 |
-| period     | Yes | String | DAILY, MONTHLY, YEARLY  |
+| period     | Yes | String | DAILY, WEEKLY MONTHLY, YEARLY  |
 
 #### Response Status
 | Status Code    | Meaning      |
@@ -565,7 +663,7 @@ curl -X GET -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" "http://localhos
 
 ## /v1/event/add - POST
 * Content-Type: application/json
-* Date Time format is ***YYYY-MM-ddThh:mm:ss***
+* Date Time format is ***YYYY-MM-ddThh:mm:ssZ***
 
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
@@ -653,7 +751,7 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7
 
 ## /v1/event/update - PUT
 * Content-Type: application/json
-* Date Time format is ***YYYY-MM-ddThh:mm:ss***
+* Date Time format is ***YYYY-MM-ddThh:mm:ssZ***
 * Send the parameter even user does not change it
 
 #### Request Parameters
@@ -734,7 +832,7 @@ curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 ```
 
 ## /v1/event/delete - DELETE
-* Content-Type: application/json
+* URL Query
 
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
@@ -751,9 +849,7 @@ curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 
 ### curl
 ```
-curl -X DELETE -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -d '{
-  "eventId": 414
-}' "http://localhost:8111/v1/event/delete"
+curl -X DELETE -H "x-auth-token: ec83d6e41db5168ddb0b1d28b2e262d6" "http://localhost:8111/v1/event/delete?eventId=2"
 ```
 
 * Success - Returns empty json
@@ -762,7 +858,7 @@ curl -X DELETE -H "Content-Type: application/json" -H "x-auth-token: pej57nakctv
 ```
 
 ## /v1/event/retrieveEvents - GET
-* Date Time format is ***YYYY-MM-ddThh:mm:ss***
+* Date Time format is ***YYYY-MM-ddThh:mm:ssZ***
 * If trying to retrieve month events, do not use '00' as month value. Example: 2016-12-01T00:00:00 to retrieve 2016-12 events.
 
 
@@ -930,7 +1026,7 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 ```
 
 ## /v1/event/retrieveAllEventsWithTodo - GET
-* Date Time format is ***YYYY-MM-ddThh:mm:ss***
+* Date Time format is ***YYYY-MM-ddThh:mm:ssZ***
 
 #### Response Status
 | Status Code    | Meaning      |
@@ -946,6 +1042,35 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 * Success - Returns updated event
 ```
 Save as retrieveEvents
+```
+
+## /v1/event/todo/done - PUT
+* Set status = done to todo
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| :-----|
+| eventId        | Yes | Integer | 2 |
+| todoId          | Yes | Integer | 2 |
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | updated successfully |
+| 400     | Bad request. Missing some parameters, or the type is wrong |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X PUT -H "x-auth-token: ec83d6e41db5168ddb0b1d28b2e262d6" -H "Content-Type: application/json" -d '{
+  "eventId": 2,
+  "todoId": 2
+}' "http://localhost:8111/v1/event/todo/done"
+```
+
+* Success - 
+```
+{}
 ```
 
 ## /v1/subHost/add - POST

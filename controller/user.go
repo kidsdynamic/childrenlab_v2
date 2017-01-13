@@ -209,9 +209,7 @@ func UpdateProfile(c *gin.Context) {
 		})
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"user": user,
-	})
+	c.JSON(http.StatusOK, user)
 }
 
 func UserProfile(c *gin.Context) {
@@ -232,4 +230,65 @@ func UserProfile(c *gin.Context) {
 		"kids": kids,
 	})
 
+}
+
+func IsEmailAvailableToRegister(c *gin.Context) {
+	email := c.Query("email")
+
+	if email == "" {
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
+	}
+
+	db := database.New()
+	defer db.Close()
+
+	var exist bool
+	if err := db.Get(&exist, "SELECT EXISTS(SELECT id FROM user WHERE email = ? LIMIT 1)", email); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Something wrong on server side",
+			"error":   err,
+		})
+		return
+	}
+
+	if exist {
+		c.JSON(http.StatusConflict, gin.H{})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+type iOS struct {
+	RegistrationId string
+}
+
+func UpdateIOSRegistrationId(c *gin.Context) {
+	var ios iOS
+
+	err := c.BindJSON(&ios)
+
+	if err != nil {
+		log.Printf("Error on UpdateIosRegistrationId: Error: %#v", err)
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
+	}
+
+	db := database.New()
+	defer db.Close()
+
+	user := GetSignedInUser(c)
+
+	if _, err := db.Exec("UPDATE user SET registration_id = ? WHERE id = ?", ios.RegistrationId, user.ID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Something wrong on server side",
+			"error":   err,
+		})
+		return
+	}
+
+	updatedUser, _ := GetUserByID(db, user.ID)
+
+	c.JSON(http.StatusOK, updatedUser)
 }
