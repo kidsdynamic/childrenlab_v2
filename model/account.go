@@ -30,7 +30,7 @@ type ProfileUpdateRequest struct {
 type User struct {
 	ID             int64     `json:"id" gorm:"AUTO_INCREMENT"`
 	Email          string    `json:"email" gorm:"unique"`
-	Password       string    `json:"-" gorm:"unique"`
+	Password       string    `json:"-"`
 	FirstName      string    `json:"firstName" gorm:"not null"`
 	LastName       string    `json:"lastName" gorm:"not null"`
 	LastUpdated    time.Time `json:"lastUpdate"`
@@ -46,6 +46,15 @@ type User struct {
 type Role struct {
 	ID        int64  `json:"-" gorm:"AUTO_INCREMENT"`
 	Authority string `json:"authority" gorm:"unique"`
+}
+
+type RegisterRequest struct {
+	Email       string `json:"email" db:"email" binding:"required"`
+	Password    string `json:"password" db:"password" binding:"required"`
+	FirstName   string `json:"firstName" db:"first_name" binding:"required"`
+	LastName    string `json:"lastName" db:"last_name" binding:"required"`
+	PhoneNumber string `json:"phoneNumber" db:"phone_number"`
+	ZipCode     string `json:"zipCode" db:"zip_code"`
 }
 
 func (User) TableName() string {

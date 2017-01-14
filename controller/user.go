@@ -127,18 +127,6 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	/*	result, err := db.NamedExec("INSERT INTO user (email, password, first_name, last_name, phone_number, zip_code, date_created, last_updated) VALUES"+
-			" (:email, :password, :first_name, :last_name, :phone_number, :zip_code, Now(), Now())",
-			registerRequest)
-
-		if err != nil {
-			log.Println(err)
-			c.JSON(http.StatusBadRequest, gin.H{
-				"message": "Error when insert User to database",
-				"error":   err,
-			})
-			return
-		}*/
 	c.JSON(http.StatusOK, user)
 
 }
