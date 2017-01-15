@@ -10,4 +10,5 @@ func initActivityRouter(r *gin.Engine) {
 	activityAPI.Use(controller.Auth)
 	activityAPI.POST("/uploadRawData", controller.UploadRawActivityData)
 	activityAPI.GET("/retrieveData", controller.GetActivity)
+	activityAPI.GET("/retrieveDataByTime", controller.GetActivityByTime)
 }

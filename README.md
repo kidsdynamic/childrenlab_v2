@@ -22,6 +22,7 @@
 ### Activity
 * [POST   /v1/activity/uploadRawData](#v1activityuploadrawdata---post)
 * [GET   /v1/activity/retrieveData](#v1activityretrievedata---get)
+* [GET   /v1/activity/retrieveDataByTime](#v1activityretrievedatabytime---get)
 
 ### Event
 * [POST   /v1/event/add](#v1eventadd---post)
@@ -664,6 +665,55 @@ curl -X GET -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" "http://localhos
   "message": "kidId should be int type."
 }
 ```
+
+## /v1/activity/retrieveDataByTime - GET
+* It's ***GET*** method, so no content-type. Add parameters to the ***URL***
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| :-----|
+| start      | Yes | Long ***Timestamp*** | 1491599032 |
+| end        | Yes | Long ***Timestamp*** | 1498089090  |
+| kidId      | Yes | Integer | 1  |
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Receiving Data successfully |
+| 400     | Bad request. Missing some parameters, or the type is wrong |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X GET -H "x-auth-token: 27e217ae4d2907188b8c92cdcf9c85ac" "http://localhost:8111/v1/activity/retrieveDataByTime?start=1491599032&end=1498089090&kidId=1"
+```
+
+* Success - 
+```
+{
+  "activities": [
+    {
+      "id": 5,
+      "macId": "hgweorahgbkljwhnpi3",
+      "kidId": "1",
+      "type": "INDOOR",
+      "steps": 10,
+      "distance": 0,
+      "receivedDate": "2017-05-03T10:58:10Z"
+    },
+    {
+      "id": 6,
+      "macId": "hgweorahgbkljwhnpi3",
+      "kidId": "1",
+      "type": "OUTDOOR",
+      "steps": 24,
+      "distance": 0,
+      "receivedDate": "2017-06-21T23:51:30Z"
+    }
+  ]
+}
+```
+
 
 ## /v1/event/add - POST
 * Content-Type: application/json
