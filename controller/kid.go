@@ -79,7 +79,7 @@ func AddKid(c *gin.Context) {
 		return
 	}
 
-	kids, err := GetKidsByUser(user)
+	kid, err := GetKidByUserIdAndKidId(db, user.ID, kidId)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -88,9 +88,7 @@ func AddKid(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"kids": kids,
-	})
+	c.JSON(http.StatusOK, kid)
 
 }
 

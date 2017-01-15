@@ -312,6 +312,8 @@ curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: ec83d6e41db516
 ## /v1/user/avatar/upload - POST
 * Upload user profile image
 * Content-Type: multipart/form-data
+* The file will be on Amazon S3 - ask me the path
+* The file name will be /userProfile/avatar_{userID}
 
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
@@ -359,6 +361,8 @@ curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637"  -H "Content-Ty
 ## /v1/user/avatar/uploadKid - POST
 * Upload kid profile image
 * Content-Type: multipart/form-data
+* The file will be on Amazon S3 - ask me the path
+* The file name will be /userProfile/kid_avatar_{kidID}
 
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |

@@ -338,7 +338,7 @@ func TodoDone(c *gin.Context) {
 
 	db := database.New()
 	defer db.Close()
-	_, err := db.Exec("UPDATE todo_list SET status = ? WHERE id = ? AND event_id = ?", TODO_DONE, todoDoneRequest.EventID, todoDoneRequest.TodoID)
+	_, err := db.Exec("UPDATE todo_list SET status = ? WHERE id = ? AND event_id = ?", TODO_DONE, todoDoneRequest.TodoID, todoDoneRequest.EventID)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
