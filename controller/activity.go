@@ -219,6 +219,68 @@ func GetActivity(c *gin.Context) {
 	})
 }
 
+func GetActivityByTime(c *gin.Context) {
+	startTimeString := c.Query("start")
+	endTimeString := c.Query("end")
+	kidIdString := c.Query("kidId")
+
+	if startTimeString == "" || endTimeString == "" || kidIdString == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Start time and end time and kid ID are required",
+		})
+		return
+	}
+	db := database.New()
+	defer db.Close()
+
+	startTimeLong, err := strconv.ParseInt(startTimeString, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error on parse string to int",
+			"error":   err,
+		})
+		return
+	}
+
+	endTimeLong, err := strconv.ParseInt(endTimeString, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error on parse string to int",
+			"error":   err,
+		})
+		return
+	}
+
+	kidID, err := strconv.ParseInt(kidIdString, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error on parse string to int",
+			"error":   err,
+		})
+		return
+	}
+
+	start := time.Unix(startTimeLong, 0)
+	end := time.Unix(endTimeLong, 0)
+
+	user := GetSignedInUser(c)
+	var activity []model.Activity
+	err = db.Select(&activity, "SELECT a.id, d.mac_id, d.kid_id, distance, a.received_date, steps, a.type FROM activity a JOIN device d ON a.device_id = d.id JOIN kids k ON "+
+		"k.id = d.kid_id WHERE k.id = ? AND parent_id = ? AND (a.received_Date between ? and ?)", kidID, user.ID, start, end)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error on getting activities",
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"activities": activity,
+	})
+}
+
 func getTodayDate() *time.Time {
 	now := time.Now()
 	year, month, day := now.Date()
