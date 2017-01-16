@@ -68,15 +68,12 @@ func Auth(c *gin.Context) {
 		return
 	}
 
-	db := database.New()
+	db := database.NewGORM()
 	defer db.Close()
 
 	var user model.User
-	err := db.Get(&user, "SELECT u.id, u.email, COALESCE(first_name, '') as first_name, COALESCE(last_name, '') as last_name "+
-		", u.date_created, COALESCE(zip_code, '') as zip_code, "+
-		"u.last_updated, COALESCE(phone_number, '') as phone_number,"+
-		" COALESCE(registration_id, '') as registration_id, COALESCE(profile, '') as profile FROM user u join "+
-		"authentication_token a ON u.email = a.email WHERE token = ?", authToken)
+
+	err := db.Table("user").Joins("JOIN authentication_token a ON user.email = a.email").Where("a.token = ?", authToken).Find(&user).Error
 
 	if err != nil {
 		log.Println(err)
@@ -186,11 +183,13 @@ func UploadFileToS3(file *os.File, fileName string) error {
 }
 
 func GetKidsByUser(user *model.User) ([]model.Kid, error) {
-	db := database.New()
+	db := database.NewGORM()
 	defer db.Close()
 	var kids []model.Kid
 
-	err := db.Select(&kids, "SELECT id, first_name, last_name, mac_id, kids.date_created, mac_id, profile FROM kids WHERE parent_id = ?", user.ID)
+	//err := db.Select(&kids, "SELECT id, first_name, last_name, mac_id, kids.date_created, mac_id, profile FROM kids WHERE parent_id = ?", user.ID)
+
+	err := db.Where("parent_id = ?", user.ID).Find(&kids).Error
 
 	return kids, err
 }

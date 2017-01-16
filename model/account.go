@@ -8,8 +8,8 @@ type Login struct {
 }
 
 type TokenRequest struct {
-	Email string `json:"email" binding:"required"`
-	Token string `json:"token" binding:"required"`
+	Email string `query:"email" binding:"required"`
+	Token string `query:"token" binding:"required"`
 }
 
 type AccessToken struct {
@@ -21,10 +21,10 @@ type AccessToken struct {
 }
 
 type ProfileUpdateRequest struct {
-	FirstName   string `json:"firstName"`
-	LastName    string `json:"lastName"`
-	PhoneNumber string `json:"phoneNumber"`
-	ZipCode     string `json:"zipCode"`
+	FirstName   string `json:"firstName,omitempty"`
+	LastName    string `json:"lastName,omitempty"`
+	PhoneNumber string `json:"phoneNumber,omitempty"`
+	ZipCode     string `json:"zipCode,omitempty"`
 }
 
 type User struct {
@@ -39,7 +39,7 @@ type User struct {
 	PhoneNumber    string    `json:"phoneNumber"`
 	Profile        string    `json:"profile"`
 	RegistrationID string    `json:"registrationId,omitempty"`
-	Role           Role      `json:"role"`
+	Role           Role      `json:"-"`
 	RoleID         int64     `json:"-"`
 }
 

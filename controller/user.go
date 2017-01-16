@@ -134,16 +134,15 @@ func Register(c *gin.Context) {
 func IsTokenValid(c *gin.Context) {
 	var tokenRequest model.TokenRequest
 
-	if c.BindJSON(&tokenRequest) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{})
-		return
-	}
+	tokenRequest.Email = c.Query("email")
+	tokenRequest.Token = c.Query("token")
+
 	var existToken model.AccessToken
-	db := database.New()
+	db := database.NewGORM()
 	defer db.Close()
-	err := db.Get(&existToken, "SELECT email, token, last_updated FROM authentication_token WHERE email = ? AND token = ?",
-		tokenRequest.Email,
-		tokenRequest.Token)
+
+	err := db.Where("email = ? AND token = ?", tokenRequest.Email, tokenRequest.Token).First(&existToken).Error
+
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{})
 		return
@@ -166,35 +165,21 @@ func UpdateProfile(c *gin.Context) {
 
 	signedInUser := GetSignedInUser(c)
 
-	db := database.New()
+	db := database.NewGORM()
 	defer db.Close()
 
-	tx := db.MustBegin()
-	if request.FirstName != "" {
-		tx.MustExec("UPDATE user SET first_name = ? WHERE id = ?", request.FirstName, signedInUser.ID)
+	var user model.User
+	if err := db.Where("id = ?", signedInUser.ID).First(&user).Error; err != nil {
+		log.Printf("Error on retrieve user from udpate Profile. Error: %#v", err)
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
 	}
 
-	if request.LastName != "" {
-		tx.MustExec("UPDATE user SET last_name = ? WHERE id = ?", request.LastName, signedInUser.ID)
-	}
-
-	if request.PhoneNumber != "" {
-		tx.MustExec("UPDATE user SET phone_number = ? WHERE id = ?", request.PhoneNumber, signedInUser.ID)
-	}
-
-	if request.ZipCode != "" {
-		tx.MustExec("UPDATE user SET zip_code = ? WHERE id = ?", request.ZipCode, signedInUser.ID)
-	}
-
-	tx.MustExec("UPDATE user SET last_updated = NOW() WHERE id = ?", signedInUser.ID)
-	tx.Commit()
-
-	user, err := GetUserByID(db, signedInUser.ID)
-
-	if err != nil {
+	if err := db.Model(&user).Updates(request).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something wrong when retreive updated user information",
 		})
+		return
 	}
 
 	c.JSON(http.StatusOK, user)
@@ -228,19 +213,13 @@ func IsEmailAvailableToRegister(c *gin.Context) {
 		return
 	}
 
-	db := database.New()
+	db := database.NewGORM()
 	defer db.Close()
 
-	var exist bool
-	if err := db.Get(&exist, "SELECT EXISTS(SELECT id FROM user WHERE email = ? LIMIT 1)", email); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Something wrong on server side",
-			"error":   err,
-		})
-		return
-	}
+	var user model.User
+	db.Where("email = ?", email).First(&user)
 
-	if exist {
+	if user.Email != "" {
 		c.JSON(http.StatusConflict, gin.H{})
 		return
 	}
@@ -263,12 +242,14 @@ func UpdateIOSRegistrationId(c *gin.Context) {
 		return
 	}
 
-	db := database.New()
+	db := database.NewGORM()
 	defer db.Close()
 
 	user := GetSignedInUser(c)
 
-	if _, err := db.Exec("UPDATE user SET registration_id = ? WHERE id = ?", ios.RegistrationId, user.ID); err != nil {
+	user.RegistrationID = ios.RegistrationId
+
+	if err := db.Save(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something wrong on server side",
 			"error":   err,
@@ -276,7 +257,5 @@ func UpdateIOSRegistrationId(c *gin.Context) {
 		return
 	}
 
-	updatedUser, _ := GetUserByID(db, user.ID)
-
-	c.JSON(http.StatusOK, updatedUser)
+	c.JSON(http.StatusOK, user)
 }

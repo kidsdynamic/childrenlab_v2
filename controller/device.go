@@ -29,7 +29,7 @@ func WhoRegisteredMacID(c *gin.Context) {
 		return
 	}
 
-	kidParent, err := GetUserByID(db, kid.ParentID)
+	kidParent, err := GetUserByID(db, kid.Parent.ID)
 
 	if err != nil {
 		fmt.Printf("Can't find kid's parent. %#v", err)

@@ -38,6 +38,12 @@ func NewGORM() *gorm.DB {
 func InitDatabase() {
 	db := NewGORM()
 
+	db.AutoMigrate(
+		&model.User{},
+		&model.AccessToken{},
+		&model.Kid{},
+	)
+
 	yes := db.HasTable("role")
 
 	if !yes {
@@ -65,11 +71,6 @@ func InitDatabase() {
 	if err := db.Where("authority = ?", "ROLE_USER").First(&userRole).Error; err != nil {
 		panic(err)
 	}
-
-	db.AutoMigrate(
-		&model.User{},
-		&model.AccessToken{},
-	)
 
 	//Create Admin
 	users := []model.User{
