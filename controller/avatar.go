@@ -86,7 +86,7 @@ func UploadKidAvatar(c *gin.Context) {
 		return
 	}
 
-	db := database.New()
+	db := database.NewGORM()
 	defer db.Close()
 
 	kidId, err := strconv.ParseInt(c.PostForm("kidId"), 10, 64)
@@ -137,11 +137,9 @@ func UploadKidAvatar(c *gin.Context) {
 	}
 	if UploadFileToS3(f, fileName) == nil {
 
-		if err := db.MustExec("UPDATE kids SET profile = ? WHERE id = ?", fileName, kid.ID); err != nil {
+		if err := db.Model(&kid).Update("profile", fileName); err != nil {
 			log.Printf("Error on update profile. Error: %#v", err)
 		}
-
-		kid.Profile = fileName
 
 		c.JSON(http.StatusOK, gin.H{
 			"kid": kid,

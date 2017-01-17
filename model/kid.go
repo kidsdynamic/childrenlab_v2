@@ -35,3 +35,7 @@ type UpdateKidRequest struct {
 func (Kid) TableName() string {
 	return "kids"
 }
+
+func (Device) TableName() string {
+	return "device"
+}

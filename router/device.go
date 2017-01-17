@@ -7,7 +7,6 @@ import (
 
 func initDeviceRouter(r *gin.Engine) {
 	deviceAPI := r.Group("/v1/device")
-	deviceAPI.Use(controller.Auth)
 	deviceAPI.GET("/whoRegisteredMacID", controller.WhoRegisteredMacID)
 
 }

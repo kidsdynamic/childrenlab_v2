@@ -104,43 +104,26 @@ func GetSignedInUser(c *gin.Context) *model.User {
 	return &user
 }
 
-func GetUserByID(db *sqlx.DB, id int64) (model.User, error) {
+func GetUserByID(db *gorm.DB, id int64) (model.User, error) {
 	var user model.User
 
-	err := db.Get(&user, "SELECT id, email, COALESCE(first_name, '') as first_name, COALESCE(last_name, '') as last_name "+
-		", date_created, COALESCE(zip_code, '') as zip_code, "+
-		"last_updated, COALESCE(phone_number, '') as phone_number,"+
-		" COALESCE(registration_id, '') as registration_id, COALESCE(profile, '') as profile FROM user WHERE id = ?", id)
+	err := db.Where("id = ?", id).First(&user).Error
 
-	if err != nil {
-		return user, err
-	}
-
-	return user, nil
+	return user, err
 }
 
-func GetKidByUserIdAndKidId(db *sqlx.DB, userId, kidId int64) (model.Kid, error) {
+func GetKidByUserIdAndKidId(db *gorm.DB, userId, kidId int64) (model.Kid, error) {
 	var kid model.Kid
-	err := db.Get(&kid, "SELECT k.id, parent_id, COALESCE(k.first_name, '') as first_name, COALESCE(k.last_name, '') as last_name, "+
-		"COALESCE(mac_id, '') as mac_id, k.date_created FROM user u JOIN kids k ON u.id = k.parent_id  WHERE u.id = ? AND k.id = ?", userId, kidId)
 
-	if err != nil {
-		return kid, err
-	}
-
-	return kid, nil
+	err := db.Where("parent_id = ? AND id = ?", userId, kidId).Preload("Parent").Find(&kid).Error
+	return kid, err
 }
 
-func GetKidByMacID(db *sqlx.DB, macID string) (model.Kid, error) {
+func GetKidByMacID(db *gorm.DB, macID string) (model.Kid, error) {
 	var kid model.Kid
-	err := db.Get(&kid, "SELECT id, parent_id, COALESCE(first_name, '') as first_name, COALESCE(last_name, '') as last_name, "+
-		"date_created, mac_id, COALESCE(profile, '') as profile FROM kids WHERE mac_id = ?", macID)
 
-	if err != nil {
-		return kid, err
-	}
-
-	return kid, nil
+	err := db.Where("mac_id = ?", macID).Preload("Parent").First(&kid).Error
+	return kid, err
 }
 
 func UploadFileToS3(file *os.File, fileName string) error {
