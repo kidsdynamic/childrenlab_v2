@@ -5,8 +5,9 @@ import (
 
 	"fmt"
 
+	"time"
+
 	"github.com/gin-gonic/gin"
-	"github.com/jmoiron/sqlx"
 	"github.com/kidsdynamic/childrenlab_v2/database"
 	"github.com/kidsdynamic/childrenlab_v2/model"
 )
@@ -29,68 +30,43 @@ func RequestSubHostToUser(c *gin.Context) {
 	}
 
 	user := GetSignedInUser(c)
-	requestSubHostReq.UserID = user.ID
-	requestSubHostReq.Status = SubHostStatusPending
 
-	db := database.New()
+	db := database.NewGORM()
 	defer db.Close()
 
-	exist, err := IsRequestExists(db, &requestSubHostReq)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Something wrong when get IsRequestExists",
-			"error":   err,
-		})
-		return
-	}
+	var subHost model.SubHost
 
-	if exist {
+	db.Where("request_from_id = ? AND request_to_iD = ?", user.ID, requestSubHostReq.HostID).First(&subHost)
+
+	if subHost.ID != 0 {
 		c.JSON(http.StatusConflict, gin.H{
 			"message": "The request is already exist",
 		})
 		return
 	}
 
-	result, err := db.NamedExec("INSERT INTO sub_host (request_from_id, request_to_id, status, date_created, last_updated) "+
-		"VALUES (:request_from_id, :request_to_id, :status, Now(), Now())",
-		requestSubHostReq)
+	subHost.DateCreated = time.Now()
+	subHost.RequestFromID = user.ID
+	subHost.RequestToID = requestSubHostReq.HostID
+	subHost.LastUpdated = time.Now()
 
-	if err != nil {
+	if err := db.Save(&subHost).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something wrong when inserting request",
+			"error":   err,
 		})
 		return
 	}
-	subHostRequest := getSubHostByID(db, getInsertedID(result))
 
-	if err != nil {
+	if err := db.Preload("RequestFrom").Preload("RequestTo").First(&subHost).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Error on getting inerted row",
+			"message": "Something wrong when inserting request",
 			"error":   err,
 		})
+		return
 	}
 
-	c.JSON(http.StatusOK, subHostRequest)
-}
-func ValidateHostRequest(db *sqlx.DB, subHostID, hostID int64) (bool, error) {
-	var exists bool
-
-	if err := db.Get(&exists, "SELECT EXISTS(SELECT id FROM sub_host WHERE "+
-		"request_to_id = ? AND id = ? LIMIT 1)", hostID, subHostID); err != nil {
-		return false, err
-	}
-
-	return exists, nil
-}
-
-func IsRequestExists(db *sqlx.DB, req *model.RequestSubHostToUser) (bool, error) {
-	var exists bool
-	if err := db.Get(&exists, "SELECT EXISTS(SELECT s.id FROM sub_host s WHERE request_from_id = ? AND "+
-		"request_to_id = ? LIMIT 1)", req.UserID, req.HostID); err != nil {
-		return false, err
-	}
-
-	return exists, nil
+	c.JSON(http.StatusOK, subHost)
 }
 
 func AcceptRequest(c *gin.Context) {
@@ -106,20 +82,13 @@ func AcceptRequest(c *gin.Context) {
 
 	user := GetSignedInUser(c)
 
-	db := database.New()
+	db := database.NewGORM()
 	defer db.Close()
 
-	valid, err := ValidateHostRequest(db, acceptRequest.SubHostID, user.ID)
+	var subHost model.SubHost
+	db.Where("Request_to_id = ? AND id = ?", user.ID, acceptRequest.SubHostID).Preload("RequestFrom").Preload("RequestTo").First(&subHost)
 
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Error on checking user's permission",
-			"error":   err,
-		})
-		return
-	}
-
-	if !valid {
+	if subHost.ID == 0 {
 		c.JSON(http.StatusForbidden, gin.H{
 			"message": "The user doesn't have permission to accept the request",
 		})
@@ -127,9 +96,9 @@ func AcceptRequest(c *gin.Context) {
 		return
 	}
 
-	result := db.MustExec("UPDATE sub_host SET status = ?, last_updated = NOW() WHERE id = ?", SubHostStatusAccepted, acceptRequest.SubHostID)
+	var kids []model.Kid
 
-	if success := checkInsertResult(result); !success {
+	if err := db.Joins("JOIN user ON user.id = kids.parent_id").Where("kids.id in (?) AND kids.parent_id = ?", acceptRequest.KidID, user.ID).Find(&kids).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error on updating status",
 			"error":   err,
@@ -138,18 +107,44 @@ func AcceptRequest(c *gin.Context) {
 		return
 	}
 
-	tx := db.MustBegin()
-	for _, kidID := range acceptRequest.KidID {
-		if !isKidExistsInSubHost(db, acceptRequest.SubHostID, kidID) {
-			tx.MustExec("INSERT INTO sub_host_kids (sub_host_kid_id, kids_id) VALUES (?, ?)", acceptRequest.SubHostID, kidID)
+	for index, kid := range kids {
+		var exists bool
+		row := db.Raw("SELECT EXISTS(SELECT sub_host_id FROM sub_host_kid WHERE sub_host_id = ? AND kid_id = ? LIMIT 1)", subHost.ID, kid.ID).Row()
+		row.Scan(&exists)
+		if exists {
+			if len(kids) > index+1 {
+				kids = append(kids[:index], kids[index+1:]...)
+			}
+
 		}
 
 	}
-	tx.Commit()
+	if len(kids) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Can't find kid or the kid is already in the sub host",
+		})
+		return
 
-	subHost := getSubHostByID(db, acceptRequest.SubHostID)
+	}
 
-	c.JSON(http.StatusOK, subHost)
+	subHost.Kids = kids
+	subHost.Status = SubHostStatusAccepted
+
+	if err := db.Save(&subHost).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Error on updating status",
+			"error":   err,
+		})
+
+		return
+	}
+
+	var updatedSubHost model.SubHost
+	if err := db.Model(&updatedSubHost).Preload("Kids").Preload("RequestFrom").Preload("RequestTo").Where("id = ?", subHost.ID).First(&updatedSubHost).Error; err != nil {
+		fmt.Printf("ERror on retrieve subhost. Error: %#v", err)
+	}
+
+	c.JSON(http.StatusOK, updatedSubHost)
 }
 
 func DenyRequest(c *gin.Context) {
@@ -165,20 +160,14 @@ func DenyRequest(c *gin.Context) {
 
 	user := GetSignedInUser(c)
 
-	db := database.New()
+	db := database.NewGORM()
 	defer db.Close()
 
-	valid, err := ValidateHostRequest(db, updateRequest.SubHostID, user.ID)
+	var subHost model.SubHost
 
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Error on checking user's permission",
-			"error":   err,
-		})
-		return
-	}
+	db.Model(&subHost).Preload("RequestFrom").Preload("RequestTo").Preload("kids").Where("id = ? AND request_to_id = ?", updateRequest.SubHostID, user.ID).First(&subHost)
 
-	if !valid {
+	if subHost.ID == 0 {
 		c.JSON(http.StatusForbidden, gin.H{
 			"message": "The user doesn't have permission to accept the request",
 		})
@@ -186,21 +175,12 @@ func DenyRequest(c *gin.Context) {
 		return
 	}
 
-	result := db.MustExec("UPDATE sub_host SET status = ?, last_updated = NOW() WHERE id = ?", SubHostStatusDenied, updateRequest.SubHostID)
+	subHost.Status = SubHostStatusDenied
+	subHost.LastUpdated = time.Now()
 
-	if success := checkInsertResult(result); !success {
+	if err := db.Save(&subHost).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error on updating status",
-			"error":   err,
-		})
-
-		return
-	}
-	subHost := getSubHostByID(db, updateRequest.SubHostID)
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Error on retriving subhost",
 			"error":   err,
 		})
 
@@ -211,61 +191,33 @@ func DenyRequest(c *gin.Context) {
 }
 
 func SubHostList(c *gin.Context) {
-	db := database.New()
+	db := database.NewGORM()
 	defer db.Close()
 
 	query := c.Query("status")
 	var subHosts []model.SubHost
+	var err error
 
 	user := GetSignedInUser(c)
 	if query == "" {
-		_ = db.Select(&subHosts, "SELECT s.id, s.request_from_id, s.request_to_id, s.status, s.date_created, s.last_updated "+
-			"FROM sub_host s WHERE s.request_to_id = ?", user.ID)
+		err = db.Where("request_to_id = ?", user.ID).Preload("RequestFrom").Preload("RequestTo").Preload("Kids").Find(&subHosts).Error
 	} else {
-		_ = db.Select(&subHosts, "SELECT s.id, s.request_from_id, s.request_to_id, s.status, s.date_created, s.last_updated "+
-			"FROM sub_host s WHERE s.request_to_id = ? AND status = ?", user.ID, query)
+		err = db.Where("request_to_id = ? AND status = ?", user.ID, query).Preload("RequestFrom").Preload("RequestTo").Preload("Kids").Find(&subHosts).Error
 	}
 
-	for key, subHost := range subHosts {
-		kids := getSubHostKid(db, subHost.ID)
-		subHosts[key].Kid = kids
-	}
-
-	c.JSON(http.StatusOK, subHosts)
-}
-
-func getSubHostByID(db *sqlx.DB, ID int64) model.SubHost {
-	var subHost model.SubHost
-	_ = db.Get(&subHost, "SELECT s.id, s.request_from_id, s.request_to_id, s.status, s.date_created, s.last_updated "+
-		"FROM sub_host s WHERE s.id = ?", ID)
-	fmt.Printf("SELECT s.id, s.request_from_id, s.request_to_id, s.status, s.date_created, s.last_updated FROM sub_host s WHERE s.id = %d\n", ID)
-	kids := getSubHostKid(db, ID)
-	fmt.Println(kids)
-	subHost.Kid = kids
-
-	return subHost
-
-}
-
-func isKidExistsInSubHost(db *sqlx.DB, subHostID, kidID int64) bool {
-	var exist bool
-	if err := db.Get(&exist, "SELECT EXISTS(SELECT sub_host_kid_id FROM sub_host_kids WHERE sub_host_kid_id = ? AND kids_id = ? LIMIT 1)", subHostID, kidID); err != nil {
-		panic(err)
-		return false
-	}
-
-	return exist
-}
-
-func getSubHostKid(db *sqlx.DB, subHostID int64) []model.Kid {
-	var kids []model.Kid
-	err := db.Select(&kids, "SELECT k.id,  COALESCE(k.first_name, '') as first_name, COALESCE(k.last_name, '') as last_name"+
-		", COALESCE(k.mac_id, '') as mac_id, COALESCE(k.profile, '') as profile, parent_id, k.date_created FROM kids k JOIN sub_host_kids s ON k.id = s.kids_id WHERE s.sub_host_kid_id = ?", subHostID)
+	/*
+		for _, subHost := range subHosts {
+			var kidIDs []int64
+			for _, kid := range subHost.Kids {
+				kidIDs = append(kidIDs, kid.KidID)
+			}
+			if len(kidIDs) > 0 {
+			}
+		}
+	*/
 
 	if err != nil {
-		panic(err)
-		return kids
+		fmt.Printf("Error on Sub Host List. %#v", err)
 	}
-	return kids
-
+	c.JSON(http.StatusOK, subHosts)
 }

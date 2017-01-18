@@ -43,6 +43,7 @@ func InitDatabase() {
 		&model.AccessToken{},
 		&model.Kid{},
 		&model.Device{},
+		&model.SubHost{},
 	)
 
 	yes := db.HasTable("role")

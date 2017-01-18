@@ -9,7 +9,7 @@ type Kid struct {
 	DateCreated time.Time `json:"dateCreated"`
 	MacID       string    `json:"macId"`
 	Profile     string    `json:"profile"`
-	Parent      User      `json:"parent"`
+	Parent      *User     `json:"parent,omitempty"`
 	ParentID    int64     `json:"-"`
 }
 
