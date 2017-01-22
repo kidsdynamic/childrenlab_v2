@@ -199,7 +199,7 @@ func GetKidsByUser(user *model.User) ([]model.Kid, error) {
 	defer db.Close()
 	var kids []model.Kid
 
-	err := db.Select(&kids, "SELECT id, first_name, last_name, mac_id, kids.date_created, mac_id, profile FROM kids WHERE parent_id = ?", user.ID)
+	err := db.Select(&kids, "SELECT id, first_name, last_name, mac_id, kids.date_created, mac_id, COALESCE(profile, '') as profile FROM kids WHERE parent_id = ?", user.ID)
 
 	return kids, err
 }
