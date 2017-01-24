@@ -521,6 +521,7 @@ curl -X PUT -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Type
 
 ## /v1/kids/whoRegisteredMacID - GET
 * Retrieve kid and user information by MAC ID
+* Doesn't need x-auth-token
 
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
@@ -544,24 +545,24 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 ```
 {
   "kid": {
-    "id": 20,
-    "firstName": "KIDLLE",
-    "lastName": "YES",
-    "dateCreated": "2016-12-21T03:24:57Z",
-    "macId": "",
-    "profile": "",
-    "ParentID": 29
-  },
-  "user": {
-    "id": 29,
-    "email": "lwz1@swing.com",
-    "firstName": "q",
-    "lastName": "w",
-    "lastUpdate": "2016-12-19T22:28:07Z",
-    "dateCreated": "2016-12-06T00:40:10Z",
-    "zipCode": "",
-    "phoneNumber": "555",
-    "profile": ""
+    "id": 2,
+    "firstName": "KIDLLE123124",
+    "lastName": "YES_NO",
+    "dateCreated": "2017-01-16T22:18:26Z",
+    "macId": "hgweorahgbkljwhnpi1",
+    "profile": "qwe",
+    "parent": {
+      "id": 2,
+      "email": "jack08300@gmail.com",
+      "firstName": "Jay",
+      "lastName": "Chen",
+      "lastUpdate": "0001-01-01T00:00:00Z",
+      "dateCreated": "0001-01-01T00:00:00Z",
+      "zipCode": "11111",
+      "phoneNumber": "11111",
+      "profile": "",
+      "registrationId": "123test"
+    }
   }
 }
 ```
