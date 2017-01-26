@@ -14,6 +14,8 @@ import (
 
 	"os"
 
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -21,6 +23,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/jmoiron/sqlx"
+	"github.com/kidsdynamic/childrenlab_v2/constants"
 	"github.com/kidsdynamic/childrenlab_v2/database"
 	"github.com/kidsdynamic/childrenlab_v2/model"
 )
@@ -191,4 +194,18 @@ func GetUserRole(db *gorm.DB) model.Role {
 	}
 
 	return role
+}
+
+func GetNowTime() time.Time {
+	now := time.Now()
+
+	s := fmt.Sprintf("%04d-%02d-%02dT%02d:%02d:%02dZ", now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second())
+	t, err := time.Parse(constants.TimeLayout, s)
+
+	if err != nil {
+		fmt.Printf("Error on get now time. %#v", err)
+
+	}
+
+	return t
 }

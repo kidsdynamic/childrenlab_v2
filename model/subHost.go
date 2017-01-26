@@ -14,13 +14,6 @@ type SubHost struct {
 	Kids          []Kid     `json:"kids,omitempty" gorm:"many2many:sub_host_kid"`
 }
 
-/*type SubHostKid struct {
-	ID        int64 `json:"-" gorm:"AUTO_INCREMENT"`
-	Kid       *Kid
-	KidID     int64
-	SubHostID int64
-}*/
-
 type RequestSubHostWithMacIDRequest struct {
 	MacID    string `json:"macId" binding:"required"`
 	HostID   int64  `json:"hostId" db:"request_to_id" binding:"required"`

@@ -8,8 +8,11 @@ import (
 
 	"strconv"
 
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
+	"github.com/kidsdynamic/childrenlab_v2/constants"
 	"github.com/kidsdynamic/childrenlab_v2/database"
 	"github.com/kidsdynamic/childrenlab_v2/model"
 )
@@ -17,12 +20,14 @@ import (
 const (
 	TODO_PENDING = "PENDING"
 	TODO_DONE    = "DONE"
+	EVENT_OPEN   = "OPEN"
+	EVENT_PASSED = "PASSED"
 )
 
 func AddCalendarEvent(c *gin.Context) {
-	var eventRequest model.EventRequest
+	var request model.EventRequest
 
-	if err := c.BindJSON(&eventRequest); err != nil {
+	if err := c.BindJSON(&request); err != nil {
 		log.Printf("Error on Add Event. Bind with json. %#v", err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "missing some parameters",
@@ -32,17 +37,43 @@ func AddCalendarEvent(c *gin.Context) {
 	}
 
 	user := GetSignedInUser(c)
-	eventRequest.UserID = user.ID
-	eventRequest.Status = "OPEN"
 
-	db := database.New()
+	var event model.Event
+
+	event.KidID = request.KidID
+	event.Status = EVENT_OPEN
+	event.UserID = user.ID
+	event.Alert = request.Alert
+	event.City = request.City
+	event.State = request.State
+	event.Repeat = request.Repeat
+	event.Name = request.Name
+	event.Start = request.Start
+	event.End = request.End
+	event.Color = request.Color
+	event.DateCreated = GetNowTime()
+	event.LastUpdated = GetNowTime()
+	event.TimezoneOffset = request.TimezoneOffset
+
+	var todos []model.Todo
+
+	for _, todoReq := range request.Todo {
+		var todo model.Todo
+
+		todo.Status = TODO_PENDING
+		todo.Text = todoReq
+		todo.LastUpdated = time.Now()
+		todo.DateCreated = time.Now()
+
+		todos = append(todos, todo)
+	}
+
+	event.Todo = todos
+
+	db := database.NewGORM()
 	defer db.Close()
-	result, err := db.NamedExec("INSERT INTO calendar_event (event_name, kid_id, start_date, end_date, color, description, "+
-		"alert, city, state, event_repeat, timezone_offset, date_created, last_updated, user_id, status) VALUES "+
-		"(:event_name, :kid_id, :start_date, :end_date, :color, :description, :alert, :city, :state, :event_repeat, :timezone_offset, NOW(), NOW(), :user_id, :status)",
-		eventRequest)
 
-	if err != nil {
+	if err := db.Create(&event).Error; err != nil {
 		log.Printf("Error on Add Event. %#v", err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error on adding the event to database",
@@ -51,46 +82,7 @@ func AddCalendarEvent(c *gin.Context) {
 		return
 	}
 
-	insertedEventID := getInsertedID(result)
-
-	tx := db.MustBegin()
-	for _, value := range eventRequest.Todo {
-		tx.MustExec("INSERT INTO todo_list (text, status, event_id, date_created, last_updated) VALUES (?, ?, ?, Now(), Now())",
-			value, TODO_PENDING, insertedEventID)
-	}
-	tx.Commit()
-
-	var event model.Event
-
-	//err = getEventWithTodoList(db, event, insertedEventID)
-	err = db.Get(&event, "SELECT id, user_id, event_name, status, kid_id, start_date, end_date, color, COALESCE(description, '') as description, "+
-		"alert, city, state, COALESCE(event_repeat, '') as event_repeat, timezone_offset, date_created, last_updated FROM calendar_event WHERE id = ?",
-		insertedEventID)
-
-	if err != nil {
-		log.Printf("Error on retrieve inserted Event. %#v\n", err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Error on retrieve inserted Event",
-			"error":   err.Error(),
-		})
-		return
-	}
-
-	err = db.Select(&event.Todo, "SELECT id, date_created, last_updated, status, text FROM todo_list WHERE event_id = ?", event.ID)
-
-	if err != nil {
-		log.Printf("Error on retrieve todos. %#v\n", err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Error on retrieve inserted Event",
-			"error":   err.Error(),
-		})
-		return
-
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"event": event,
-	})
+	c.JSON(http.StatusOK, event)
 
 }
 
@@ -106,16 +98,44 @@ func UpdateCalendarEvent(c *gin.Context) {
 		return
 	}
 
-	//user := GetSignedInUser(c)
-
-	db := database.New()
+	db := database.NewGORM()
 	defer db.Close()
 
-	_, err := db.NamedExec("UPDATE calendar_event SET event_name = :event_name, start_date = :start_date, end_date = :end_date, color = :color, "+
-		"description = :description, alert = :alert, city = :city, state = :state, event_repeat = :event_repeat, timezone_offset = :timezone_offset, "+
-		"last_updated = Now() WHERE id = :id", eventRequest)
+	var event model.Event
 
-	if err != nil {
+	if err := db.Where("id = ?", eventRequest.ID).First(&event).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Can't find the event from database",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	var todos []model.Todo
+
+	for _, todoReq := range eventRequest.Todo {
+		var todo model.Todo
+
+		todo.Status = TODO_PENDING
+		todo.Text = todoReq
+		todo.LastUpdated = time.Now()
+		todo.DateCreated = time.Now()
+
+		todos = append(todos, todo)
+	}
+
+	if err := db.Delete(model.Todo{}, "event_id = ?", event.ID).Error; err != nil {
+		log.Printf("Error on Deleting todo. %#v", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error on Delete todo",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	event.Todo = todos
+
+	if err := db.Model(&event).Updates(&eventRequest).Error; err != nil {
 		log.Printf("Error on Updat event. %#v", err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error on updating event",
@@ -124,46 +144,7 @@ func UpdateCalendarEvent(c *gin.Context) {
 		return
 	}
 
-	//Remove all of todos under the event
-	_ = db.MustExec("DELETE FROM todo_list WHERE event_id = ?", eventRequest.ID)
-
-	//Insert all of todos again
-	tx := db.MustBegin()
-	for _, value := range eventRequest.Todo {
-		tx.MustExec("INSERT INTO todo_list (text, status, event_id, date_created, last_updated) VALUES (?, ?, ?, Now(), Now())",
-			value, TODO_PENDING, eventRequest.ID)
-	}
-	tx.Commit()
-
-	var event model.Event
-	err = db.Get(&event, "SELECT id, user_id, event_name, status, kid_id, start_date, end_date, color, COALESCE(description, '') as description, "+
-		"alert, city, state, COALESCE(event_repeat, '') as event_repeat, timezone_offset, date_created, last_updated FROM calendar_event WHERE id = ?",
-		eventRequest.ID)
-
-	if err != nil {
-		log.Printf("Error on retrieve inserted Event. %#v\n", err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Error on retrieve inserted Event",
-			"error":   err.Error(),
-		})
-		return
-	}
-
-	err = db.Select(&event.Todo, "SELECT id, date_created, last_updated, status, text FROM todo_list WHERE event_id = ?", event.ID)
-
-	if err != nil {
-		log.Printf("Error on retrieve todos. %#v\n", err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Error on retrieve inserted Event",
-			"error":   err.Error(),
-		})
-		return
-
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"event": event,
-	})
+	c.JSON(http.StatusOK, event)
 
 }
 
@@ -186,21 +167,44 @@ func DeleteEvent(c *gin.Context) {
 		return
 	}
 
-	db := database.New()
+	db := database.NewGORM()
 	defer db.Close()
 
-	_, err = db.Exec("DELETE FROM todo_list WHERE event_id = ?", eventID)
+	var event model.Event
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{})
-		return
+	if err := db.Where("id = ?", eventID).Preload("Todo").First(&event).Error; err != nil {
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "Error when retriving event",
+				"error":   err.Error,
+			})
+			return
+		}
 	}
 
-	user := GetSignedInUser(c)
-	_, err = db.Exec("DELETE FROM calendar_event WHERE id = ? AND user_id = ?", eventID, user.ID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{})
-		return
+	if len(event.Todo) > 0 {
+		fmt.Println("TOdo > 0")
+		if err := db.Delete(&model.Todo{}, "event_id = ?", eventID).Error; err != nil {
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"message": "Error when deleting todo",
+					"error":   err.Error,
+				})
+				return
+			}
+		}
+
+	}
+
+	if err := db.Delete(&model.Event{}, "id = ?", eventID).Error; err != nil {
+		if err != nil {
+			fmt.Printf("Error on deleting event. %#v", err)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "Error when deleting event",
+				"error":   err.Error,
+			})
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{})
@@ -218,11 +222,11 @@ func GetCalendarEvent(c *gin.Context) {
 		return
 	}
 
-	db := database.New()
+	db := database.NewGORM()
 	defer db.Close()
 	var events []model.Event
 
-	t, err := time.Parse(model.TimeLayout, getEventRequest.Date)
+	t, err := time.Parse(constants.TimeLayout, getEventRequest.Date)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Date formate is wrong",
@@ -235,15 +239,11 @@ func GetCalendarEvent(c *gin.Context) {
 
 	switch getEventRequest.Period {
 	case "DAY":
-
-		err = db.Select(&events, "SELECT id, user_id, event_name, status, kid_id, start_date, end_date, color, COALESCE(description, '') as description, "+
-			"alert, COALESCE(city, '') as city, COALESCE(state, '') as state, COALESCE(event_repeat, '') as event_repeat, timezone_offset, date_created, last_updated FROM calendar_event WHERE "+
-			"YEAR(start_date) = ? AND MONTH(start_date) = ? AND DAY(start_date) = ?", t.Year(), t.Month(), t.Day())
+		err = db.Where("YEAR(start) = ? AND MONTH(start) = ? AND DAY(start) = ?", t.Year(), t.Month(), t.Day()).Preload("Todo").Find(&events).Error
 		break
 	case "MONTH":
-		err = db.Select(&events, "SELECT id, user_id, event_name, status, kid_id, start_date, end_date, color, COALESCE(description, '') as description, "+
-			"alert, COALESCE(city, '') as city, COALESCE(state, '') as state, COALESCE(event_repeat, '') as event_repeat, timezone_offset, date_created, last_updated FROM calendar_event WHERE "+
-			"YEAR(start_date) = ? AND MONTH(start_date) = ?", t.Year(), t.Month())
+
+		err = db.Where("YEAR(start) = ? AND MONTH(start) = ?", t.Year(), t.Month()).Preload("Todo").Find(&events).Error
 		break
 	}
 	if err != nil {
@@ -255,57 +255,28 @@ func GetCalendarEvent(c *gin.Context) {
 		return
 	}
 
-	//Retrieve todos
-	if len(events) > 0 {
-		for key, value := range events {
-			events[key].Todo, err = retrieveTodosByEventID(db, value.ID)
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{
-					"message": "Something wrong when retrieving todos",
-					"error":   err,
-				})
-				return
-				break
-			}
-		}
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"events": events,
-	})
+	c.JSON(http.StatusOK, events)
 }
 
 func RetrieveAllEventWithTodoByUser(c *gin.Context) {
 	user := GetSignedInUser(c)
 
-	db := database.New()
+	db := database.NewGORM()
 	defer db.Close()
 	var events []model.Event
 
-	err := db.Select(&events, "SELECT id, user_id, event_name, status, kid_id, start_date, end_date, color, COALESCE(description, '') as description, "+
-		"alert, COALESCE(city, '') as city, COALESCE(state, '') as state, COALESCE(event_repeat, '') as event_repeat, timezone_offset, date_created, last_updated FROM calendar_event WHERE "+
-		"user_id=?", user.ID)
+	if err := db.Where("user_id = ?", user.ID).Preload("Todo").Find(&events).Error; err != nil {
 
-	if err != nil {
+		fmt.Printf("Error on retriving events. %#v", err)
+
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Something wrong when retrieving todos",
+			"message": "Something wrong when retrieving events",
 			"error":   err,
 		})
 		return
 	}
 
-	for key, _ := range events {
-		events[key].Todo, err = retrieveTodosByEventID(db, events[key].ID)
-
-		if err != nil {
-			log.Printf("Error on retreive todo list by Event id from retrieveAllEventByUser. Error: %v", err)
-
-		}
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"events": events,
-	})
+	c.JSON(http.StatusOK, events)
 }
 
 func retrieveTodosByEventID(db *sqlx.DB, eventID int64) ([]model.Todo, error) {
@@ -336,11 +307,10 @@ func TodoDone(c *gin.Context) {
 		return
 	}
 
-	db := database.New()
+	db := database.NewGORM()
 	defer db.Close()
-	_, err := db.Exec("UPDATE todo_list SET status = ? WHERE id = ? AND event_id = ?", TODO_DONE, todoDoneRequest.TodoID, todoDoneRequest.EventID)
 
-	if err != nil {
+	if err := db.Model(&model.Todo{}).Where("id = ? AND event_id = ?", todoDoneRequest.TodoID, todoDoneRequest.EventID).Update("status", TODO_DONE).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something wrong when retrieving todos",
 			"error":   err,
