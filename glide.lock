@@ -1,5 +1,5 @@
-hash: 33fa3072b52023445b82c65fa850fad6394186b4b59344b520816dc1d770c7de
-updated: 2017-01-07T21:44:36.655284969-05:00
+hash: b6a9a746b1eb4edf897e67d3f603eb8580d30e80d1afa9cf318717869fc02eac
+updated: 2017-01-28T02:46:05.053179212-05:00
 imports:
 - name: github.com/aws/aws-sdk-go
   version: 4644cdf3025727edc7d7e74902201364016b0221
@@ -43,8 +43,9 @@ imports:
   subpackages:
   - proto
 - name: github.com/jinzhu/gorm
-  version: 373207d546d4bf4a971d688b63ed787528548d6e
+  version: 5174cc5c242a728b435ea2be8a2f7f998e15429b
   subpackages:
+  - dialects/mysql
   - dialects/sqlite
 - name: github.com/jinzhu/inflection
   version: 1c35d901db3da928c72a72d8458480cc9ade058f
@@ -61,7 +62,7 @@ imports:
 - name: github.com/mattn/go-isatty
   version: 30a891c33c7cde7b02a981314b4228ec99380cca
 - name: github.com/mattn/go-sqlite3
-  version: a554cf198fe0b1a80f528fec6f892b60b7004da5
+  version: ce9149a3c941c30de51a01dbc5bc414ddaa52927
 - name: github.com/urfave/cli
   version: 0bdeddeeb0f650497d603c4ad7b20cfe685682f6
 - name: golang.org/x/net

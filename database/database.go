@@ -46,6 +46,8 @@ func InitDatabase() {
 		&model.SubHost{},
 		&model.Event{},
 		&model.Todo{},
+		&model.ActivityRawData{},
+		&model.Activity{},
 	)
 
 	yes := db.HasTable("role")

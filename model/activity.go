@@ -3,33 +3,34 @@ package model
 import "time"
 
 type ActivityRawData struct {
-	ID      int64  `json:"id" db:"id"`
-	Indoor  string `json:"indoorActivity" db:"indoor_activity" binding:"required"`
-	Outdoor string `json:"outdoorActivity" db:"outdoor_activity" binding:"required"`
-	Time    int64  `json:"time" db:"time" binding:"required"`
-	MacID   string `json:"macId" db:"mac_id" binding:"required"`
+	ID          int64  `json:"id" gorm:"AUTO_INCREMENT"`
+	Indoor      string `json:"indoorActivity" binding:"required"`
+	Outdoor     string `json:"outdoorActivity" binding:"required"`
+	Time        int64  `json:"time" binding:"required"`
+	MacID       string `json:"macId" binding:"required"`
+	UserID      int64
+	DateCreated time.Time
+	LastUpdated time.Time
 }
 
 type ActivityInsight struct {
-	Time  time.Time
-	Steps int64
-}
-
-type ActivityRawDataRequest struct {
-	Indoor  string `json:"indoorActivity"`
-	Outdoor string `json:"outdoorActivity"`
-	Time    int64  `json:"time"`
-	MacID   string `json:"macId"`
+	Date     time.Time
+	TimeLong int64
+	Steps    int64
 }
 
 type Activity struct {
-	ID           int64     `json:"id" db:"id"`
-	MacID        string    `json:"macId" db:"mac_id"`
-	KidID        string    `json:"kidId" db:"kid_id"`
-	Type         string    `json:"type" db:"type"`
-	Steps        int64     `json:"steps" db:"steps"`
-	Distance     int64     `json:"distance" db:"distance"`
-	ReceivedDate time.Time `json:"receivedDate" db:"received_date"`
+	ID           int64     `json:"id" gorm:"AUTO_INCREMENT"`
+	MacID        string    `json:"macId" gorm:"not null"`
+	Kid          Kid       `json:"-"`
+	KidID        int64     `json:"kidId" gorm:"not null"`
+	Type         string    `json:"type" gorm:"not null"`
+	Steps        int64     `json:"steps"`
+	Distance     int64     `json:"distance"`
+	ReceivedDate time.Time `json:"receivedDate"`
+	ReceivedTime int64     `json:"-"`
+	DateCreated  time.Time
+	LastUpdated  time.Time
 }
 
 type ActivityRequest struct {
