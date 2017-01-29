@@ -521,6 +521,7 @@ curl -X PUT -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Type
 
 ## /v1/kids/whoRegisteredMacID - GET
 * Retrieve kid and user information by MAC ID
+* Doesn't need x-auth-token
 
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
@@ -544,24 +545,24 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 ```
 {
   "kid": {
-    "id": 20,
-    "firstName": "KIDLLE",
-    "lastName": "YES",
-    "dateCreated": "2016-12-21T03:24:57Z",
-    "macId": "",
-    "profile": "",
-    "ParentID": 29
-  },
-  "user": {
-    "id": 29,
-    "email": "lwz1@swing.com",
-    "firstName": "q",
-    "lastName": "w",
-    "lastUpdate": "2016-12-19T22:28:07Z",
-    "dateCreated": "2016-12-06T00:40:10Z",
-    "zipCode": "",
-    "phoneNumber": "555",
-    "profile": ""
+    "id": 2,
+    "firstName": "KIDLLE123124",
+    "lastName": "YES_NO",
+    "dateCreated": "2017-01-16T22:18:26Z",
+    "macId": "hgweorahgbkljwhnpi1",
+    "profile": "qwe",
+    "parent": {
+      "id": 2,
+      "email": "jack08300@gmail.com",
+      "firstName": "Jay",
+      "lastName": "Chen",
+      "lastUpdate": "0001-01-01T00:00:00Z",
+      "dateCreated": "0001-01-01T00:00:00Z",
+      "zipCode": "11111",
+      "phoneNumber": "11111",
+      "profile": "",
+      "registrationId": "123test"
+    }
   }
 }
 ```
@@ -1148,22 +1149,41 @@ curl -X PUT -H "x-auth-token: ec83d6e41db5168ddb0b1d28b2e262d6" -H "Content-Type
 
 ### curl
 ```
-curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -d '{
-  "hostId": 35
+curl -X POST -H "Content-Type: application/json" -H "x-auth-token: 4094345fecef667df936a632bafabbe6" -d '{
+  "hostId": 63
 }' "http://localhost:8111/v1/subHost/add"
 ```
 
 * Success - Returns added request
 ```
 {
-  "id": 2,
-  "macId": "",
-  "requestFromID": 29,
-  "requestToID": 35,
+  "id": 3,
+  "requestFromUser": {
+    "id": 2,
+    "email": "jack08300@gmail.com",
+    "firstName": "Jay",
+    "lastName": "Chen",
+    "lastUpdate": "0001-01-01T00:00:00Z",
+    "dateCreated": "0001-01-01T00:00:00Z",
+    "zipCode": "11111",
+    "phoneNumber": "11111",
+    "profile": "",
+    "registrationId": "123test"
+  },
+  "requestToUser": {
+    "id": 63,
+    "email": "jack08301@gmail.com",
+    "firstName": "JJJ",
+    "lastName": "TTT",
+    "lastUpdate": "0001-01-01T00:00:00Z",
+    "dateCreated": "2017-01-17T00:56:06Z",
+    "zipCode": "11111",
+    "phoneNumber": "",
+    "profile": ""
+  },
   "status": "PENDING",
-  "createdDate": "2017-01-09T01:47:16Z",
-  "lastUpdated": "2017-01-09T01:47:16Z",
-  "kid": null
+  "createdDate": "2017-01-18T04:03:22Z",
+  "lastUpdated": "2017-01-18T04:03:22Z"
 }
 ```
 
@@ -1176,6 +1196,7 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7
 
 ## /v1/subHost/accept - PUT
 * Content-Type: application/json
+* Accept the sub host request by allowing sub host to view the kids
 * Get ```subHostId``` from [GET   /v1/subHost/list](#v1subhostlist---get) API
 
 #### Request Parameters
@@ -1194,31 +1215,60 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7
 
 ### curl
 ```
-curl -X POST -H "Content-Type: application/json" -H "x-auth-token: 58lkp329ejbr4498st59ur2na7e0rmtg" -H -d '{
-  "subHostId": 2,
-  "kidId": [22]
+curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: 6d312cbc54ce05a279dcc554b984061c" -d '{
+  "subHostId": 1,
+  "kidId": [
+  	9, 10
+  ]
 }' "http://localhost:8111/v1/subHost/accept"
 ```
 
 * Success - Returns updated request
 ```
 {
-  "id": 2,
-  "macId": "",
-  "requestFromID": 29,
-  "requestToID": 35,
+  "id": 3,
+  "requestFromUser": {
+    "id": 2,
+    "email": "jack08300@gmail.com",
+    "firstName": "Jay",
+    "lastName": "Chen",
+    "lastUpdate": "0001-01-01T00:00:00Z",
+    "dateCreated": "0001-01-01T00:00:00Z",
+    "zipCode": "11111",
+    "phoneNumber": "11111",
+    "profile": "",
+    "registrationId": "123test"
+  },
+  "requestToUser": {
+    "id": 63,
+    "email": "jack08301@gmail.com",
+    "firstName": "JJJ",
+    "lastName": "TTT",
+    "lastUpdate": "0001-01-01T00:00:00Z",
+    "dateCreated": "2017-01-17T00:56:06Z",
+    "zipCode": "11111",
+    "phoneNumber": "",
+    "profile": ""
+  },
   "status": "ACCEPTED",
-  "createdDate": "2017-01-09T01:47:16Z",
-  "lastUpdated": "2017-01-09T01:49:28Z",
-  "kid": [
+  "createdDate": "2017-01-18T04:03:22Z",
+  "lastUpdated": "2017-01-18T04:03:22Z",
+  "kids": [
     {
-      "id": 22,
-      "firstName": "KIDLLE123",
-      "lastName": "YES_NO",
-      "dateCreated": "2016-12-27T02:06:01Z",
-      "macId": "",
-      "profile": "",
-      "ParentID": 29
+      "id": 9,
+      "firstName": "Another KID",
+      "lastName": "FDSD",
+      "dateCreated": "2017-01-17T00:56:58Z",
+      "macId": "Test2",
+      "profile": ""
+    },
+    {
+      "id": 10,
+      "firstName": "KIDLLE123124",
+      "lastName": "YES_NO_YES",
+      "dateCreated": "2017-01-17T02:39:36Z",
+      "macId": "Test3",
+      "profile": ""
     }
   ]
 }
@@ -1251,24 +1301,33 @@ curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: 58lkp329ejbr44
 * Success - Returns updated request
 ```
 {
-  "id": 2,
-  "macId": "",
-  "requestFromID": 29,
-  "requestToID": 35,
+  "id": 3,
+  "requestFromUser": {
+    "id": 2,
+    "email": "jack08300@gmail.com",
+    "firstName": "Jay",
+    "lastName": "Chen",
+    "lastUpdate": "0001-01-01T00:00:00Z",
+    "dateCreated": "0001-01-01T00:00:00Z",
+    "zipCode": "11111",
+    "phoneNumber": "11111",
+    "profile": "",
+    "registrationId": "123test"
+  },
+  "requestToUser": {
+    "id": 63,
+    "email": "jack08301@gmail.com",
+    "firstName": "JJJ",
+    "lastName": "TTT",
+    "lastUpdate": "0001-01-01T00:00:00Z",
+    "dateCreated": "2017-01-17T00:56:06Z",
+    "zipCode": "11111",
+    "phoneNumber": "",
+    "profile": ""
+  },
   "status": "DENIED",
-  "createdDate": "2017-01-09T01:47:16Z",
-  "lastUpdated": "2017-01-09T02:02:05Z",
-  "kid": [
-    {
-      "id": 22,
-      "firstName": "KIDLLE123",
-      "lastName": "YES_NO",
-      "dateCreated": "2016-12-27T02:06:01Z",
-      "macId": "",
-      "profile": "",
-      "ParentID": 29
-    }
-  ]
+  "createdDate": "2017-01-18T04:03:22Z",
+  "lastUpdated": "2017-01-17T23:16:14.456787738-05:00"
 }
 ```
 
@@ -1297,22 +1356,49 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: 58lkp329ejbr44
 ```
 [
   {
-    "id": 2,
-    "macId": "",
-    "requestFromID": 29,
-    "requestToID": 35,
+    "id": 3,
+    "requestFromUser": {
+      "id": 2,
+      "email": "jack08300@gmail.com",
+      "firstName": "Jay",
+      "lastName": "Chen",
+      "lastUpdate": "0001-01-01T00:00:00Z",
+      "dateCreated": "0001-01-01T00:00:00Z",
+      "zipCode": "11111",
+      "phoneNumber": "11111",
+      "profile": "",
+      "registrationId": "123test"
+    },
+    "requestToUser": {
+      "id": 63,
+      "email": "jack08301@gmail.com",
+      "firstName": "JJJ",
+      "lastName": "TTT",
+      "lastUpdate": "0001-01-01T00:00:00Z",
+      "dateCreated": "2017-01-17T00:56:06Z",
+      "zipCode": "11111",
+      "phoneNumber": "",
+      "profile": ""
+    },
     "status": "DENIED",
-    "createdDate": "2017-01-09T01:47:16Z",
-    "lastUpdated": "2017-01-09T02:02:05Z",
-    "kid": [
+    "createdDate": "2017-01-18T04:03:22Z",
+    "lastUpdated": "2017-01-18T04:16:14Z",
+    "kids": [
       {
-        "id": 22,
-        "firstName": "KIDLLE123",
-        "lastName": "YES_NO",
-        "dateCreated": "2016-12-27T02:06:01Z",
-        "macId": "",
-        "profile": "",
-        "ParentID": 29
+        "id": 9,
+        "firstName": "Another KID",
+        "lastName": "FDSD",
+        "dateCreated": "2017-01-17T00:56:58Z",
+        "macId": "Test2",
+        "profile": ""
+      },
+      {
+        "id": 10,
+        "firstName": "KIDLLE123124",
+        "lastName": "YES_NO_YES",
+        "dateCreated": "2017-01-17T02:39:36Z",
+        "macId": "Test3",
+        "profile": ""
       }
     ]
   }

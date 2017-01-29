@@ -18,7 +18,7 @@ func WhoRegisteredMacID(c *gin.Context) {
 		return
 	}
 
-	db := database.New()
+	db := database.NewGORM()
 	defer db.Close()
 
 	kid, err := GetKidByMacID(db, macID)
@@ -29,19 +29,7 @@ func WhoRegisteredMacID(c *gin.Context) {
 		return
 	}
 
-	kidParent, err := GetUserByID(db, kid.ParentID)
-
-	if err != nil {
-		fmt.Printf("Can't find kid's parent. %#v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Can't kid's parent",
-			"error":   err,
-		})
-		return
-	}
-
 	c.JSON(http.StatusOK, gin.H{
-		"kid":  kid,
-		"user": kidParent,
+		"kid": kid,
 	})
 }

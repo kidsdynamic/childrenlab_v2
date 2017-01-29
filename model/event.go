@@ -3,62 +3,67 @@ package model
 import "time"
 
 type Event struct {
-	ID             int64     `json:"id" db:"id"`
-	UserID         int64     `json:"userId" db:"user_id"`
-	KidID          int64     `json:"kidId" db:"kid_id"`
-	Name           string    `json:"name" db:"event_name"`
-	Start          time.Time `json:"startDate" db:"start_date"`
-	End            time.Time `json:"endDate" db:"end_date"`
-	Color          string    `json:"color" db:"color"`
-	Status         string    `json:"status" db:"status"`
-	Description    string    `json:"description" db:"description"`
-	Alert          int64     `json:"alert" db:"alert"`
-	City           string    `json:"city" db:"city"`
-	State          string    `json:"state" db:"state"`
-	Repeat         string    `json:"repeat" db:"event_repeat"`
-	TimezoneOffset int64     `json:"timezoneOffset" db:"timezone_offset"`
-	DateCreated    time.Time `json:"dateCreated" db:"date_created"`
-	LastUpdated    time.Time `json:"lastUpdated" db:"last_updated"`
+	ID             int64     `json:"id" gorm:"AUTO_INCREMENT"`
+	UserID         int64     `json:"userId" gorm:"not null"`
+	KidID          int64     `json:"kidId"`
+	Name           string    `json:"name" gorm:"not null"`
+	Start          time.Time `json:"startDate" gorm:"not null"`
+	End            time.Time `json:"endDate" gorm:"not null"`
+	Color          string    `json:"color" gorm:"not null"`
+	Status         string    `json:"status" gorm:"not null"`
+	Description    string    `json:"description"`
+	Alert          int64     `json:"alert"`
+	City           string    `json:"city"`
+	State          string    `json:"state"`
+	Repeat         string    `json:"repeat"`
+	TimezoneOffset int64     `json:"timezoneOffset"`
+	DateCreated    time.Time `json:"dateCreated"`
+	LastUpdated    time.Time `json:"lastUpdated"`
 	Todo           []Todo    `json:"todo,omitempty" `
 }
 
 type Todo struct {
-	ID          int64     `json:"id" db:"id"`
-	Text        string    `json:"text" db:"text"`
-	Status      string    `json:"status" db:"status"`
-	DateCreated time.Time `json:"dateCreated" db:"date_created"`
-	LastUpdated time.Time `json:"lastUpdated" db:"last_updated"`
+	ID          int64     `json:"id" gorm:"AUTO_INCREMENT"`
+	Text        string    `json:"text"`
+	Status      string    `json:"status" gorm:"not null"`
+	DateCreated time.Time `json:"dateCreated" gorm:"not null"`
+	LastUpdated time.Time `json:"lastUpdated" gorm:"not null"`
+	EventID     int64     `json:"-"`
+}
+
+func (Event) TableName() string {
+	return "event"
 }
 
 type EventRequest struct {
-	UserID         int64       `db:"user_id"`
-	KidID          int64       `json:"kidId" db:"kid_id" binding:"required"`
-	Name           string      `json:"name" db:"event_name" binding:"required"`
-	Status         string      `json:"status" db:"status"`
-	Start          interface{} `json:"startDate" db:"start_date" binding:"required"`
-	End            interface{} `json:"endDate" db:"end_date" binding:"required"`
-	Color          string      `json:"color" db:"color" binding:"required"`
-	Description    string      `json:"description" db:"description"`
-	Alert          int64       `json:"alert" db:"alert"`
-	City           string      `json:"city" db:"city"`
-	State          string      `json:"state" db:"state"`
-	Repeat         string      `json:"repeat" db:"event_repeat"`
-	TimezoneOffset int64       `json:"timezoneOffset" db:"timezone_offset" binding:"required"`
-	Todo           []string    `json:"todo"`
+	UserID         int64     `db:"user_id"`
+	KidID          int64     `json:"kidId" binding:"required"`
+	Name           string    `json:"name"`
+	Status         string    `json:"status"`
+	Start          time.Time `json:"startDate"`
+	End            time.Time `json:"endDate"`
+	Color          string    `json:"color"`
+	Description    string    `json:"description"`
+	Alert          int64     `json:"alert"`
+	City           string    `json:"city"`
+	State          string    `json:"state"`
+	Repeat         string    `json:"repeat"`
+	TimezoneOffset int64     `json:"timezoneOffset"`
+	Todo           []string  `json:"todo"`
 }
 
 type UpdateEventRequest struct {
-	ID             int64       `json:"eventId" db:"id" binding:"required"`
-	Name           string      `json:"name" db:"event_name" binding:"required"`
-	Start          interface{} `json:"startDate" db:"start_date" binding:"required"`
-	End            interface{} `json:"endDate" db:"end_date" binding:"required"`
-	Color          string      `json:"color" db:"color" binding:"required"`
-	Description    string      `json:"description" db:"description"`
-	Alert          int64       `json:"alert" db:"alert"`
-	City           string      `json:"city" db:"city"`
-	State          string      `json:"state" db:"state"`
-	Repeat         string      `json:"repeat" db:"event_repeat"`
-	TimezoneOffset int64       `json:"timezoneOffset" db:"timezone_offset" binding:"required"`
+	ID             int64       `json:"eventId" binding:"required"`
+	Name           string      `json:"name" binding:"required"`
+	Start          interface{} `json:"startDate" binding:"required"`
+	End            interface{} `json:"endDate" binding:"required"`
+	Color          string      `json:"color" binding:"required"`
+	Description    string      `json:"description"`
+	Alert          int64       `json:"alert"`
+	City           string      `json:"city"`
+	State          string      `json:"state"`
+	Repeat         string      `json:"repeat"`
+	TimezoneOffset int64       `json:"timezoneOffset" binding:"required"`
 	Todo           []string    `json:"todo"`
 }
 

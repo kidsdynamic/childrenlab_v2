@@ -3,14 +3,15 @@ package model
 import "time"
 
 type SubHost struct {
-	ID            int64     `json:"id" db:"id"`
-	MacID         string    `json:"macId" db:"mac_id"`
-	RequestFromID int64     `json:"requestFromID" db:"request_from_id"`
-	RequestToID   int64     `json:"requestToID" db:"request_to_id"`
-	Status        string    `json:"status" db:"status"`
-	DateCreated   time.Time `json:"createdDate" db:"date_created"`
-	LastUpdated   time.Time `json:"lastUpdated" db:"last_updated"`
-	Kid           []Kid     `json:"kid"`
+	ID            int64     `json:"id" gorm:"AUTO_INCREMENT"`
+	RequestFrom   User      `json:"requestFromUser"`
+	RequestFromID int64     `json:"-"`
+	RequestTo     User      `json:"requestToUser"`
+	RequestToID   int64     `json:"-"`
+	Status        string    `json:"status" gorm:"default:'PENDING'"`
+	DateCreated   time.Time `json:"createdDate"`
+	LastUpdated   time.Time `json:"lastUpdated"`
+	Kids          []Kid     `json:"kids,omitempty" gorm:"many2many:sub_host_kid"`
 }
 
 type RequestSubHostWithMacIDRequest struct {
@@ -22,12 +23,14 @@ type RequestSubHostWithMacIDRequest struct {
 }
 
 type RequestSubHostToUser struct {
-	HostID int64  `json:"hostId" db:"request_to_id" binding:"required"`
-	UserID int64  `db:"request_from_id"`
-	Status string `db:"status"`
+	HostID int64 `json:"hostId" db:"request_to_id" binding:"required"`
 }
 
 type UpdateSubHostRequest struct {
 	SubHostID int64   `json:"subHostId" binding:"required"`
 	KidID     []int64 `json:"kidId"`
+}
+
+func (SubHost) TableName() string {
+	return "sub_host"
 }

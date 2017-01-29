@@ -3,19 +3,20 @@ package model
 import "time"
 
 type Kid struct {
-	ID          int64     `json:"id" db:"id"`
-	FirstName   string    `json:"firstName" db:"first_name"`
-	LastName    string    `json:"lastName" db:"last_name"`
-	DateCreated time.Time `json:"dateCreated" db:"date_created"`
-	MacID       string    `json:"macId" db:"mac_id"`
-	Profile     string    `json:"profile" db:"profile"`
-	ParentID    int64     `db:"parent_id"`
+	ID          int64     `json:"id" gorm:"AUTO_INCREMENT"`
+	FirstName   string    `json:"firstName"`
+	LastName    string    `json:"lastName"`
+	DateCreated time.Time `json:"dateCreated"`
+	MacID       string    `json:"macId"`
+	Profile     string    `json:"profile"`
+	Parent      *User     `json:"parent,omitempty"`
+	ParentID    int64     `json:"-"`
 }
 
 type Device struct {
-	ID          int64     `json:"id" db:"id"`
-	MacID       string    `json:"macId" db:"mac_id"`
-	DateCreated time.Time `json:"dateCreated" db:"date_created"`
+	ID          int64     `json:"id" gorm:"AUTO_INCREMENT"`
+	MacID       string    `json:"macId"`
+	DateCreated time.Time `json:"dateCreated"`
 }
 
 type KidRequest struct {
@@ -29,4 +30,12 @@ type UpdateKidRequest struct {
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
 	MacID     string `json:"macId"`
+}
+
+func (Kid) TableName() string {
+	return "kids"
+}
+
+func (Device) TableName() string {
+	return "device"
 }

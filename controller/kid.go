@@ -7,6 +7,8 @@ import (
 
 	"fmt"
 
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/kidsdynamic/childrenlab_v2/database"
 	"github.com/kidsdynamic/childrenlab_v2/model"
@@ -26,30 +28,27 @@ func AddKid(c *gin.Context) {
 		return
 	}
 
-	db := database.New()
+	db := database.NewGORM()
 	defer db.Close()
 
-	//check if device exist
-	var exist bool
-	if err := db.Get(&exist, "SELECT EXISTS(SELECT id FROM device WHERE mac_id = ? LIMIT 1)", request.MacID); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Something wrong on server side",
-			"error":   err,
-		})
-		return
-	}
+	var kid model.Kid
 
-	if exist {
+	db.Where("mac_id = ?", request.MacID).First(&kid)
+
+	if kid.MacID != "" {
 		c.JSON(http.StatusConflict, gin.H{
 			"message": "The device is already registered",
 		})
 		return
 	}
 
-	result, err := db.Exec("INSERT INTO kids (first_name, last_name, parent_id, mac_id, date_created, last_updated)"+
-		" VALUES (?, ?, ?, ?, Now(), Now())", request.FirstName, request.LastName, user.ID, request.MacID)
+	kid.MacID = request.MacID
+	kid.FirstName = request.FirstName
+	kid.LastName = request.LastName
+	kid.ParentID = user.ID
+	kid.DateCreated = time.Now()
 
-	if err != nil {
+	if err := db.Save(&kid).Error; err != nil {
 		log.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error when insert kid data",
@@ -58,32 +57,22 @@ func AddKid(c *gin.Context) {
 		return
 	}
 
-	kidId, err := result.LastInsertId()
+	var device model.Device
+	device.MacID = kid.MacID
+	device.DateCreated = time.Now()
 
-	if err != nil {
-		log.Println(err)
+	if err := db.Save(&device).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Error when insert kid data",
+			"message": "Error when insert device data",
 			"error":   err,
 		})
 		return
 	}
 
-	result = db.MustExec("INSERT INTO device (kid_id, mac_id, user_id, date_created, last_updated) VALUES "+
-		"(?, ?, ?, Now(), Now())", kidId, request.MacID, user.ID)
-
-	if !checkInsertResult(result) {
+	if err := db.Preload("Parent").Find(&kid).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Error when insert device data",
-		})
-		return
-	}
-
-	kid, err := GetKidByUserIdAndKidId(db, user.ID, kidId)
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Error when retrieve kids",
+			"message": "Error when Preload parent device data",
+			"error":   err,
 		})
 		return
 	}
@@ -103,7 +92,7 @@ func UpdateKid(c *gin.Context) {
 
 	fmt.Printf("Kid Update Request: %#v", request)
 
-	db := database.New()
+	db := database.NewGORM()
 	defer db.Close()
 
 	user := GetSignedInUser(c)
@@ -118,33 +107,10 @@ func UpdateKid(c *gin.Context) {
 		return
 	}
 
-	tx := db.MustBegin()
-	if request.FirstName != "" {
-		tx.MustExec("UPDATE kids SET first_name = ? WHERE id = ?", request.FirstName, kid.ID)
-	}
-
-	if request.LastName != "" {
-		tx.MustExec("UPDATE kids SET last_name = ? WHERE id = ?", request.LastName, kid.ID)
-	}
-
-	tx.MustExec("UPDATE user SET last_updated = NOW() WHERE id = ?", kid.ID)
-	tx.Commit()
-
-	kid, err = GetKidByUserIdAndKidId(db, user.ID, request.ID)
-
-	if err != nil {
+	if err := db.Model(&kid).Updates(request).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something wrong when retreive updated user information",
 		})
-	}
-
-	if err != nil {
-		fmt.Printf("Can't find kid. %#v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Can't find kid",
-			"error":   err,
-		})
-		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
