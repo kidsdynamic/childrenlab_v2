@@ -519,6 +519,30 @@ curl -X PUT -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Type
 }
 ```
 
+## /v1/kids/delete - DELETE
+* It's ***GET*** method, so no content-type. Add parameters to the ***URL***
+* It can only delete logged in user's kid data
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| -----:|
+| kidId    | Yes | Integer |   3 |
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Delete successfully |
+| 400     | Bad request. Missing some parameters |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X DELETE -H "Content-Type: application/json" -H "x-auth-token: 1c8306065183d7829fab224be6e43257" "http://localhost:8111/v1/kids/delete?kidId=2"
+```
+
+* Success - no response body
+
+
 ## /v1/kids/whoRegisteredMacID - GET
 * Retrieve kid and user information by MAC ID
 * Doesn't need x-auth-token

@@ -9,18 +9,10 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
-	"github.com/jmoiron/sqlx"
 	"github.com/kidsdynamic/childrenlab_v2/model"
 )
 
 var DatabaseInfo model.Database
-
-func New() *sqlx.DB {
-	db := sqlx.MustConnect("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=true",
-		DatabaseInfo.User, DatabaseInfo.Password, DatabaseInfo.IP, DatabaseInfo.Name))
-
-	return db
-}
 
 func NewGORM() *gorm.DB {
 	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=true",

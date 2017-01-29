@@ -12,6 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kidsdynamic/childrenlab_v2/database"
+	"github.com/kidsdynamic/childrenlab_v2/model"
 )
 
 func UploadAvatar(c *gin.Context) {
@@ -48,15 +49,14 @@ func UploadAvatar(c *gin.Context) {
 	}
 
 	if err = UploadFileToS3(f, fileName); err == nil {
-		db := database.New()
+		db := database.NewGORM()
 		defer db.Close()
 
-		s := db.MustExec("UPDATE user SET profile = ? WHERE id = ?", fileName, user.ID)
-
-		log.Println(s)
-
-		if err := db.MustExec("UPDATE user SET profile = ? WHERE id = ?", fileName, user.ID); err != nil {
-			log.Printf("Error on update profile. Error: %#v\n", err)
+		if err := db.Model(&model.User{}).Update("profile", fileName).Where("id = ?", user.ID).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Something wrong when updating profile for the user",
+				"error":   err,
+			})
 		}
 
 		user.Profile = fileName

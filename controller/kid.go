@@ -118,3 +118,30 @@ func UpdateKid(c *gin.Context) {
 	})
 
 }
+
+func DeleteKid(c *gin.Context) {
+	kidID := c.Query("kidId")
+
+	user := GetSignedInUser(c)
+
+	db := database.NewGORM()
+	defer db.Close()
+
+	var kid model.Kid
+	if err := db.Where("id = ? AND parent_id = ?", kidID, user.ID).First(&kid).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Can't find kid",
+			"error":   err,
+		})
+		return
+	}
+
+	if err := db.Delete(&model.Kid{}).Where("id = ?", kid.ID).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Something wrong when deleting kid from database",
+			"error":   err,
+		})
+		return
+	}
+
+}

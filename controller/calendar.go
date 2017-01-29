@@ -187,7 +187,6 @@ func DeleteEvent(c *gin.Context) {
 	}
 
 	if len(event.Todo) > 0 {
-		fmt.Println("TOdo > 0")
 		if err := db.Delete(&model.Todo{}, "event_id = ?", eventID).Error; err != nil {
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{
@@ -260,7 +259,7 @@ func GetCalendarEvent(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"event": event,
+		"event": events,
 	})
 }
 
