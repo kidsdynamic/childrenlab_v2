@@ -82,7 +82,9 @@ func AddCalendarEvent(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, event)
+	c.JSON(http.StatusOK, gin.H{
+		"event": event,
+	})
 
 }
 
@@ -144,7 +146,9 @@ func UpdateCalendarEvent(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, event)
+	c.JSON(http.StatusOK, gin.H{
+		"event": event,
+	})
 
 }
 
@@ -255,7 +259,9 @@ func GetCalendarEvent(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, events)
+	c.JSON(http.StatusOK, gin.H{
+		"event": event,
+	})
 }
 
 func RetrieveAllEventWithTodoByUser(c *gin.Context) {
