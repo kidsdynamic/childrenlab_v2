@@ -53,7 +53,7 @@ func UploadRawActivityData(c *gin.Context) {
 	}
 
 	var exist bool
-	row := db.Raw("SELECT EXISTS(SELECT id FROM activity_raw_data WHERE time = ? AND mac_id = ? LIMIT 1)", indoorActivityLong, kid.MacID).Row()
+	row := db.Raw("SELECT EXISTS(SELECT id FROM activity_raw WHERE time = ? AND mac_id = ? LIMIT 1)", indoorActivityLong, kid.MacID).Row()
 	if err := row.Scan(&exist); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something wrong when finding eixst activity",
