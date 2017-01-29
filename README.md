@@ -14,6 +14,7 @@
 * [POST   /v1/kids/add             ](#v1kidsadd---post)
 * [PUT    /v1/kids/update          ](#v1kidsupdate---put)
 * [GET    /v1/kids/whoRegisteredMacID          ](#v1kidswhoregisteredmacid---get)
+* [DELETE    /v1/kids/delete          ](#https://github.com/kidsdynamic/childrenlab_v2#v1kidsdelete---delete)
 
 ### Avatar
 * [POST   /v1/user/avatar/upload   ](#v1useravatarupload---post)
@@ -387,12 +388,24 @@ curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Typ
 ```
 {
   "kid": {
-    "id": 19,
-    "firstName": "KIDLLE",
-    "lastName": "YES",
-    "dateCreated": "2016-12-18T04:17:35Z",
-    "macId": "",
-    "profile": "kid_avatar_19.jpg"
+    "id": 13,
+    "firstName": "kid13",
+    "lastName": "Kids13 Last",
+    "dateCreated": "2017-01-29T23:07:38Z",
+    "macId": "Mac_ID3",
+    "profile": "kid_avatar_13.jpg",
+    "parent": {
+      "id": 5,
+      "email": "jack08301@gmail.com",
+      "firstName": "Jay",
+      "lastName": "Chen",
+      "lastUpdate": "2017-01-11T04:16:44Z",
+      "dateCreated": "2017-01-11T04:16:44Z",
+      "zipCode": "11111",
+      "phoneNumber": "11111",
+      "profile": "avatar_5.jpg",
+      "registrationId": "123test"
+    }
   }
 }
 ```
@@ -408,6 +421,7 @@ curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Typ
 
 ## /v1/kids/add - POST
 * Add kid
+* It only responses added kid
 * Content-Type: application/json
 
 #### Request Parameters
@@ -437,32 +451,23 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7
 * Success - it returns all of kids belong to the user
 ```
 {
-  "kids": [
-    {
-      "id": 18,
-      "firstName": "Jay",
-      "lastName": "Chen",
-      "dateCreated": "2016-12-11T22:37:15Z",
-      "macId": "13031FCFE5E02",
-      "profile": ""
-    },
-    {
-      "id": 19,
-      "firstName": "KIDLLE",
-      "lastName": "YES",
-      "dateCreated": "2016-12-18T04:17:35Z",
-      "macId": "hgweorahgbkljwhnpi",
-      "profile": ""
-    },
-    {
-      "id": 20,
-      "firstName": "KIDLLE",
-      "lastName": "YES",
-      "dateCreated": "2016-12-18T21:19:54Z",
-      "macId": "hgweorahgbkljwhnpi2",
-      "profile": ""
-    }
-  ]
+  "id": 13,
+  "firstName": "Kids2",
+  "lastName": "Kids1 Last",
+  "dateCreated": "2017-01-29T23:07:38Z",
+  "macId": "Mac_ID3",
+  "profile": "",
+  "parent": {
+    "id": 5,
+    "email": "jack08301@gmail.com",
+    "firstName": "JJJ",
+    "lastName": "TTT",
+    "lastUpdate": "2017-01-11T04:16:44Z",
+    "dateCreated": "2017-01-11T04:16:44Z",
+    "zipCode": "11111",
+    "phoneNumber": "412412412412",
+    "profile": "avatar_5.jpg"
+  }
 }
 ```
 * Conflict error - response body:
@@ -502,12 +507,23 @@ curl -X PUT -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Type
 ```
 {
   "kid": {
-    "id": 19,
-    "firstName": "KIDLLE",
-    "lastName": "yes",
-    "dateCreated": "2016-12-18T04:17:35Z",
-    "macId": "",
-    "profile": ""
+    "id": 13,
+    "firstName": "kid13",
+    "lastName": "Kids13 Last",
+    "dateCreated": "2017-01-29T23:07:38Z",
+    "macId": "Mac_ID3",
+    "profile": "",
+    "parent": {
+      "id": 5,
+      "email": "jack08301@gmail.com",
+      "firstName": "JJJ",
+      "lastName": "TTT",
+      "lastUpdate": "2017-01-11T04:16:44Z",
+      "dateCreated": "2017-01-11T04:16:44Z",
+      "zipCode": "11111",
+      "phoneNumber": "412412412412",
+      "profile": "avatar_5.jpg"
+    }
   }
 }
 ```

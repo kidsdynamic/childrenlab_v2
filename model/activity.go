@@ -13,6 +13,10 @@ type ActivityRawData struct {
 	LastUpdated time.Time
 }
 
+func (ActivityRawData) TableName() string {
+	return "activity_raw"
+}
+
 type ActivityInsight struct {
 	Date     time.Time
 	TimeLong int64
