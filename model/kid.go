@@ -3,7 +3,7 @@ package model
 import "time"
 
 type Kid struct {
-	ID          int64     `json:"id" gorm:"AUTO_INCREMENT"`
+	ID          int64     `json:"id" gorm:"AUTO_INCREMENT;primary_key:true"`
 	FirstName   string    `json:"firstName"`
 	LastName    string    `json:"lastName"`
 	DateCreated time.Time `json:"dateCreated"`

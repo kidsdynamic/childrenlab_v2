@@ -979,7 +979,7 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 * Success - Returns updated event
 ```
 {
-  "events": [
+  "event": [
     {
       "id": 410,
       "userId": 29,

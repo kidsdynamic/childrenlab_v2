@@ -3,7 +3,7 @@ package model
 import "time"
 
 type SubHost struct {
-	ID            int64     `json:"id" gorm:"AUTO_INCREMENT"`
+	ID            int64     `json:"id" gorm:"AUTO_INCREMENT;primary_key:true"`
 	RequestFrom   User      `json:"requestFromUser"`
 	RequestFromID int64     `json:"-"`
 	RequestTo     User      `json:"requestToUser"`
@@ -11,7 +11,12 @@ type SubHost struct {
 	Status        string    `json:"status" gorm:"default:'PENDING'"`
 	DateCreated   time.Time `json:"createdDate"`
 	LastUpdated   time.Time `json:"lastUpdated"`
-	Kids          []Kid     `json:"kids,omitempty" gorm:"many2many:sub_host_kid"`
+	Kids          []Kid     `json:"kids,omitempty" gorm:"many2many:sub_host_kid;"`
+}
+
+type SubHostKid struct {
+	SubHostID int64 `gorm:"primary_key:true"`
+	KidID     int64 `gorm:"primary_key:true"`
 }
 
 type RequestSubHostWithMacIDRequest struct {

@@ -6,6 +6,8 @@ import (
 	"crypto/sha256"
 	"io"
 
+	"log"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
@@ -35,12 +37,16 @@ func InitDatabase() {
 		&model.AccessToken{},
 		&model.Kid{},
 		&model.Device{},
-		&model.SubHost{},
 		&model.Event{},
 		&model.Todo{},
 		&model.ActivityRawData{},
 		&model.Activity{},
 	)
+
+	if err := db.Exec("CREATE TABLE `sub_host_kid` (`sub_host_id` bigint,`kid_id` bigint, PRIMARY KEY (`sub_host_id`,`kid_id`))").Error; err != nil {
+		log.Fatal(err)
+	}
+	db.AutoMigrate(&model.SubHost{})
 
 	yes := db.HasTable("role")
 
