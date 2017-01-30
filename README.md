@@ -14,7 +14,7 @@
 * [POST   /v1/kids/add             ](#v1kidsadd---post)
 * [PUT    /v1/kids/update          ](#v1kidsupdate---put)
 * [GET    /v1/kids/whoRegisteredMacID          ](#v1kidswhoregisteredmacid---get)
-* [DELETE    /v1/kids/delete          ](#https://github.com/kidsdynamic/childrenlab_v2#v1kidsdelete---delete)
+* [DELETE    /v1/kids/delete          ](#v1kidsdelete---delete)
 
 ### Avatar
 * [POST   /v1/user/avatar/upload   ](#v1useravatarupload---post)
