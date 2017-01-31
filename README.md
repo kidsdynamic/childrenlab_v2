@@ -8,6 +8,7 @@
 * [PUT    /v1/user/updateProfile ](#v1userupdateprofile---put)
 * [GET    /v1/user/retrieveUserProfile](#v1userretrieveuserprofile---get)
 * [PUT    /v1/user/updateIOSRegistrationId](#v1userupdateiosregistrationid---put)
+* [GET    /v1/user/findByEmail](#v1userfindbyemail---get)
 
 
 ### Kid API
@@ -308,6 +309,36 @@ curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: ec83d6e41db516
   "phoneNumber": "",
   "profile": "",
   "registrationId": "TestRegistrationID"
+}
+```
+
+## /v1/user/findByEmail - GET
+* Retrieve user data by the email
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Get user successfully |
+| 400     | Bad request. The email parameter is missing |
+| 404     | Not found. Can't find user by the email |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X GET -H "Content-Type: application/json" -H "x-auth-token: 4b0d53ff1953af73aff2fec2478bd1fe" "http://localhost:8111/v1/user/findByEmail?email=jack0830421@gmail.com"
+```
+* Success -
+```
+{
+  "id": 2,
+  "email": "jack08300@gmail.com",
+  "firstName": "Jay",
+  "lastName": "Chen",
+  "lastUpdate": "0001-01-01T00:00:00Z",
+  "dateCreated": "0001-01-01T00:00:00Z",
+  "zipCode": "",
+  "phoneNumber": "",
+  "profile": ""
 }
 ```
 
