@@ -227,6 +227,34 @@ func IsEmailAvailableToRegister(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{})
 }
 
+func FindUserByEmail(c *gin.Context) {
+	email := c.Query("email")
+
+	if email == "" {
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
+	}
+
+	db := database.NewGORM()
+	defer db.Close()
+
+	var user model.User
+	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Error on finding user by email",
+				"error":   err,
+			})
+
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
+}
+
 type iOS struct {
 	RegistrationId string
 }
