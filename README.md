@@ -458,16 +458,14 @@ curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Typ
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
 | ------------- |:-------------:|:-------------:| -----:|
-| firstName     | Yes | string | Kiddle   |
-| lastName      | Yes | string | JY |
+| name     | Yes | string | Kiddle   |
 | macId      | Yes | string | 8D071FCFE5E0 |
 
 ### curl Example
 ```
-curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -d '{
-	"firstName": "Kiddle",
-	"lastName": "JY",
-	"macId": "8D071FCFE5E0"
+curl -X POST -H "Content-Type: application/json" -H "x-auth-token: 8158050a26569ff9c8c5297351c4f56a" -d '{
+  "name": "Kids3",
+  "macId": "Mac_ID4"
 }' "http://localhost:8111/v1/kids/add"
 ```
 
@@ -482,22 +480,21 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7
 * Success - it returns all of kids belong to the user
 ```
 {
-  "id": 13,
-  "firstName": "Kids2",
-  "lastName": "Kids1 Last",
-  "dateCreated": "2017-01-29T23:07:38Z",
-  "macId": "Mac_ID3",
+  "id": 2,
+  "name": "Kids3",
+  "dateCreated": "2017-02-02T01:14:16Z",
+  "macId": "Mac_ID4",
   "profile": "",
   "parent": {
-    "id": 5,
-    "email": "jack08301@gmail.com",
-    "firstName": "JJJ",
-    "lastName": "TTT",
-    "lastUpdate": "2017-01-11T04:16:44Z",
-    "dateCreated": "2017-01-11T04:16:44Z",
-    "zipCode": "11111",
-    "phoneNumber": "412412412412",
-    "profile": "avatar_5.jpg"
+    "id": 2,
+    "email": "jack08300@gmail.com",
+    "firstName": "Jay",
+    "lastName": "Chen",
+    "lastUpdate": "0001-01-01T00:00:00Z",
+    "dateCreated": "0001-01-01T00:00:00Z",
+    "zipCode": "",
+    "phoneNumber": "",
+    "profile": ""
   }
 }
 ```
