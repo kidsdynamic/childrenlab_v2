@@ -3,7 +3,7 @@
 ### User API
 * [POST   /v1/user/login](#v1userlogin---post)
 * [POST   /v1/user/register      ](#v1userregister---post)
-* [POST   /v1/user/isTokenValid  ](#v1useristokenvalid---post)
+* [GET   /v1/user/isTokenValid  ](#v1useristokenvalid---get)
 * [GET   /v1/user/isEmailAvailableToRegister  ](#v1userisemailavailabletoregister---get)
 * [PUT    /v1/user/updateProfile ](#v1userupdateprofile---put)
 * [GET    /v1/user/retrieveUserProfile](#v1userretrieveuserprofile---get)
@@ -65,8 +65,7 @@
 }
 ```
 
-## /v1/user/isTokenValid - POST
-* Content-Type: application/json
+## /v1/user/isTokenValid - GET
 
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
