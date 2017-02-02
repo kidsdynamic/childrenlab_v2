@@ -43,8 +43,7 @@ func AddKid(c *gin.Context) {
 	}
 
 	kid.MacID = request.MacID
-	kid.FirstName = request.FirstName
-	kid.LastName = request.LastName
+	kid.Name = request.Name
 	kid.ParentID = user.ID
 	kid.DateCreated = time.Now()
 

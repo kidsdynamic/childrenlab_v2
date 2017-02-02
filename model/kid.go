@@ -4,8 +4,7 @@ import "time"
 
 type Kid struct {
 	ID          int64     `json:"id" gorm:"AUTO_INCREMENT;primary_key:true"`
-	FirstName   string    `json:"firstName"`
-	LastName    string    `json:"lastName"`
+	Name        string    `json:"name"`
 	DateCreated time.Time `json:"dateCreated"`
 	MacID       string    `json:"macId"`
 	Profile     string    `json:"profile"`
@@ -20,9 +19,9 @@ type Device struct {
 }
 
 type KidRequest struct {
-	FirstName string `json:"firstName" binding:"required"`
-	LastName  string `json:"lastName" binding:"required"`
-	MacID     string `json:"macId" binding:"required"`
+	Name    string `json:"name" binding:"required"`
+	ZipCode string `json:"zipCode"`
+	MacID   string `json:"macId" binding:"required"`
 }
 
 type UpdateKidRequest struct {
