@@ -40,5 +40,4 @@ Childrenlab
 .ssh/childrenlab.com.key
 
 gin-bin
-/view/dist
 /view/node_modules
