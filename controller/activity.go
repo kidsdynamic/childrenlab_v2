@@ -342,3 +342,20 @@ func getBeginningOfYear() *time.Time {
 	fmt.Println("get beginning of Year: ", today)
 	return &today
 }
+
+func GetActivityList(c *gin.Context) {
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+	db := database.NewGORM()
+	defer db.Close()
+
+	var activity []model.Activity
+	if err := db.Where("kid_id = ?", c.Param("kidId")).Find(&activity).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error on getting activities",
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, activity)
+}

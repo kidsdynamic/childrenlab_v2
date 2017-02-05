@@ -13,6 +13,7 @@ func initUserRouter(r *gin.Engine) {
 	v1.GET("/isTokenValid", controller.IsTokenValid)
 	v1.GET("/isEmailAvailableToRegister", controller.IsEmailAvailableToRegister)
 	v1.GET("/findByEmail", controller.FindUserByEmail)
+	v1.GET("/userList", controller.GetAllUser)
 
 	authAPI := r.Group("/v1/user")
 

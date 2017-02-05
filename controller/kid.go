@@ -144,3 +144,20 @@ func DeleteKid(c *gin.Context) {
 	}
 
 }
+
+func GetKidList(c *gin.Context) {
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+	db := database.NewGORM()
+	defer db.Close()
+
+	var kids []model.Kid
+	if err := db.Preload("Parent").Order("date_created desc").Find(&kids).Limit(50).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Something wrong when retriving kid list",
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, kids)
+}

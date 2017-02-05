@@ -6,6 +6,9 @@ import (
 )
 
 func initActivityRouter(r *gin.Engine) {
+	v1 := r.Group("/v1/activity")
+	v1.GET("/list/:kidId", controller.GetActivityList)
+
 	activityAPI := r.Group("/v1/activity")
 	activityAPI.Use(controller.Auth)
 	activityAPI.POST("/uploadRawData", controller.UploadRawActivityData)

@@ -6,6 +6,9 @@ import (
 )
 
 func initKidRouter(r *gin.Engine) {
+	v1 := r.Group("/v1/kids")
+	v1.GET("/list", controller.GetKidList)
+
 	kidsAPI := r.Group("/v1/kids")
 	kidsAPI.Use(controller.Auth)
 	kidsAPI.POST("/add", controller.AddKid)
