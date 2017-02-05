@@ -51,6 +51,7 @@ func AddCalendarEvent(c *gin.Context) {
 	event.Start = request.Start
 	event.End = request.End
 	event.Color = request.Color
+	event.Description = request.Description
 	event.DateCreated = GetNowTime()
 	event.LastUpdated = GetNowTime()
 	event.TimezoneOffset = request.TimezoneOffset

@@ -535,8 +535,7 @@ curl -X PUT -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Type
 {
   "kid": {
     "id": 13,
-    "firstName": "kid13",
-    "lastName": "Kids13 Last",
+    "name": "kid13",
     "dateCreated": "2017-01-29T23:07:38Z",
     "macId": "Mac_ID3",
     "profile": "",
@@ -613,8 +612,7 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 {
   "kid": {
     "id": 2,
-    "firstName": "KIDLLE123124",
-    "lastName": "YES_NO",
+    "name": "KIDLLE123124",
     "dateCreated": "2017-01-16T22:18:26Z",
     "macId": "hgweorahgbkljwhnpi1",
     "profile": "qwe",
