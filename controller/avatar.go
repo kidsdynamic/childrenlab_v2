@@ -52,7 +52,7 @@ func UploadAvatar(c *gin.Context) {
 		db := database.NewGORM()
 		defer db.Close()
 
-		if err := db.Model(&model.User{}).Update("profile", fileName).Where("id = ?", user.ID).Error; err != nil {
+		if err := db.Model(&model.User{}).Where("id = ?", user.ID).Update("profile", fileName).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Something wrong when updating profile for the user",
 				"error":   err,
