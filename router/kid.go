@@ -6,12 +6,13 @@ import (
 )
 
 func initKidRouter(r *gin.Engine) {
-	v1 := r.Group("/v1/kids")
-	v1.GET("/list", controller.GetKidList)
+	v1 := r.Group("/v1/admin/kids")
+	v1.GET("/list", controller.GetAllKidList)
 
 	kidsAPI := r.Group("/v1/kids")
 	kidsAPI.Use(controller.Auth)
 	kidsAPI.POST("/add", controller.AddKid)
 	kidsAPI.PUT("/update", controller.UpdateKid)
 	kidsAPI.DELETE("/delete", controller.DeleteKid)
+	kidsAPI.GET("/list", controller.GetKidList)
 }

@@ -11,7 +11,7 @@ import { Kid } from '../model/kid'
 @Injectable()
 export class KidService {
 
-    private kidListUrl = 'https://www.childrenlab.com/v1/kids/list';
+    private kidListUrl = 'https://www.childrenlab.com/v1/admin/kids/list';
 
     constructor(private http: Http) {}
 

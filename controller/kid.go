@@ -106,10 +106,14 @@ func UpdateKid(c *gin.Context) {
 		return
 	}
 
-	if err := db.Model(&kid).Updates(request).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Something wrong when retreive updated user information",
-		})
+	if request.Name != "" {
+		kid.Name = request.Name
+
+		if err := db.Model(&model.Kid{}).Where("id = ?", kid.ID).Update("name", kid.Name).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Something wrong when retreive updated user information",
+			})
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -135,7 +139,7 @@ func DeleteKid(c *gin.Context) {
 		return
 	}
 
-	if err := db.Delete(&model.Kid{}).Where("id = ?", kid.ID).Error; err != nil {
+	if err := db.Where("id = ?", kid.ID).Delete(&model.Kid{}).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something wrong when deleting kid from database",
 			"error":   err,
@@ -146,6 +150,24 @@ func DeleteKid(c *gin.Context) {
 }
 
 func GetKidList(c *gin.Context) {
+	db := database.NewGORM()
+	defer db.Close()
+
+	user := GetSignedInUser(c)
+
+	var kids []model.Kid
+	if err := db.Where("parent_id = ?", user.ID).Order("date_created desc").Find(&kids).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Something wrong when retriving kid list",
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, kids)
+}
+
+func GetAllKidList(c *gin.Context) {
 	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 	db := database.NewGORM()
 	defer db.Close()

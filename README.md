@@ -14,6 +14,7 @@
 ### Kid API
 * [POST   /v1/kids/add             ](#v1kidsadd---post)
 * [PUT    /v1/kids/update          ](#v1kidsupdate---put)
+* [GET    /v1/kids/list          ](#v1kidslist---get)
 * [GET    /v1/kids/whoRegisteredMacID          ](#v1kidswhoregisteredmacid---get)
 * [DELETE    /v1/kids/delete          ](#v1kidsdelete---delete)
 
@@ -237,24 +238,21 @@ curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -d '' "http://l
   "kids": [
     {
       "id": 18,
-      "firstName": "Jay",
-      "lastName": "Chen",
+      "name": "Jay",
       "dateCreated": "2016-12-11T22:37:15Z",
       "macId": "13031FCFE5E02",
       "profile": ""
     },
     {
       "id": 19,
-      "firstName": "KIDLLE",
-      "lastName": "YES",
+      "name": "KIDLLE",
       "dateCreated": "2016-12-18T04:17:35Z",
       "macId": "hgweorahgbkljwhnpi",
       "profile": ""
     },
     {
       "id": 20,
-      "firstName": "KIDLLE",
-      "lastName": "YES",
+      "name": "KIDLLE",
       "dateCreated": "2016-12-18T21:19:54Z",
       "macId": "hgweorahgbkljwhnpi2",
       "profile": ""
@@ -263,8 +261,7 @@ curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -d '' "http://l
   "user": {
     "id": 29,
     "email": "lwz1@swing.com",
-    "firstName": "KIDLLE",
-    "lastName": "YES",
+    "name": "KIDLLE",
     "lastUpdate": "2016-12-18T21:24:57Z",
     "dateCreated": "2016-12-06T00:40:10Z",
     "zipCode": "11111",
@@ -419,16 +416,14 @@ curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Typ
 {
   "kid": {
     "id": 13,
-    "firstName": "kid13",
-    "lastName": "Kids13 Last",
+    "name": "kid13",
     "dateCreated": "2017-01-29T23:07:38Z",
     "macId": "Mac_ID3",
     "profile": "kid_avatar_13.jpg",
     "parent": {
       "id": 5,
       "email": "jack08301@gmail.com",
-      "firstName": "Jay",
-      "lastName": "Chen",
+      "name": "Jay",
       "lastUpdate": "2017-01-11T04:16:44Z",
       "dateCreated": "2017-01-11T04:16:44Z",
       "zipCode": "11111",
@@ -512,8 +507,7 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: 8158050a26569
 | Parameters    | Required      | Type  | Example  |
 | ------------- |:-------------:|:-------------:| -----:|
 | kidId    | Yes | String |   19 |
-| firstName    | No | String |   Jay |
-| lastName     | No | String |   Chen |
+| name    | No | String |   Jay |
 
 #### Response Status
 | Status Code    | Meaning      |
@@ -584,6 +578,37 @@ curl -X DELETE -H "Content-Type: application/json" -H "x-auth-token: 1c830606518
 
 * Success - no response body
 
+## /v1/kids/list - GET
+* Retrieve kids belong to the signed in user
+* Doesn't need any parameter
+
+#### Request Parameters
+None
+
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Retrieve successfully |
+| 403     | User is not signed in |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X GET -H "Content-Type: application/json" -H "x-auth-token: 28e20ffb974205c0747b5aa35d53e53" "http://localhost:8111/v1/kids/list"```
+
+* Success - 
+```
+[
+  {
+    "id": 3,
+    "name": "kid13",
+    "dateCreated": "2017-02-02T10:25:20Z",
+    "macId": "012345678915",
+    "profile": "kid_avatar_3.jpg"
+  }
+]
+```
 
 ## /v1/kids/whoRegisteredMacID - GET
 * Retrieve kid and user information by MAC ID
@@ -1321,16 +1346,14 @@ curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: 6d312cbc54ce05
   "kids": [
     {
       "id": 9,
-      "firstName": "Another KID",
-      "lastName": "FDSD",
+      "name": "Another KID",
       "dateCreated": "2017-01-17T00:56:58Z",
       "macId": "Test2",
       "profile": ""
     },
     {
       "id": 10,
-      "firstName": "KIDLLE123124",
-      "lastName": "YES_NO_YES",
+      "name": "KIDLLE123124",
       "dateCreated": "2017-01-17T02:39:36Z",
       "macId": "Test3",
       "profile": ""
@@ -1451,16 +1474,14 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: 58lkp329ejbr44
     "kids": [
       {
         "id": 9,
-        "firstName": "Another KID",
-        "lastName": "FDSD",
+        "name": "Another KID",
         "dateCreated": "2017-01-17T00:56:58Z",
         "macId": "Test2",
         "profile": ""
       },
       {
         "id": 10,
-        "firstName": "KIDLLE123124",
-        "lastName": "YES_NO_YES",
+        "name": "KIDLLE123124",
         "dateCreated": "2017-01-17T02:39:36Z",
         "macId": "Test3",
         "profile": ""

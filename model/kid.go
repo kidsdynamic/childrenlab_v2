@@ -25,10 +25,8 @@ type KidRequest struct {
 }
 
 type UpdateKidRequest struct {
-	ID        int64  `json:"kidId" binding:"required"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	MacID     string `json:"macId"`
+	ID   int64  `json:"kidId" binding:"required"`
+	Name string `json:"name"`
 }
 
 func (Kid) TableName() string {
