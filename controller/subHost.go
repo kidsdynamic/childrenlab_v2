@@ -7,6 +7,8 @@ import (
 
 	"time"
 
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/kidsdynamic/childrenlab_v2/database"
 	"github.com/kidsdynamic/childrenlab_v2/model"
@@ -220,4 +222,22 @@ func SubHostList(c *gin.Context) {
 		fmt.Printf("Error on Sub Host List. %#v", err)
 	}
 	c.JSON(http.StatusOK, subHosts)
+}
+
+func HasPermission(c *gin.Context) {
+	kidIDString := c.Query("kidId")
+	kidID, err := strconv.ParseInt(kidIDString, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error when parse kid ID to int",
+			"error":   err,
+		})
+		return
+	}
+	user := GetSignedInUser(c)
+
+	db := database.NewGORM()
+	defer db.Close()
+
+	fmt.Println(HasPermissionToKid(db, user, kidID))
 }

@@ -168,3 +168,24 @@ func GetNowTime() time.Time {
 
 	return t
 }
+
+func HasPermissionToKid(db *gorm.DB, user *model.User, kidID int64) bool {
+
+	var exists bool = false
+	row := db.Raw("SELECT EXISTS(SELECT id FROM kids WHERE id = ? and parent_id = ? LIMIT 1)", kidID, user.ID).Row()
+
+	row.Scan(&exists)
+	if exists {
+		return true
+	}
+
+	row = db.Raw("SELECT EXISTS(SELECT id FROM sub_host s JOIN sub_host_kid sk ON s.id = sk.sub_host_id WHERE s.request_from_id = ? and sk.kid_id = ? and s.status = ? LIMIT 1)", user.ID, kidID, SubHostStatusAccepted).Row()
+
+	row.Scan(&exists)
+	if exists {
+		return true
+	}
+
+	return false
+
+}

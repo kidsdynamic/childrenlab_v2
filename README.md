@@ -33,6 +33,7 @@
 * [DELETE   /v1/event/delete](#v1eventdelete---delete)
 * [GET   /v1/event/retrieveEvents](#v1eventretrieveevents---get)
 * [GET   /v1/event/retrieveAllEventsWithTodo](#v1eventretrievealleventswithtodo---get)
+* [GET   /v1/event/retrieveAllEventsByKid](#v1eventretrieveeventsbykid---get)
 
 #### TODO
 * [PUT   /v1/event/todo/done](#v1eventtododone---put)
@@ -1185,10 +1186,167 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" "http://localhost:8111/v1/event/retrieveAllEvents"
 ```
 
-* Success - Returns updated event
+* Success - Returns events
 ```
-Save as retrieveEvents
+[
+  {
+    "id": 1,
+    "userId": 3,
+    "kidId": 3,
+    "name": "Test event name",
+    "startDate": "2015-08-30T08:20:00Z",
+    "endDate": "2015-08-31T08:20:00Z",
+    "color": "#F05D25",
+    "status": "OPEN",
+    "description": "Hahah",
+    "alert": 49,
+    "city": "New York",
+    "state": "New York",
+    "repeat": "DAILY",
+    "timezoneOffset": 300,
+    "dateCreated": "2017-02-09T12:22:46Z",
+    "lastUpdated": "2017-02-09T12:22:46Z",
+    "todo": [
+      {
+        "id": 1,
+        "text": "test todo 1",
+        "status": "PENDING",
+        "dateCreated": "2017-02-09T17:22:46Z",
+        "lastUpdated": "2017-02-09T17:22:46Z"
+      },
+      {
+        "id": 2,
+        "text": "test todo 2",
+        "status": "PENDING",
+        "dateCreated": "2017-02-09T17:22:46Z",
+        "lastUpdated": "2017-02-09T17:22:46Z"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "userId": 3,
+    "kidId": 3,
+    "name": "Test event name",
+    "startDate": "2016-08-30T08:20:00Z",
+    "endDate": "2017-08-31T08:20:00Z",
+    "color": "#F05D25",
+    "status": "OPEN",
+    "description": "Hahah",
+    "alert": 49,
+    "city": "New York",
+    "state": "New York",
+    "repeat": "DAILY",
+    "timezoneOffset": 300,
+    "dateCreated": "2017-02-09T12:22:58Z",
+    "lastUpdated": "2017-02-09T12:22:58Z",
+    "todo": [
+      {
+        "id": 3,
+        "text": "test todo 1",
+        "status": "PENDING",
+        "dateCreated": "2017-02-09T17:22:58Z",
+        "lastUpdated": "2017-02-09T17:22:58Z"
+      },
+      {
+        "id": 4,
+        "text": "test todo 2",
+        "status": "PENDING",
+        "dateCreated": "2017-02-09T17:22:58Z",
+        "lastUpdated": "2017-02-09T17:22:58Z"
+      }
+    ]
+  }
+]
 ```
+
+## /v1/event/retrieveAllEventsByKid - GET
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Retrieve successfully |
+| 403     | The user doesn't have access to the kid
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X GET -H "Content-Type: application/json" -H "x-auth-token: 42142142421421312312312" "http://localhost:8111/v1/event/retrieveEventsByKid?kidId=3"```
+
+* Success - Returns events
+```
+[
+  {
+    "id": 1,
+    "userId": 3,
+    "kidId": 3,
+    "name": "Test event name",
+    "startDate": "2015-08-30T08:20:00Z",
+    "endDate": "2015-08-31T08:20:00Z",
+    "color": "#F05D25",
+    "status": "OPEN",
+    "description": "Hahah",
+    "alert": 49,
+    "city": "New York",
+    "state": "New York",
+    "repeat": "DAILY",
+    "timezoneOffset": 300,
+    "dateCreated": "2017-02-09T12:22:46Z",
+    "lastUpdated": "2017-02-09T12:22:46Z",
+    "todo": [
+      {
+        "id": 1,
+        "text": "test todo 1",
+        "status": "PENDING",
+        "dateCreated": "2017-02-09T17:22:46Z",
+        "lastUpdated": "2017-02-09T17:22:46Z"
+      },
+      {
+        "id": 2,
+        "text": "test todo 2",
+        "status": "PENDING",
+        "dateCreated": "2017-02-09T17:22:46Z",
+        "lastUpdated": "2017-02-09T17:22:46Z"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "userId": 3,
+    "kidId": 3,
+    "name": "Test event name",
+    "startDate": "2016-08-30T08:20:00Z",
+    "endDate": "2017-08-31T08:20:00Z",
+    "color": "#F05D25",
+    "status": "OPEN",
+    "description": "Hahah",
+    "alert": 49,
+    "city": "New York",
+    "state": "New York",
+    "repeat": "DAILY",
+    "timezoneOffset": 300,
+    "dateCreated": "2017-02-09T12:22:58Z",
+    "lastUpdated": "2017-02-09T12:22:58Z",
+    "todo": [
+      {
+        "id": 3,
+        "text": "test todo 1",
+        "status": "PENDING",
+        "dateCreated": "2017-02-09T17:22:58Z",
+        "lastUpdated": "2017-02-09T17:22:58Z"
+      },
+      {
+        "id": 4,
+        "text": "test todo 2",
+        "status": "PENDING",
+        "dateCreated": "2017-02-09T17:22:58Z",
+        "lastUpdated": "2017-02-09T17:22:58Z"
+      }
+    ]
+  }
+]
+```
+
 
 ## /v1/event/todo/done - PUT
 * Set status = done to todo
@@ -1218,6 +1376,7 @@ curl -X PUT -H "x-auth-token: ec83d6e41db5168ddb0b1d28b2e262d6" -H "Content-Type
 ```
 {}
 ```
+
 
 ## /v1/subHost/add - POST
 * Send sub host request to the host account

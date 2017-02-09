@@ -13,6 +13,7 @@ func initEventRouter(r *gin.Engine) {
 	calendarAPI.DELETE("/delete", controller.DeleteEvent)
 	calendarAPI.GET("/retrieveEvents", controller.GetCalendarEvent)
 	calendarAPI.GET("/retrieveAllEventsWithTodo", controller.RetrieveAllEventWithTodoByUser)
+	calendarAPI.GET("/retrieveAllEventsByKid", controller.RetrieveEventsByKid)
 
 	todoAPI := r.Group("/v1/event/todo")
 	todoAPI.Use(controller.Auth)

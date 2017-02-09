@@ -38,6 +38,16 @@ func AddCalendarEvent(c *gin.Context) {
 
 	user := GetSignedInUser(c)
 
+	db := database.NewGORM()
+	defer db.Close()
+
+	if !HasPermissionToKid(db, user, request.KidID) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "You don't have permission to do it",
+		})
+		return
+	}
+
 	var event model.Event
 
 	event.KidID = request.KidID
@@ -70,9 +80,6 @@ func AddCalendarEvent(c *gin.Context) {
 	}
 
 	event.Todo = todos
-
-	db := database.NewGORM()
-	defer db.Close()
 
 	if err := db.Create(&event).Error; err != nil {
 		log.Printf("Error on Add Event. %#v", err)
@@ -110,6 +117,15 @@ func UpdateCalendarEvent(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Can't find the event from database",
 			"error":   err.Error(),
+		})
+		return
+	}
+
+	user := GetSignedInUser(c)
+
+	if !HasPermissionToKid(db, user, event.KidID) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "You don't have permission to do it",
 		})
 		return
 	}
@@ -185,6 +201,15 @@ func DeleteEvent(c *gin.Context) {
 			})
 			return
 		}
+	}
+
+	user := GetSignedInUser(c)
+
+	if !HasPermissionToKid(db, user, event.KidID) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "You don't have permission to do it",
+		})
+		return
 	}
 
 	if len(event.Todo) > 0 {
@@ -325,4 +350,43 @@ func TodoDone(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{})
+}
+
+func RetrieveEventsByKid(c *gin.Context) {
+	kidIDString := c.Query("kidId")
+	kidID, err := strconv.ParseInt(kidIDString, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error when parse kid ID to int",
+			"error":   err,
+		})
+		return
+	}
+
+	user := GetSignedInUser(c)
+
+	db := database.NewGORM()
+	defer db.Close()
+
+	if !HasPermissionToKid(db, user, kidID) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "You don't have permission to do it",
+		})
+		return
+	}
+
+	var events []model.Event
+
+	if err := db.Where("kid_id = ?", kidID).Preload("Todo").Find(&events).Error; err != nil {
+
+		fmt.Printf("Error on retriving events. %#v", err)
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Something wrong when retrieving events",
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, events)
 }
