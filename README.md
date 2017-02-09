@@ -1262,6 +1262,11 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 
 ## /v1/event/retrieveAllEventsByKid - GET
 
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| :-----|
+| kidId        | Yes | Integer | 3 |
+
 #### Response Status
 | Status Code    | Meaning      |
 | ------------- |:-------------|
