@@ -595,7 +595,8 @@ None
 
 ### curl
 ```
-curl -X GET -H "Content-Type: application/json" -H "x-auth-token: 28e20ffb974205c0747b5aa35d53e53" "http://localhost:8111/v1/kids/list"```
+curl -X GET -H "Content-Type: application/json" -H "x-auth-token: 28e20ffb974205c0747b5aa35d53e53" "http://localhost:8111/v1/kids/list"
+```
 
 * Success - 
 ```
