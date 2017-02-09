@@ -33,7 +33,7 @@
 * [DELETE   /v1/event/delete](#v1eventdelete---delete)
 * [GET   /v1/event/retrieveEvents](#v1eventretrieveevents---get)
 * [GET   /v1/event/retrieveAllEventsWithTodo](#v1eventretrievealleventswithtodo---get)
-* [GET   /v1/event/retrieveAllEventsByKid](#v1eventretrieveeventsbykid---get)
+* [GET   /v1/event/retrieveAllEventsByKid](#v1eventretrievealleventsbykid---get)
 
 #### TODO
 * [PUT   /v1/event/todo/done](#v1eventtododone---put)
@@ -1272,6 +1272,8 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 ### curl
 ```
 curl -X GET -H "Content-Type: application/json" -H "x-auth-token: 42142142421421312312312" "http://localhost:8111/v1/event/retrieveEventsByKid?kidId=3"```
+
+```
 
 * Success - Returns events
 ```
