@@ -197,31 +197,35 @@ func SubHostList(c *gin.Context) {
 	defer db.Close()
 
 	query := c.Query("status")
-	var subHosts []model.SubHost
+	var requestTo []model.SubHost
+	var requestFrom []model.SubHost
 	var err error
 
 	user := GetSignedInUser(c)
 	if query == "" {
-		err = db.Where("request_to_id = ?", user.ID).Preload("RequestFrom").Preload("RequestTo").Preload("Kids").Find(&subHosts).Error
+		err = db.Where("request_to_id = ?", user.ID).Preload("RequestFrom").Preload("RequestTo").Preload("Kids").Find(&requestFrom).Error
 	} else {
-		err = db.Where("request_to_id = ? AND status = ?", user.ID, query).Preload("RequestFrom").Preload("RequestTo").Preload("Kids").Find(&subHosts).Error
+		err = db.Where("request_to_id = ? AND status = ?", user.ID, query).Preload("RequestFrom").Preload("RequestTo").Preload("Kids").Find(&requestFrom).Error
 	}
-
-	/*
-		for _, subHost := range subHosts {
-			var kidIDs []int64
-			for _, kid := range subHost.Kids {
-				kidIDs = append(kidIDs, kid.KidID)
-			}
-			if len(kidIDs) > 0 {
-			}
-		}
-	*/
 
 	if err != nil {
 		fmt.Printf("Error on Sub Host List. %#v", err)
 	}
-	c.JSON(http.StatusOK, subHosts)
+
+	if query == "" {
+		err = db.Where("request_from_id = ?", user.ID).Preload("RequestFrom").Preload("RequestTo").Preload("Kids").Find(&requestTo).Error
+	} else {
+		err = db.Where("request_from_id = ? AND status = ?", user.ID, query).Preload("RequestFrom").Preload("RequestTo").Preload("Kids").Find(&requestTo).Error
+	}
+
+	if err != nil {
+		fmt.Printf("Error on Sub Host List. %#v", err)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"requestFrom": requestFrom,
+		"requestTo":   requestTo,
+	})
 }
 
 func HasPermission(c *gin.Context) {

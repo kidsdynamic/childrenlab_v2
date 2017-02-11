@@ -1589,6 +1589,7 @@ curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: 58lkp329ejbr44
 ## /v1/subHost/list - GET
 * Content-Type: application/json
 * If no status parameter, the API returns ALL of sub host belong to the user
+* It returns request from and request to Subhost list 
 
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
@@ -1609,51 +1610,104 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: 58lkp329ejbr44
 
 * Success - Returns updated request
 ```
-[
-  {
-    "id": 3,
-    "requestFromUser": {
-      "id": 2,
-      "email": "jack08300@gmail.com",
-      "firstName": "Jay",
-      "lastName": "Chen",
-      "lastUpdate": "0001-01-01T00:00:00Z",
-      "dateCreated": "0001-01-01T00:00:00Z",
-      "zipCode": "11111",
-      "phoneNumber": "11111",
-      "profile": "",
-      "registrationId": "123test"
-    },
-    "requestToUser": {
-      "id": 63,
-      "email": "jack08301@gmail.com",
-      "firstName": "JJJ",
-      "lastName": "TTT",
-      "lastUpdate": "0001-01-01T00:00:00Z",
-      "dateCreated": "2017-01-17T00:56:06Z",
-      "zipCode": "11111",
-      "phoneNumber": "",
-      "profile": ""
-    },
-    "status": "DENIED",
-    "createdDate": "2017-01-18T04:03:22Z",
-    "lastUpdated": "2017-01-18T04:16:14Z",
-    "kids": [
-      {
-        "id": 9,
-        "name": "Another KID",
-        "dateCreated": "2017-01-17T00:56:58Z",
-        "macId": "Test2",
-        "profile": ""
+{
+  "requestFrom": [
+    {
+      "id": 1,
+      "requestFromUser": {
+        "id": 3,
+        "email": "spencer@kidsdynamic.com",
+        "firstName": "JJJ",
+        "lastName": "TTT",
+        "lastUpdate": "0001-01-01T00:00:00Z",
+        "dateCreated": "2017-01-31T05:06:20Z",
+        "zipCode": "11111",
+        "phoneNumber": "",
+        "profile": "avatar_12.jpg"
       },
-      {
-        "id": 10,
-        "name": "KIDLLE123124",
-        "dateCreated": "2017-01-17T02:39:36Z",
-        "macId": "Test3",
-        "profile": ""
-      }
-    ]
-  }
-]
+      "requestToUser": {
+        "id": 2,
+        "email": "jack08300@gmail.com",
+        "firstName": "Jay",
+        "lastName": "Chen",
+        "lastUpdate": "0001-01-01T00:00:00Z",
+        "dateCreated": "0001-01-01T00:00:00Z",
+        "zipCode": "",
+        "phoneNumber": "",
+        "profile": "avatar_2.jpg"
+      },
+      "status": "ACCEPTED",
+      "createdDate": "2017-01-30T02:19:29Z",
+      "lastUpdated": "2017-01-30T02:19:29Z",
+      "kids": [
+        {
+          "id": 3,
+          "name": "kid13",
+          "dateCreated": "2017-02-02T10:25:20Z",
+          "macId": "012345678915",
+          "profile": "kid_avatar_3.jpg"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "requestFromUser": {
+        "id": 9,
+        "email": "test10@swing.com",
+        "firstName": "1",
+        "lastName": "2",
+        "lastUpdate": "0001-01-01T00:00:00Z",
+        "dateCreated": "2017-02-02T10:40:20Z",
+        "zipCode": "4",
+        "phoneNumber": "3",
+        "profile": "avatar_12.jpg",
+        "registrationId": "B16DDF222DFC1BF75DEF597E9AD14E9AC99935C48F964361A855731DAECD39FE"
+      },
+      "requestToUser": {
+        "id": 2,
+        "email": "jack08300@gmail.com",
+        "firstName": "Jay",
+        "lastName": "Chen",
+        "lastUpdate": "0001-01-01T00:00:00Z",
+        "dateCreated": "0001-01-01T00:00:00Z",
+        "zipCode": "",
+        "phoneNumber": "",
+        "profile": "avatar_2.jpg"
+      },
+      "status": "PENDING",
+      "createdDate": "2017-02-11T17:28:31Z",
+      "lastUpdated": "2017-02-11T17:28:31Z"
+    }
+  ],
+  "requestTo": [
+    {
+      "id": 3,
+      "requestFromUser": {
+        "id": 2,
+        "email": "jack08300@gmail.com",
+        "firstName": "Jay",
+        "lastName": "Chen",
+        "lastUpdate": "0001-01-01T00:00:00Z",
+        "dateCreated": "0001-01-01T00:00:00Z",
+        "zipCode": "",
+        "phoneNumber": "",
+        "profile": "avatar_2.jpg"
+      },
+      "requestToUser": {
+        "id": 3,
+        "email": "spencer@kidsdynamic.com",
+        "firstName": "JJJ",
+        "lastName": "TTT",
+        "lastUpdate": "0001-01-01T00:00:00Z",
+        "dateCreated": "2017-01-31T05:06:20Z",
+        "zipCode": "11111",
+        "phoneNumber": "",
+        "profile": "avatar_12.jpg"
+      },
+      "status": "PENDING",
+      "createdDate": "2017-02-11T17:28:57Z",
+      "lastUpdated": "2017-02-11T17:28:57Z"
+    }
+  ]
+}
 ```
