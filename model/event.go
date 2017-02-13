@@ -4,8 +4,9 @@ import "time"
 
 type Event struct {
 	ID             int64     `json:"id" gorm:"AUTO_INCREMENT"`
-	UserID         int64     `json:"userId" gorm:"not null"`
-	KidID          int64     `json:"kidId"`
+	User           User      `json:"user" gorm:"not null"`
+	UserID         int64     `json:"-"`
+	Kid            []Kid     `json:"kid" gorm:"many2many:event_kid;"`
 	Name           string    `json:"name" gorm:"not null"`
 	Start          time.Time `json:"startDate" gorm:"not null"`
 	End            time.Time `json:"endDate" gorm:"not null"`
@@ -20,6 +21,11 @@ type Event struct {
 	DateCreated    time.Time `json:"dateCreated"`
 	LastUpdated    time.Time `json:"lastUpdated"`
 	Todo           []Todo    `json:"todo,omitempty" `
+}
+
+type EventKid struct {
+	EventID int64 `gorm:"primary_key:true"`
+	KidID   int64 `gorm:"primary_key:true"`
 }
 
 type Todo struct {
@@ -37,7 +43,7 @@ func (Event) TableName() string {
 
 type EventRequest struct {
 	UserID         int64     `db:"user_id"`
-	KidID          int64     `json:"kidId" binding:"required"`
+	KidID          []int64   `json:"kidId" binding:"required"`
 	Name           string    `json:"name"`
 	Status         string    `json:"status"`
 	Start          time.Time `json:"startDate"`

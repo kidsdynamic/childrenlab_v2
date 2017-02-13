@@ -11,6 +11,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	"github.com/jmoiron/sqlx"
 	"github.com/kidsdynamic/childrenlab_v2/constants"
 	"github.com/kidsdynamic/childrenlab_v2/database"
@@ -41,7 +42,7 @@ func AddCalendarEvent(c *gin.Context) {
 	db := database.NewGORM()
 	defer db.Close()
 
-	if !HasPermissionToKid(db, user, request.KidID) {
+	if !HasPermissionToKid(db, &user, request.KidID) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "You don't have permission to do it",
 		})
@@ -50,9 +51,8 @@ func AddCalendarEvent(c *gin.Context) {
 
 	var event model.Event
 
-	event.KidID = request.KidID
 	event.Status = EVENT_OPEN
-	event.UserID = user.ID
+	event.User = user
 	event.Alert = request.Alert
 	event.City = request.City
 	event.State = request.State
@@ -65,6 +65,18 @@ func AddCalendarEvent(c *gin.Context) {
 	event.DateCreated = GetNowTime()
 	event.LastUpdated = GetNowTime()
 	event.TimezoneOffset = request.TimezoneOffset
+
+	var kids []model.Kid
+	if err := db.Model(model.Kid{}).Where("id in (?)", request.KidID).Find(&kids).Error; err != nil {
+		log.Printf("Error on retrieve Kid. %#v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Error on retrieve Kid",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	event.Kid = kids
 
 	var todos []model.Todo
 
@@ -113,7 +125,7 @@ func UpdateCalendarEvent(c *gin.Context) {
 
 	var event model.Event
 
-	if err := db.Where("id = ?", eventRequest.ID).First(&event).Error; err != nil {
+	if err := db.Where("id = ?", eventRequest.ID).Preload("User").Preload("Kid").Preload("Todo").First(&event).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Can't find the event from database",
 			"error":   err.Error(),
@@ -123,7 +135,7 @@ func UpdateCalendarEvent(c *gin.Context) {
 
 	user := GetSignedInUser(c)
 
-	if !HasPermissionToKid(db, user, event.KidID) {
+	if user.ID != event.User.ID {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "You don't have permission to do it",
 		})
@@ -143,16 +155,17 @@ func UpdateCalendarEvent(c *gin.Context) {
 		todos = append(todos, todo)
 	}
 
-	if err := db.Delete(model.Todo{}, "event_id = ?", event.ID).Error; err != nil {
-		log.Printf("Error on Deleting todo. %#v", err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Error on Delete todo",
-			"error":   err.Error(),
-		})
-		return
+	if len(todos) > 0 {
+		if err := db.Delete(model.Todo{}, "event_id = ?", event.ID).Error; err != nil {
+			log.Printf("Error on Deleting todo. %#v", err)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "Error on Delete todo",
+				"error":   err.Error(),
+			})
+			return
+		}
+		event.Todo = todos
 	}
-
-	event.Todo = todos
 
 	if err := db.Model(&event).Updates(&eventRequest).Error; err != nil {
 		log.Printf("Error on Updat event. %#v", err)
@@ -193,7 +206,7 @@ func DeleteEvent(c *gin.Context) {
 
 	var event model.Event
 
-	if err := db.Where("id = ?", eventID).Preload("Todo").First(&event).Error; err != nil {
+	if err := db.Where("id = ?", eventID).Preload("User").First(&event).Error; err != nil {
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"message": "Error when retriving event",
@@ -205,11 +218,22 @@ func DeleteEvent(c *gin.Context) {
 
 	user := GetSignedInUser(c)
 
-	if !HasPermissionToKid(db, user, event.KidID) {
+	if user.ID != event.User.ID {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "You don't have permission to do it",
 		})
 		return
+	}
+
+	if err := db.Delete(&model.Event{}, "id = ?", eventID).Error; err != nil {
+		if err != nil {
+			fmt.Printf("Error on deleting event. %#v", err)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "Error when deleting event",
+				"error":   err.Error,
+			})
+			return
+		}
 	}
 
 	if len(event.Todo) > 0 {
@@ -225,11 +249,11 @@ func DeleteEvent(c *gin.Context) {
 
 	}
 
-	if err := db.Delete(&model.Event{}, "id = ?", eventID).Error; err != nil {
+	if err := db.Delete(&model.EventKid{}, "event_id = ?", eventID).Error; err != nil {
 		if err != nil {
-			fmt.Printf("Error on deleting event. %#v", err)
+			fmt.Printf("Error on deleting event_kid. %#v", err)
 			c.JSON(http.StatusBadRequest, gin.H{
-				"message": "Error when deleting event",
+				"message": "Error when deleting event_kid",
 				"error":   err.Error,
 			})
 			return
@@ -296,15 +320,57 @@ func RetrieveAllEventWithTodoByUser(c *gin.Context) {
 	defer db.Close()
 	var events []model.Event
 
-	if err := db.Where("user_id = ?", user.ID).Preload("Todo").Find(&events).Error; err != nil {
-
-		fmt.Printf("Error on retriving events. %#v", err)
-
+	var kidsID []model.UserKidIDs
+	if err := db.Table("kids").Select("id").Where("parent_id = ?", user.ID).Find(&kidsID).Error; err != nil && err != gorm.ErrRecordNotFound {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Something wrong when retrieving events",
+			"message": "Something wrong when retrieving User's kid",
 			"error":   err,
 		})
 		return
+	}
+
+	//Find all of events that belong to User's Kid
+	if len(kidsID) > 0 {
+		if err := db.Model(model.Event{}).Joins("JOIN event_kid ON event.id = event_kid.event_id").Where("event_kid.kid_id in (?)", toString(kidsID)).Group("event.id").Preload("User").Preload("Kid").Preload("Todo").Find(&events).Error; err != nil {
+
+			fmt.Printf("Error on retriving events. %#v", err)
+
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Something wrong when retrieving events",
+				"error":   err,
+			})
+			return
+		}
+	}
+
+	var otherKidID []model.UserKidIDs
+	if err := db.Table("sub_host_kid").Joins("JOIN sub_host ON sub_host.id = sub_host_kid.sub_host_id").Select("kid_id as id").Where("request_from_id = ?", user.ID).Find(&otherKidID).Error; err != nil && err != gorm.ErrRecordNotFound {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Something wrong when retrieving User's kid",
+			"error":   err,
+		})
+		return
+	}
+
+	if len(otherKidID) > 0 {
+		var otherkidsEvent model.Event
+		//Find all of events that belong to Other host's kid
+		if err := db.Model(model.Event{}).Joins("JOIN event_kid ON event.id = event_kid.event_id").Where("event_kid.kid_id in (?)", toString(otherKidID)).Preload("User").Preload("Kid").Preload("Todo").Find(&otherkidsEvent).Error; err != nil && err != gorm.ErrRecordNotFound {
+
+			fmt.Printf("Error on retriving events. %#v", err)
+
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Something wrong when retrieving events",
+				"error":   err,
+			})
+			return
+		}
+
+		if otherkidsEvent.ID != 0 {
+			removeUnacceptableKid(db, &user, &otherkidsEvent)
+			events = append(events, otherkidsEvent)
+		}
+
 	}
 
 	c.JSON(http.StatusOK, events)
@@ -368,16 +434,18 @@ func RetrieveEventsByKid(c *gin.Context) {
 	db := database.NewGORM()
 	defer db.Close()
 
-	if !HasPermissionToKid(db, user, kidID) {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "You don't have permission to do it",
+	var kidIDs []int64
+	kidIDs = append(kidIDs, kidID)
+	if !HasPermissionToKid(db, &user, kidIDs) {
+		c.JSON(http.StatusForbidden, gin.H{
+			"message": "You don't have permission to access",
 		})
 		return
 	}
 
 	var events []model.Event
 
-	if err := db.Where("kid_id = ?", kidID).Preload("Todo").Find(&events).Error; err != nil {
+	if err := db.Model(model.Event{}).Joins("JOIN event_kid ON event.id = event_kid.event_id").Where("event_kid.kid_id = ?", kidID).Preload("User").Preload("Todo").Find(&events).Error; err != nil {
 
 		fmt.Printf("Error on retriving events. %#v", err)
 
@@ -389,4 +457,28 @@ func RetrieveEventsByKid(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, events)
+}
+
+func toString(kidsID []model.UserKidIDs) []int64 {
+	var ids []int64
+	for _, id := range kidsID {
+		ids = append(ids, id.ID)
+	}
+
+	return ids
+}
+
+func removeUnacceptableKid(db *gorm.DB, user *model.User, event *model.Event) {
+	for key, kid := range event.Kid {
+		var exists bool
+		row := db.Raw("SELECT EXISTS(SELECT id FROM sub_host s JOIN sub_host_kid sk ON s.id = sk.sub_host_id WHERE s.request_from_id = ? and sk.kid_id = ? and s.status = ? LIMIT 1)", user.ID, kid.ID, SubHostStatusAccepted).Row()
+
+		row.Scan(&exists)
+		if !exists {
+			kids := event.Kid
+			kids = append(kids[:key], kids[key+1:]...)
+			event.Kid = kids
+		}
+
+	}
 }

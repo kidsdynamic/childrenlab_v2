@@ -810,12 +810,13 @@ curl -X GET -H "x-auth-token: 27e217ae4d2907188b8c92cdcf9c85ac" "http://localhos
 
 ## /v1/event/add - POST
 * Content-Type: application/json
+* Only when user has access to the kids, otherwise, the API returns 403 forbidden
 * Date Time format is ***YYYY-MM-ddThh:mm:ssZ***
 
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
 | ------------- |:-------------:|:-------------:| :-----|
-| kidId             | Yes | Integer | 20 |
+| kidId             | Yes | Integer Array | [3,4] |
 | name               | Yes | String | Test event name |
 | startDate           | Yes | String |   2015-08-30T08:20:00 |
 | endDate             | Yes | String |   2015-08-31T08:20:00 |
@@ -833,25 +834,21 @@ curl -X GET -H "x-auth-token: 27e217ae4d2907188b8c92cdcf9c85ac" "http://localhos
 | Status Code    | Meaning      |
 | ------------- |:-------------|
 | 200     | Added successfully |
+| 403     | Forbidden. The user doesn't have permission to add event |
 | 400     | Bad request. Missing some parameters, or the type is wrong |
 | 500     | Internal error. Please send me the error. I will fix it |
 
 ### curl
 ```
-curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -d '{
-  "kidId": 20,
-  "Name": "Test event name",
-  "startDate": "2015-08-30T08:20:00",
-  "endDate": "2015-08-31T08:20:00",
+curl -X POST -H "x-auth-token: 28e20ffb974205c0747b5aa35d53e538" -H "Content-Type: application/json" -d '{
+  "kidId": [3,4],
+  "Name": "Other kids event",
+  "startDate": "2017-02-23T08:20:00Z",
+  "endDate": "2017-08-31T08:20:00Z",
   "timezoneOffset": 300,
   "color": "#F05D25",
-  "description": "Hahah",
-  "alert": 49,
-  "city": "New York",
-  "state": "New York",
-  "todo": [
-  	"test todo 1", "test todo 2"	
-  ]
+  "description": "ahhahahahahhaa",
+  "alert": 25
   
 }' "http://localhost:8111/v1/event/add"
 ```
@@ -860,44 +857,54 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7
 ```
 {
   "event": {
-    "id": 398,
-    "userId": 29,
-    "kidId": 20,
-    "name": "Test event name",
-    "startDate": "2015-08-30T08:20:00Z",
-    "endDate": "2015-08-31T08:20:00Z",
-    "color": "#F05D25",
-    "status": "OPEN",
-    "description": "Hahah",
-    "alert": 49,
-    "city": "New York",
-    "state": "New York",
-    "repeat": "",
-    "timezoneOffset": 300,
-    "dateCreated": "2016-12-26T06:25:19Z",
-    "lastUpdated": "2016-12-26T06:25:19Z",
-    "todo": [
+    "id": 5,
+    "user": {
+      "id": 2,
+      "email": "jack08300@gmail.com",
+      "firstName": "Jay",
+      "lastName": "Chen",
+      "lastUpdate": "0001-01-01T00:00:00Z",
+      "dateCreated": "0001-01-01T00:00:00Z",
+      "zipCode": "",
+      "phoneNumber": "",
+      "profile": "avatar_2.jpg"
+    },
+    "kid": [
       {
-        "id": 38,
-        "text": "test todo 1",
-        "status": "PENDING",
-        "dateCreated": "2016-12-26T06:25:19Z",
-        "lastUpdated": "2016-12-26T06:25:19Z"
+        "id": 3,
+        "name": "kid13",
+        "dateCreated": "2017-02-02T10:25:20Z",
+        "macId": "012345678915",
+        "profile": "kid_avatar_3.jpg"
       },
       {
-        "id": 39,
-        "text": "test todo 2",
-        "status": "PENDING",
-        "dateCreated": "2016-12-26T06:25:19Z",
-        "lastUpdated": "2016-12-26T06:25:19Z"
+        "id": 4,
+        "name": "5",
+        "dateCreated": "2017-02-02T10:42:02Z",
+        "macId": "012345678916",
+        "profile": "kid_avatar_4.jpg"
       }
-    ]
+    ],
+    "name": "Other kids event",
+    "startDate": "2017-02-23T08:20:00Z",
+    "endDate": "2017-08-31T08:20:00Z",
+    "color": "#F05D25",
+    "status": "OPEN",
+    "description": "ahhahahahahhaa",
+    "alert": 25,
+    "city": "",
+    "state": "",
+    "repeat": "",
+    "timezoneOffset": 300,
+    "dateCreated": "2017-02-13T00:03:57Z",
+    "lastUpdated": "2017-02-13T00:03:57Z"
   }
 }
 ```
 
 ## /v1/event/update - PUT
 * Content-Type: application/json
+* ***User who creates the event has the permission to update the event***
 * Date Time format is ***YYYY-MM-ddThh:mm:ssZ***
 * Send the parameter even user does not change it
 
@@ -922,25 +929,23 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7
 | Status Code    | Meaning      |
 | ------------- |:-------------|
 | 200     | Updated successfully |
+| 403     | Forbidden. The user doesn't have permission to update |
 | 400     | Bad request. Missing some parameters, or the type is wrong |
 | 500     | Internal error. Please send me the error. I will fix it |
 
 ### curl
 ```
-curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -d '{
-  "eventId": 414,
+curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: 28e20ffb974205c0747b5aa35d53e538" -d '{
+  "eventId": 3,
   "Name": "Test event name2",
   "startDate": "2015-08-30T08:20:00",
   "endDate": "2015-08-31T08:20:00",
   "timezoneOffset": 300,
   "color": "#F05D25",
-  "description": "Hahah",
-  "alert": 49,
+  "description": "Hafdewadhah",
+  "alert": 23,
   "city": "New York",
-  "state": "New York",
-  "todo": [
-  	"test todo 1"	
-  ]
+  "state": "New York"
   
 }' "http://localhost:8111/v1/event/update"
 ```
@@ -949,29 +954,54 @@ curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 ```
 {
   "event": {
-    "id": 414,
-    "userId": 29,
-    "kidId": 20,
+    "id": 3,
+    "user": {
+      "id": 2,
+      "email": "jack08300@gmail.com",
+      "firstName": "Jay",
+      "lastName": "Chen",
+      "lastUpdate": "0001-01-01T00:00:00Z",
+      "dateCreated": "0001-01-01T00:00:00Z",
+      "zipCode": "",
+      "phoneNumber": "",
+      "profile": "avatar_2.jpg"
+    },
+    "kid": [
+      {
+        "id": 3,
+        "name": "kid13",
+        "dateCreated": "2017-02-02T10:25:20Z",
+        "macId": "012345678915",
+        "profile": "kid_avatar_3.jpg"
+      },
+      {
+        "id": 4,
+        "name": "5",
+        "dateCreated": "2017-02-02T10:42:02Z",
+        "macId": "012345678916",
+        "profile": "kid_avatar_4.jpg"
+      }
+    ],
     "name": "Test event name2",
-    "startDate": "2015-08-30T08:20:00Z",
-    "endDate": "2015-08-31T08:20:00Z",
+    "startDate": "2016-08-30T08:20:00Z",
+    "endDate": "2017-08-31T08:20:00Z",
     "color": "#F05D25",
     "status": "OPEN",
-    "description": "Hahah",
-    "alert": 49,
+    "description": "Hafdewadhah",
+    "alert": 23,
     "city": "New York",
     "state": "New York",
-    "repeat": "",
+    "repeat": "DAILY",
     "timezoneOffset": 300,
-    "dateCreated": "2016-12-26T21:21:53Z",
-    "lastUpdated": "2016-12-27T00:59:28Z",
+    "dateCreated": "2017-02-12T20:01:51Z",
+    "lastUpdated": "2017-02-12T20:01:51Z",
     "todo": [
       {
-        "id": 83,
+        "id": 11,
         "text": "test todo 1",
-        "status": "PENDING",
-        "dateCreated": "2016-12-27T00:59:28Z",
-        "lastUpdated": "2016-12-27T00:59:28Z"
+        "status": "DONE",
+        "dateCreated": "2017-02-13T04:35:05Z",
+        "lastUpdated": "2017-02-13T01:01:51Z"
       }
     ]
   }
@@ -980,6 +1010,7 @@ curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 
 ## /v1/event/delete - DELETE
 * URL Query
+* ***User who creates the event has the permission to delete the event***
 
 #### Request Parameters
 | Parameters    | Required      | Type  | Example  |
@@ -991,6 +1022,7 @@ curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 | Status Code    | Meaning      |
 | ------------- |:-------------|
 | 200     | Delete successfully |
+| 403     | Forbidden. The user doesn't have permission to delete |
 | 400     | Bad request. Missing some parameters, or the type is wrong |
 | 500     | Internal error. Please send me the error. I will fix it |
 
@@ -1004,175 +1036,8 @@ curl -X DELETE -H "x-auth-token: ec83d6e41db5168ddb0b1d28b2e262d6" "http://local
 {}
 ```
 
-## /v1/event/retrieveEvents - GET
-* Date Time format is ***YYYY-MM-ddThh:mm:ssZ***
-* If trying to retrieve month events, do not use '00' as month value. Example: 2016-12-01T00:00:00 to retrieve 2016-12 events.
-
-
-#### Request Parameters
-| Parameters    | Required      | Type  | Example  |
-| ------------- |:-------------:|:-------------:| :-----|
-| period        | Yes | String | MONTH, DAY |
-| date          | Yes | String | 2016-12-26T01:00:00 |
-
-
-#### Response Status
-| Status Code    | Meaning      |
-| ------------- |:-------------|
-| 200     | Retrieve successfully |
-| 400     | Bad request. Missing some parameters, or the type is wrong |
-| 500     | Internal error. Please send me the error. I will fix it |
-
-### curl
-```
-curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" "http://localhost:8111/v1/event/retrieveEvents?period=MONTH&date=2016-12-01T00:00:00"
-```
-
-* Success - Returns updated event
-```
-{
-  "event": [
-    {
-      "id": 410,
-      "userId": 29,
-      "kidId": 20,
-      "name": "Test event name",
-      "startDate": "2016-12-27T21:21:53Z",
-      "endDate": "2015-08-31T08:20:00Z",
-      "color": "#F05D25",
-      "status": "OPEN",
-      "description": "Hahah",
-      "alert": 49,
-      "city": "New York",
-      "state": "New York",
-      "repeat": "",
-      "timezoneOffset": 300,
-      "dateCreated": "2016-12-26T21:17:30Z",
-      "lastUpdated": "2016-12-26T21:17:30Z",
-      "todo": [
-        {
-          "id": 66,
-          "text": "test todo 1",
-          "status": "PENDING",
-          "dateCreated": "2016-12-26T21:17:30Z",
-          "lastUpdated": "2016-12-26T21:17:30Z"
-        },
-        {
-          "id": 67,
-          "text": "test todo 2",
-          "status": "PENDING",
-          "dateCreated": "2016-12-26T21:17:30Z",
-          "lastUpdated": "2016-12-26T21:17:30Z"
-        }
-      ]
-    },
-    {
-      "id": 411,
-      "userId": 29,
-      "kidId": 20,
-      "name": "Test event name",
-      "startDate": "2016-12-26T21:21:53Z",
-      "endDate": "2015-08-31T08:20:00Z",
-      "color": "#F05D25",
-      "status": "OPEN",
-      "description": "Hahah",
-      "alert": 49,
-      "city": "New York",
-      "state": "New York",
-      "repeat": "",
-      "timezoneOffset": 300,
-      "dateCreated": "2016-12-26T21:17:35Z",
-      "lastUpdated": "2016-12-26T21:17:35Z",
-      "todo": [
-        {
-          "id": 68,
-          "text": "test todo 1",
-          "status": "PENDING",
-          "dateCreated": "2016-12-26T21:17:35Z",
-          "lastUpdated": "2016-12-26T21:17:35Z"
-        },
-        {
-          "id": 69,
-          "text": "test todo 2",
-          "status": "PENDING",
-          "dateCreated": "2016-12-26T21:17:35Z",
-          "lastUpdated": "2016-12-26T21:17:35Z"
-        }
-      ]
-    },
-    {
-      "id": 412,
-      "userId": 29,
-      "kidId": 20,
-      "name": "Test event name",
-      "startDate": "2016-12-26T21:21:53Z",
-      "endDate": "2015-08-31T08:20:00Z",
-      "color": "#F05D25",
-      "status": "OPEN",
-      "description": "Hahah",
-      "alert": 49,
-      "city": "",
-      "state": "",
-      "repeat": "",
-      "timezoneOffset": 300,
-      "dateCreated": "2016-12-26T21:17:45Z",
-      "lastUpdated": "2016-12-26T21:17:45Z",
-      "todo": [
-        {
-          "id": 70,
-          "text": "test todo 1",
-          "status": "PENDING",
-          "dateCreated": "2016-12-26T21:17:45Z",
-          "lastUpdated": "2016-12-26T21:17:45Z"
-        },
-        {
-          "id": 71,
-          "text": "test todo 2",
-          "status": "PENDING",
-          "dateCreated": "2016-12-26T21:17:45Z",
-          "lastUpdated": "2016-12-26T21:17:45Z"
-        }
-      ]
-    },
-    {
-      "id": 413,
-      "userId": 29,
-      "kidId": 20,
-      "name": "Test event name",
-      "startDate": "2016-12-26T21:21:53Z",
-      "endDate": "2015-08-31T08:20:00Z",
-      "color": "#F05D25",
-      "status": "OPEN",
-      "description": "Hahah",
-      "alert": 49,
-      "city": "New York",
-      "state": "New York",
-      "repeat": "",
-      "timezoneOffset": 300,
-      "dateCreated": "2016-12-26T21:19:16Z",
-      "lastUpdated": "2016-12-26T21:19:16Z",
-      "todo": [
-        {
-          "id": 72,
-          "text": "test todo 1",
-          "status": "PENDING",
-          "dateCreated": "2016-12-26T21:19:16Z",
-          "lastUpdated": "2016-12-26T21:19:16Z"
-        },
-        {
-          "id": 73,
-          "text": "test todo 2",
-          "status": "PENDING",
-          "dateCreated": "2016-12-26T21:19:16Z",
-          "lastUpdated": "2016-12-26T21:19:16Z"
-        }
-      ]
-    }
-  ]
-}
-```
-
 ## /v1/event/retrieveAllEventsWithTodo - GET
+* User can only see kid that has permission to him 
 * Date Time format is ***YYYY-MM-ddThh:mm:ssZ***
 
 #### Response Status
@@ -1183,79 +1048,92 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 
 ### curl
 ```
-curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" "http://localhost:8111/v1/event/retrieveAllEvents"
+curl -X GET -H "x-auth-token: 42142142421421312312312" "http://localhost:8111/v1/event/retrieveAllEventsWithTodo"
 ```
 
 * Success - Returns events
 ```
 [
   {
-    "id": 1,
-    "userId": 3,
-    "kidId": 3,
-    "name": "Test event name",
-    "startDate": "2015-08-30T08:20:00Z",
-    "endDate": "2015-08-31T08:20:00Z",
+    "id": 4,
+    "user": {
+      "id": 2,
+      "email": "jack08300@gmail.com",
+      "firstName": "Jay",
+      "lastName": "Chen",
+      "lastUpdate": "0001-01-01T00:00:00Z",
+      "dateCreated": "0001-01-01T00:00:00Z",
+      "zipCode": "",
+      "phoneNumber": "",
+      "profile": "avatar_2.jpg"
+    },
+    "kid": [
+      {
+        "id": 5,
+        "name": "hello",
+        "dateCreated": "2017-02-03T00:40:15Z",
+        "macId": "8D071FCFE5E0",
+        "profile": "kid_avatar_5.jpg"
+      }
+    ],
+    "name": "Test event name2",
+    "startDate": "2017-02-23T08:20:00Z",
+    "endDate": "2017-08-31T08:20:00Z",
     "color": "#F05D25",
     "status": "OPEN",
-    "description": "Hahah",
+    "description": "Hafdewadhah",
     "alert": 49,
     "city": "New York",
     "state": "New York",
-    "repeat": "DAILY",
+    "repeat": "",
     "timezoneOffset": 300,
-    "dateCreated": "2017-02-09T12:22:46Z",
-    "lastUpdated": "2017-02-09T12:22:46Z",
+    "dateCreated": "2017-02-12T22:41:55Z",
+    "lastUpdated": "2017-02-12T22:41:55Z",
     "todo": [
       {
-        "id": 1,
-        "text": "test todo 1",
-        "status": "PENDING",
-        "dateCreated": "2017-02-09T17:22:46Z",
-        "lastUpdated": "2017-02-09T17:22:46Z"
-      },
-      {
-        "id": 2,
+        "id": 12,
         "text": "test todo 2",
         "status": "PENDING",
-        "dateCreated": "2017-02-09T17:22:46Z",
-        "lastUpdated": "2017-02-09T17:22:46Z"
+        "dateCreated": "2017-02-13T04:59:44Z",
+        "lastUpdated": "2017-02-13T01:01:51Z"
       }
     ]
   },
   {
-    "id": 2,
-    "userId": 3,
-    "kidId": 3,
-    "name": "Test event name",
-    "startDate": "2016-08-30T08:20:00Z",
+    "id": 5,
+    "user": {
+      "id": 2,
+      "email": "jack08300@gmail.com",
+      "firstName": "Jay",
+      "lastName": "Chen",
+      "lastUpdate": "0001-01-01T00:00:00Z",
+      "dateCreated": "0001-01-01T00:00:00Z",
+      "zipCode": "",
+      "phoneNumber": "",
+      "profile": "avatar_2.jpg"
+    },
+    "kid": [
+      {
+        "id": 4,
+        "name": "5",
+        "dateCreated": "2017-02-02T10:42:02Z",
+        "macId": "012345678916",
+        "profile": "kid_avatar_4.jpg"
+      }
+    ],
+    "name": "Other kids event",
+    "startDate": "2017-02-23T08:20:00Z",
     "endDate": "2017-08-31T08:20:00Z",
     "color": "#F05D25",
     "status": "OPEN",
-    "description": "Hahah",
-    "alert": 49,
-    "city": "New York",
-    "state": "New York",
-    "repeat": "DAILY",
+    "description": "ahhahahahahhaa",
+    "alert": 25,
+    "city": "",
+    "state": "",
+    "repeat": "",
     "timezoneOffset": 300,
-    "dateCreated": "2017-02-09T12:22:58Z",
-    "lastUpdated": "2017-02-09T12:22:58Z",
-    "todo": [
-      {
-        "id": 3,
-        "text": "test todo 1",
-        "status": "PENDING",
-        "dateCreated": "2017-02-09T17:22:58Z",
-        "lastUpdated": "2017-02-09T17:22:58Z"
-      },
-      {
-        "id": 4,
-        "text": "test todo 2",
-        "status": "PENDING",
-        "dateCreated": "2017-02-09T17:22:58Z",
-        "lastUpdated": "2017-02-09T17:22:58Z"
-      }
-    ]
+    "dateCreated": "2017-02-13T00:03:57Z",
+    "lastUpdated": "2017-02-13T00:03:57Z"
   }
 ]
 ```
@@ -1276,7 +1154,7 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 
 ### curl
 ```
-curl -X GET -H "Content-Type: application/json" -H "x-auth-token: 42142142421421312312312" "http://localhost:8111/v1/event/retrieveEventsByKid?kidId=3"```
+curl -X GET -H "x-auth-token: 42142142421421312312312" "http://localhost:8111/v1/event/retrieveAllEventsByKid?kidId=5"
 
 ```
 
@@ -1284,70 +1162,39 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: 42142142421421
 ```
 [
   {
-    "id": 1,
-    "userId": 3,
-    "kidId": 3,
-    "name": "Test event name",
-    "startDate": "2015-08-30T08:20:00Z",
-    "endDate": "2015-08-31T08:20:00Z",
-    "color": "#F05D25",
-    "status": "OPEN",
-    "description": "Hahah",
-    "alert": 49,
-    "city": "New York",
-    "state": "New York",
-    "repeat": "DAILY",
-    "timezoneOffset": 300,
-    "dateCreated": "2017-02-09T12:22:46Z",
-    "lastUpdated": "2017-02-09T12:22:46Z",
-    "todo": [
-      {
-        "id": 1,
-        "text": "test todo 1",
-        "status": "PENDING",
-        "dateCreated": "2017-02-09T17:22:46Z",
-        "lastUpdated": "2017-02-09T17:22:46Z"
-      },
-      {
-        "id": 2,
-        "text": "test todo 2",
-        "status": "PENDING",
-        "dateCreated": "2017-02-09T17:22:46Z",
-        "lastUpdated": "2017-02-09T17:22:46Z"
-      }
-    ]
-  },
-  {
-    "id": 2,
-    "userId": 3,
-    "kidId": 3,
-    "name": "Test event name",
-    "startDate": "2016-08-30T08:20:00Z",
+    "id": 4,
+    "user": {
+      "id": 2,
+      "email": "jack08300@gmail.com",
+      "firstName": "Jay",
+      "lastName": "Chen",
+      "lastUpdate": "0001-01-01T00:00:00Z",
+      "dateCreated": "0001-01-01T00:00:00Z",
+      "zipCode": "",
+      "phoneNumber": "",
+      "profile": "avatar_2.jpg"
+    },
+    "kid": null,
+    "name": "Test event name2",
+    "startDate": "2017-02-23T08:20:00Z",
     "endDate": "2017-08-31T08:20:00Z",
     "color": "#F05D25",
     "status": "OPEN",
-    "description": "Hahah",
+    "description": "Hafdewadhah",
     "alert": 49,
     "city": "New York",
     "state": "New York",
-    "repeat": "DAILY",
+    "repeat": "",
     "timezoneOffset": 300,
-    "dateCreated": "2017-02-09T12:22:58Z",
-    "lastUpdated": "2017-02-09T12:22:58Z",
+    "dateCreated": "2017-02-12T22:41:55Z",
+    "lastUpdated": "2017-02-12T22:41:55Z",
     "todo": [
       {
-        "id": 3,
-        "text": "test todo 1",
-        "status": "PENDING",
-        "dateCreated": "2017-02-09T17:22:58Z",
-        "lastUpdated": "2017-02-09T17:22:58Z"
-      },
-      {
-        "id": 4,
+        "id": 12,
         "text": "test todo 2",
         "status": "PENDING",
-        "dateCreated": "2017-02-09T17:22:58Z",
-        "lastUpdated": "2017-02-09T17:22:58Z"
+        "dateCreated": "2017-02-13T04:59:44Z",
+        "lastUpdated": "2017-02-13T01:01:51Z"
       }
     ]
   }

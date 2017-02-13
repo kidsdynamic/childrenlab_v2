@@ -37,7 +37,6 @@ func InitDatabase() {
 		&model.AccessToken{},
 		&model.Kid{},
 		&model.Device{},
-		&model.Event{},
 		&model.Todo{},
 		&model.ActivityRawData{},
 		&model.Activity{},
@@ -47,6 +46,11 @@ func InitDatabase() {
 		log.Println(err)
 	}
 	db.AutoMigrate(&model.SubHost{})
+
+	if err := db.Exec("CREATE TABLE `event_kid` (`event_id` bigint,`kid_id` bigint, PRIMARY KEY (`event_id`,`kid_id`))").Error; err != nil {
+		log.Println(err)
+	}
+	db.AutoMigrate(&model.Event{})
 
 	yes := db.HasTable("role")
 

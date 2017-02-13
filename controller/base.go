@@ -55,7 +55,6 @@ func Auth(c *gin.Context) {
 	err := db.Table("user").Joins("JOIN authentication_token a ON user.email = a.email").Where("a.token = ?", authToken).Find(&user).Error
 
 	if err != nil {
-		log.Println(err)
 		c.JSON(http.StatusForbidden, gin.H{})
 		c.Abort()
 		return
@@ -68,7 +67,8 @@ func Auth(c *gin.Context) {
 
 }
 
-func GetSignedInUser(c *gin.Context) *model.User {
+func GetSignedInUser(c *gin.Context) model.User {
+	var user model.User
 	signedUser, ok := c.Get(SignedUserKey)
 
 	if !ok {
@@ -76,11 +76,11 @@ func GetSignedInUser(c *gin.Context) *model.User {
 			"message": "can't find login user",
 		})
 		c.Abort()
-		return nil
+		return user
 	}
 
-	user := signedUser.(model.User)
-	return &user
+	user = signedUser.(model.User)
+	return user
 }
 
 func GetKidByUserIdAndKidId(db *gorm.DB, userId, kidId int64) (model.Kid, error) {
@@ -136,12 +136,15 @@ func UploadFileToS3(file *os.File, fileName string) error {
 
 }
 
-func GetKidsByUser(user *model.User) ([]model.Kid, error) {
+func GetKidsByUser(user model.User) ([]model.Kid, error) {
 	db := database.NewGORM()
 	defer db.Close()
 	var kids []model.Kid
 
 	err := db.Where("parent_id = ?", user.ID).Find(&kids).Error
+	if err == gorm.ErrRecordNotFound {
+		return kids, nil
+	}
 
 	return kids, err
 }
@@ -169,23 +172,28 @@ func GetNowTime() time.Time {
 	return t
 }
 
-func HasPermissionToKid(db *gorm.DB, user *model.User, kidID int64) bool {
+func HasPermissionToKid(db *gorm.DB, user *model.User, kidID []int64) bool {
 
-	var exists bool = false
-	row := db.Raw("SELECT EXISTS(SELECT id FROM kids WHERE id = ? and parent_id = ? LIMIT 1)", kidID, user.ID).Row()
+	var exists bool = true
+	for _, id := range kidID {
+		row := db.Raw("SELECT EXISTS(SELECT id FROM kids WHERE id = ? and parent_id = ? LIMIT 1)", id, user.ID).Row()
 
-	row.Scan(&exists)
-	if exists {
-		return true
+		row.Scan(&exists)
 	}
 
-	row = db.Raw("SELECT EXISTS(SELECT id FROM sub_host s JOIN sub_host_kid sk ON s.id = sk.sub_host_id WHERE s.request_from_id = ? and sk.kid_id = ? and s.status = ? LIMIT 1)", user.ID, kidID, SubHostStatusAccepted).Row()
-
-	row.Scan(&exists)
 	if exists {
 		return true
+	} else {
+		for _, id := range kidID {
+			row := db.Raw("SELECT EXISTS(SELECT id FROM sub_host s JOIN sub_host_kid sk ON s.id = sk.sub_host_id WHERE s.request_from_id = ? and sk.kid_id = ? and s.status = ? LIMIT 1)", user.ID, id, SubHostStatusAccepted).Row()
+
+			row.Scan(&exists)
+			if !exists {
+				return false
+			}
+		}
 	}
 
-	return false
+	return exists
 
 }

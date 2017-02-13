@@ -12,5 +12,5 @@ func initSubHostRouter(r *gin.Engine) {
 	v1.PUT("/accept", controller.AcceptRequest)
 	v1.PUT("/deny", controller.DenyRequest)
 	v1.GET("/list", controller.SubHostList)
-	v1.GET("/permission", controller.HasPermission)
+	//v1.GET("/permission", controller.HasPermission)
 }

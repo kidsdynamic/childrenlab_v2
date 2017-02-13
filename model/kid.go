@@ -12,6 +12,10 @@ type Kid struct {
 	ParentID    int64     `json:"-"`
 }
 
+type UserKidIDs struct {
+	ID int64
+}
+
 type Device struct {
 	ID          int64     `json:"id" gorm:"AUTO_INCREMENT"`
 	MacID       string    `json:"macId"`
