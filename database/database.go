@@ -17,7 +17,7 @@ import (
 var DatabaseInfo model.Database
 
 func NewGORM() *gorm.DB {
-	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@(%s)/%s?charset=utf8&parseTime=true",
+	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=true",
 		DatabaseInfo.User, DatabaseInfo.Password, DatabaseInfo.IP, DatabaseInfo.Name))
 
 	if err != nil {
