@@ -152,13 +152,13 @@ func calculateActivity(db *gorm.DB, indoorActivity, outdoorActivity model.Activi
 		for _, a := range todayActivity {
 			if a.Type == constants.ActivityIndoorType {
 				a.Steps += indoorActivity.Steps
-				a.ReceivedDate = indoorActivity.Date
+				a.ReceivedDate = timeWithZone
 				a.ReceivedTime = indoorActivity.TimeLong
 				a.LastUpdated = time.Now()
 
 			} else {
 				a.Steps += outdoorActivity.Steps
-				a.ReceivedDate = outdoorActivity.Date
+				a.ReceivedDate = timeWithZone
 				a.ReceivedTime = outdoorActivity.TimeLong
 				a.LastUpdated = time.Now()
 			}
