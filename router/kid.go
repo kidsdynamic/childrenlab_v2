@@ -15,4 +15,5 @@ func initKidRouter(r *gin.Engine) {
 	kidsAPI.PUT("/update", controller.UpdateKid)
 	kidsAPI.DELETE("/delete", controller.DeleteKid)
 	kidsAPI.GET("/list", controller.GetKidList)
+	kidsAPI.GET("/whoRegisteredMacID", controller.WhoRegisteredMacID)
 }
