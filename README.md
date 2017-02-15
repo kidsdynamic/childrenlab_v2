@@ -662,6 +662,7 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 ## /v1/activity/uploadRawData - POST
 * Content-Type: application/json
 * Activity data
+* Upload with user's timezone offset (e.g. New York Timezone offset is ***-300***)
 * When the data duplicate which is when server response ***409*** status, you can ***ignore*** it and process next data
 
 #### Request Parameters
@@ -669,6 +670,7 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 | ------------- |:-------------:|:-------------:| -----:|
 | indoorActivity      | Yes | String | 1481299119,0,216,2,3,4 |
 | outdoorActivity     | Yes | String | 1481299119,1,0,0,0,0 |
+| timeZoneOffset | Yes | Integer | -300 |
 | time                | Yes | Long |   1470885849 |
 | macId               | Yes | String |   hgweorahgbkljwhnpi2 |
 
@@ -682,11 +684,12 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
 
 ### curl
 ```
-curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Type: application/json" -d '{
-	"indoorActivity": "1481299119,0,216,2,3,4",
-	"outdoorActivity": "1481299119,1,0,0,0,0",
-	"time": 1470885849,
-	"macId": "hgweorahgbkljwhnpi2"
+curl -X POST -H "x-auth-token: 28e20ffb974205c0747b5aa35d53e538" -H "Content-Type: application/json" -d '{
+  "indoorActivity": "1487125375,0,10,2,3,4",
+  "outdoorActivity": "1487125375,1,24,0,0,0",
+  "time": 1487125375,
+  "timeZoneOffset": -300,
+  "macId": "012345678915"
 }' "http://localhost:8111/v1/activity/uploadRawData"
 ```
 

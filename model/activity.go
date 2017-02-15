@@ -3,14 +3,15 @@ package model
 import "time"
 
 type ActivityRawData struct {
-	ID          int64  `json:"id" gorm:"AUTO_INCREMENT"`
-	Indoor      string `json:"indoorActivity" binding:"required"`
-	Outdoor     string `json:"outdoorActivity" binding:"required"`
-	Time        int64  `json:"time" binding:"required"`
-	MacID       string `json:"macId" binding:"required"`
-	UserID      int64
-	DateCreated time.Time
-	LastUpdated time.Time
+	ID             int64  `json:"id" gorm:"AUTO_INCREMENT"`
+	Indoor         string `json:"indoorActivity" binding:"required"`
+	Outdoor        string `json:"outdoorActivity" binding:"required"`
+	Time           int64  `json:"time" binding:"required"`
+	MacID          string `json:"macId" binding:"required"`
+	TimeZoneOffset int64  `json:"timeZoneOffset"`
+	UserID         int64
+	DateCreated    time.Time
+	LastUpdated    time.Time
 }
 
 func (ActivityRawData) TableName() string {
@@ -20,6 +21,7 @@ func (ActivityRawData) TableName() string {
 type ActivityInsight struct {
 	Date     time.Time
 	TimeLong int64
+	TimeZone int64
 	Steps    int64
 }
 

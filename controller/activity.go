@@ -73,6 +73,7 @@ func UploadRawActivityData(c *gin.Context) {
 	indoorActivity.Steps, err = strconv.ParseInt(indoor[2], 10, 64)
 	indoorActivity.Date = time.Unix(indoorActivityLong, 0)
 	indoorActivity.TimeLong = indoorActivityLong
+	indoorActivity.TimeZone = request.TimeZoneOffset
 	log.Printf("Received Indoor Activity Time: %s", indoorActivity.Date)
 
 	outdoor := strings.Split(request.Outdoor, ",")
@@ -89,6 +90,7 @@ func UploadRawActivityData(c *gin.Context) {
 	var outdoorActivity model.ActivityInsight
 	outdoorActivity.Steps, err = strconv.ParseInt(outdoor[2], 10, 64)
 	outdoorActivity.Date = time.Unix(outdoorActivityLong, 0)
+	outdoorActivity.TimeZone = request.TimeZoneOffset
 	outdoorActivity.TimeLong = outdoorActivityLong
 
 	user := GetSignedInUser(c)
@@ -111,7 +113,7 @@ func UploadRawActivityData(c *gin.Context) {
 	}
 }
 
-func calculateActivity(db *gorm.DB, indoorActivity model.ActivityInsight, outdoorActivity model.ActivityInsight, kid model.Kid) error {
+func calculateActivity(db *gorm.DB, indoorActivity, outdoorActivity model.ActivityInsight, kid model.Kid) error {
 	var todayActivity []model.Activity
 
 	if err := db.Where("mac_id = ? AND (YEAR(received_date) = ? AND MONTH(received_date) = ? AND DAY(received_date) = ?)", kid.MacID, indoorActivity.Date.Year(), indoorActivity.Date.Month(), indoorActivity.Date.Day()).
@@ -119,10 +121,12 @@ func calculateActivity(db *gorm.DB, indoorActivity model.ActivityInsight, outdoo
 		return err
 	}
 
+	timeWithZone := indoorActivity.Date.Add(time.Duration(indoorActivity.TimeZone) * time.Minute)
+
 	if len(todayActivity) == 0 {
 		if err := db.Create(&model.Activity{
 			Steps:        indoorActivity.Steps,
-			ReceivedDate: indoorActivity.Date,
+			ReceivedDate: timeWithZone,
 			ReceivedTime: indoorActivity.TimeLong,
 			KidID:        kid.ID,
 			MacID:        kid.MacID,
@@ -135,7 +139,7 @@ func calculateActivity(db *gorm.DB, indoorActivity model.ActivityInsight, outdoo
 
 		if err := db.Create(&model.Activity{
 			Steps:        outdoorActivity.Steps,
-			ReceivedDate: outdoorActivity.Date,
+			ReceivedDate: timeWithZone,
 			ReceivedTime: outdoorActivity.TimeLong,
 			KidID:        kid.ID,
 			MacID:        kid.MacID,
