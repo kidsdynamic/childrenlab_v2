@@ -520,7 +520,7 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: 8158050a26569
 ### curl
 ```
 curl -X PUT -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -H "Content-Type: application/json" -d '{
-	"lastName": "yes",
+	"name": "yes",
 	"kidId": 19
 }' "http://localhost:8111/v1/kids/update"
 ```
