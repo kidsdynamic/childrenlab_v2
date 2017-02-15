@@ -115,13 +115,11 @@ func UploadRawActivityData(c *gin.Context) {
 
 func calculateActivity(db *gorm.DB, indoorActivity, outdoorActivity model.ActivityInsight, kid model.Kid) error {
 	var todayActivity []model.Activity
-
-	if err := db.Where("mac_id = ? AND (YEAR(received_date) = ? AND MONTH(received_date) = ? AND DAY(received_date) = ?)", kid.MacID, indoorActivity.Date.Year(), indoorActivity.Date.Month(), indoorActivity.Date.Day()).
+	timeWithZone := indoorActivity.Date.Add(time.Duration(indoorActivity.TimeZone) * time.Minute)
+	if err := db.Where("mac_id = ? AND (YEAR(received_date) = ? AND MONTH(received_date) = ? AND DAY(received_date) = ?)", kid.MacID, timeWithZone.Year(), timeWithZone.Month(), timeWithZone.Day()).
 		Find(&todayActivity).Error; err != nil {
 		return err
 	}
-
-	timeWithZone := indoorActivity.Date.Add(time.Duration(indoorActivity.TimeZone) * time.Minute)
 
 	if len(todayActivity) == 0 {
 		if err := db.Create(&model.Activity{
