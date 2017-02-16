@@ -7,8 +7,6 @@ import (
 
 	"fmt"
 
-	"time"
-
 	"github.com/gin-gonic/gin"
 	"github.com/kidsdynamic/childrenlab_v2/database"
 	"github.com/kidsdynamic/childrenlab_v2/model"
@@ -45,7 +43,7 @@ func AddKid(c *gin.Context) {
 	kid.MacID = request.MacID
 	kid.Name = request.Name
 	kid.ParentID = user.ID
-	kid.DateCreated = time.Now()
+	kid.DateCreated = GetNowTime()
 
 	if err := db.Save(&kid).Error; err != nil {
 		log.Println(err)
@@ -58,7 +56,7 @@ func AddKid(c *gin.Context) {
 
 	var device model.Device
 	device.MacID = kid.MacID
-	device.DateCreated = time.Now()
+	device.DateCreated = GetNowTime()
 
 	if err := db.Save(&device).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

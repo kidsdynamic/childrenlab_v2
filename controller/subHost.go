@@ -5,8 +5,6 @@ import (
 
 	"fmt"
 
-	"time"
-
 	"github.com/gin-gonic/gin"
 	"github.com/kidsdynamic/childrenlab_v2/database"
 	"github.com/kidsdynamic/childrenlab_v2/model"
@@ -45,10 +43,10 @@ func RequestSubHostToUser(c *gin.Context) {
 		return
 	}
 
-	subHost.DateCreated = time.Now()
+	subHost.DateCreated = GetNowTime()
 	subHost.RequestFromID = user.ID
 	subHost.RequestToID = requestSubHostReq.HostID
-	subHost.LastUpdated = time.Now()
+	subHost.LastUpdated = GetNowTime()
 
 	if err := db.Save(&subHost).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -176,7 +174,7 @@ func DenyRequest(c *gin.Context) {
 	}
 
 	subHost.Status = SubHostStatusDenied
-	subHost.LastUpdated = time.Now()
+	subHost.LastUpdated = GetNowTime()
 
 	if err := db.Save(&subHost).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

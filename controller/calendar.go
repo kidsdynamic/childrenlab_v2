@@ -85,8 +85,8 @@ func AddCalendarEvent(c *gin.Context) {
 
 		todo.Status = TODO_PENDING
 		todo.Text = todoReq
-		todo.LastUpdated = time.Now()
-		todo.DateCreated = time.Now()
+		todo.LastUpdated = GetNowTime()
+		todo.DateCreated = GetNowTime()
 
 		todos = append(todos, todo)
 	}
@@ -149,8 +149,8 @@ func UpdateCalendarEvent(c *gin.Context) {
 
 		todo.Status = TODO_PENDING
 		todo.Text = todoReq
-		todo.LastUpdated = time.Now()
-		todo.DateCreated = time.Now()
+		todo.LastUpdated = GetNowTime()
+		todo.DateCreated = GetNowTime()
 
 		todos = append(todos, todo)
 	}

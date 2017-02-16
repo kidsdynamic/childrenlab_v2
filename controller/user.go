@@ -7,8 +7,6 @@ import (
 
 	"fmt"
 
-	"time"
-
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/kidsdynamic/childrenlab_v2/database"
@@ -41,7 +39,7 @@ func Login(c *gin.Context) {
 	accessToken := model.AccessToken{
 		Email:       user.Email,
 		Token:       randToken(),
-		LastUpdated: time.Now(),
+		LastUpdated: GetNowTime(),
 	}
 
 	err := storeToken(db, accessToken)
@@ -112,7 +110,7 @@ func Register(c *gin.Context) {
 	user.Role = role
 	user.Email = userRequest.Email
 	user.Password = userRequest.Password
-	user.DateCreated = time.Now()
+	user.DateCreated = GetNowTime()
 	user.FirstName = userRequest.FirstName
 	user.LastName = userRequest.LastName
 	user.PhoneNumber = userRequest.PhoneNumber

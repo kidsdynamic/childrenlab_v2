@@ -129,8 +129,8 @@ func calculateActivity(db *gorm.DB, indoorActivity, outdoorActivity model.Activi
 			KidID:        kid.ID,
 			MacID:        kid.MacID,
 			Type:         constants.ActivityIndoorType,
-			DateCreated:  time.Now(),
-			LastUpdated:  time.Now(),
+			DateCreated:  GetNowTime(),
+			LastUpdated:  GetNowTime(),
 		}).Error; err != nil {
 			return err
 		}
@@ -142,8 +142,8 @@ func calculateActivity(db *gorm.DB, indoorActivity, outdoorActivity model.Activi
 			KidID:        kid.ID,
 			MacID:        kid.MacID,
 			Type:         constants.ActivityOutdoorType,
-			DateCreated:  time.Now(),
-			LastUpdated:  time.Now(),
+			DateCreated:  GetNowTime(),
+			LastUpdated:  GetNowTime(),
 		}).Error; err != nil {
 			return err
 		}
@@ -154,13 +154,13 @@ func calculateActivity(db *gorm.DB, indoorActivity, outdoorActivity model.Activi
 				a.Steps += indoorActivity.Steps
 				a.ReceivedDate = timeWithZone
 				a.ReceivedTime = indoorActivity.TimeLong
-				a.LastUpdated = time.Now()
+				a.LastUpdated = GetNowTime()
 
 			} else {
 				a.Steps += outdoorActivity.Steps
 				a.ReceivedDate = timeWithZone
 				a.ReceivedTime = outdoorActivity.TimeLong
-				a.LastUpdated = time.Now()
+				a.LastUpdated = GetNowTime()
 			}
 
 			if err := db.Model(&model.Activity{}).Update(&a).Error; err != nil {

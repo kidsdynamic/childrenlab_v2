@@ -13,7 +13,7 @@ require('rxjs/add/operator/toPromise');
 var KidService = (function () {
     function KidService(http) {
         this.http = http;
-        this.kidListUrl = 'https://www.childrenlab.com/v1/kids/list';
+        this.kidListUrl = 'https://www.childrenlab.com/v1/admin/kids/list';
     }
     KidService.prototype.getList = function () {
         return this.http.get(this.kidListUrl)
