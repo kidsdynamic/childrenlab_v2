@@ -826,8 +826,6 @@ curl -X GET -H "x-auth-token: 27e217ae4d2907188b8c92cdcf9c85ac" "http://localhos
 | color               | Yes | String |   #F05D25 |
 | description         | No | String |   Test description |
 | alert               | No | Integer |   49 |
-| city               | No | String |   New York |
-| state               | No | String |   New York |
 | repeat               | No | String |   DAILY, MONTHLY |
 | timezoneOffset       Yes | Integer |   300 |
 | todo               | No | Array |   ["test todo 1", "test todo 2"] |
@@ -895,8 +893,6 @@ curl -X POST -H "x-auth-token: 28e20ffb974205c0747b5aa35d53e538" -H "Content-Typ
     "status": "OPEN",
     "description": "ahhahahahahhaa",
     "alert": 25,
-    "city": "",
-    "state": "",
     "repeat": "",
     "timezoneOffset": 300,
     "dateCreated": "2017-02-13T00:03:57Z",
@@ -921,8 +917,6 @@ curl -X POST -H "x-auth-token: 28e20ffb974205c0747b5aa35d53e538" -H "Content-Typ
 | color               | Yes | String |   #F05D25 |
 | description         | No | String |   Test description |
 | alert               | No | Integer |   49 |
-| city               | No | String |   New York |
-| state               | No | String |   New York |
 | repeat               | No | String |   DAILY, MONTHLY |
 | timezoneOffset       Yes | Integer |   300 |
 | todo               | No | Array |   ["test todo 1"] |
@@ -946,9 +940,7 @@ curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: 28e20ffb974205
   "timezoneOffset": 300,
   "color": "#F05D25",
   "description": "Hafdewadhah",
-  "alert": 23,
-  "city": "New York",
-  "state": "New York"
+  "alert": 23
   
 }' "http://localhost:8111/v1/event/update"
 ```
@@ -992,8 +984,6 @@ curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: 28e20ffb974205
     "status": "OPEN",
     "description": "Hafdewadhah",
     "alert": 23,
-    "city": "New York",
-    "state": "New York",
     "repeat": "DAILY",
     "timezoneOffset": 300,
     "dateCreated": "2017-02-12T20:01:51Z",
@@ -1086,8 +1076,6 @@ curl -X GET -H "x-auth-token: 42142142421421312312312" "http://localhost:8111/v1
     "status": "OPEN",
     "description": "Hafdewadhah",
     "alert": 49,
-    "city": "New York",
-    "state": "New York",
     "repeat": "",
     "timezoneOffset": 300,
     "dateCreated": "2017-02-12T22:41:55Z",
@@ -1131,8 +1119,6 @@ curl -X GET -H "x-auth-token: 42142142421421312312312" "http://localhost:8111/v1
     "status": "OPEN",
     "description": "ahhahahahahhaa",
     "alert": 25,
-    "city": "",
-    "state": "",
     "repeat": "",
     "timezoneOffset": 300,
     "dateCreated": "2017-02-13T00:03:57Z",
@@ -1185,8 +1171,6 @@ curl -X GET -H "x-auth-token: 42142142421421312312312" "http://localhost:8111/v1
     "status": "OPEN",
     "description": "Hafdewadhah",
     "alert": 49,
-    "city": "New York",
-    "state": "New York",
     "repeat": "",
     "timezoneOffset": 300,
     "dateCreated": "2017-02-12T22:41:55Z",
