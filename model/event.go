@@ -14,8 +14,8 @@ type Event struct {
 	Status         string    `json:"status" gorm:"not null"`
 	Description    string    `json:"description"`
 	Alert          int64     `json:"alert"`
-	City           string    `json:"city"`
-	State          string    `json:"state"`
+	City           string    `json:"-"`
+	State          string    `json:"-"`
 	Repeat         string    `json:"repeat"`
 	TimezoneOffset int64     `json:"timezoneOffset"`
 	DateCreated    time.Time `json:"dateCreated"`
@@ -69,7 +69,7 @@ type UpdateEventRequest struct {
 	City           string      `json:"city"`
 	State          string      `json:"state"`
 	Repeat         string      `json:"repeat"`
-	TimezoneOffset int64       `json:"timezoneOffset" binding:"required"`
+	TimezoneOffset int64       `json:"timezoneOffset"`
 	Todo           []string    `json:"todo"`
 }
 

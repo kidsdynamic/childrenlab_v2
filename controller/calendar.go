@@ -37,6 +37,13 @@ func AddCalendarEvent(c *gin.Context) {
 		return
 	}
 
+	if len(request.KidID) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Kid ID is required",
+		})
+		return
+	}
+
 	user := GetSignedInUser(c)
 
 	db := database.NewGORM()
