@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	"github.com/kidsdynamic/childrenlab_v2/database"
 	"github.com/kidsdynamic/childrenlab_v2/model"
 )
@@ -68,7 +69,7 @@ func RequestSubHostToUser(c *gin.Context) {
 }
 
 func AcceptRequest(c *gin.Context) {
-	var acceptRequest model.UpdateSubHostRequest
+	var acceptRequest model.AcceptSubHostRequest
 
 	if err := c.BindJSON(&acceptRequest); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -146,9 +147,9 @@ func AcceptRequest(c *gin.Context) {
 }
 
 func DenyRequest(c *gin.Context) {
-	var updateRequest model.UpdateSubHostRequest
+	var request model.DenyRequest
 
-	if err := c.BindJSON(&updateRequest); err != nil {
+	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "One of parameter is missing",
 			"error":   err,
@@ -163,7 +164,7 @@ func DenyRequest(c *gin.Context) {
 
 	var subHost model.SubHost
 
-	db.Model(&subHost).Preload("RequestFrom").Preload("RequestTo").Preload("kids").Where("id = ? AND request_to_id = ?", updateRequest.SubHostID, user.ID).First(&subHost)
+	db.Model(&subHost).Preload("RequestFrom").Preload("RequestTo").Preload("Kids").Where("id = ? AND request_to_id = ?", request.SubHostID, user.ID).First(&subHost)
 
 	if subHost.ID == 0 {
 		c.JSON(http.StatusForbidden, gin.H{
@@ -173,16 +174,94 @@ func DenyRequest(c *gin.Context) {
 		return
 	}
 
-	subHost.Status = SubHostStatusDenied
-	subHost.LastUpdated = GetNowTime()
-
-	if err := db.Save(&subHost).Error; err != nil {
+	if err := db.Where("sub_host_id = ?", subHost.ID).Delete(model.SubHostKid{}).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error on updating status",
 			"error":   err,
 		})
 
 		return
+	}
+
+	if err := db.Delete(&subHost).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Error on updating status",
+			"error":   err,
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, subHost)
+}
+
+func RemoveSubHostKid(c *gin.Context) {
+	var request model.RemoveSubHostRequest
+
+	if err := c.BindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "One of parameter is missing",
+			"error":   err,
+		})
+		return
+	}
+
+	db := database.NewGORM()
+	defer db.Close()
+
+	user := GetSignedInUser(c)
+
+	kidIds := []int64{
+		request.KidID,
+	}
+	if !HasPermissionToKid(db, &user, kidIds) {
+		c.JSON(http.StatusForbidden, gin.H{
+			"message": "The user doesn't have permission to remove kid",
+		})
+		return
+	}
+
+	var subHost model.SubHost
+	if err := db.Where("id = ? AND request_to_id = ? AND status = ?", request.SubHostID, user.ID, SubHostStatusAccepted).First(&subHost).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "The subhost is not exists",
+			})
+			return
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Error occur",
+				"error":   err,
+			})
+
+			return
+		}
+	}
+
+	if err := db.Where("sub_host_id = ? and kid_id = ?", request.SubHostID, request.KidID).Delete(&model.SubHostKid{}).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "The subhost kid is not exists",
+			})
+			return
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Error occur",
+				"error":   err,
+			})
+
+			return
+		}
+	}
+
+	if err := db.Where("id = ?", subHost.ID).Preload("RequestFrom").Preload("RequestTo").Preload("Kids").First(&subHost).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Error occur",
+			"error":   err,
+		})
+
+		return
+
 	}
 
 	c.JSON(http.StatusOK, subHost)
@@ -222,4 +301,5 @@ func SubHostList(c *gin.Context) {
 		"requestFrom": requestFrom,
 		"requestTo":   requestTo,
 	})
+
 }

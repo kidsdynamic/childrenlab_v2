@@ -43,6 +43,7 @@
 * [PUT   /v1/subHost/accept](#v1subhostaccept---put)
 * [PUT   /v1/subHost/deny](#v1subhostdeny---put)
 * [GET   /v1/subHost/list](#v1subhostlist---get)
+* [PUT   /v1/subHost/removeKid](#v1subhostremovekid---put)
 
 ## /v1/user/login - POST
 * Content-Type: application/json
@@ -1288,6 +1289,7 @@ curl -X POST -H "Content-Type: application/json" -H "x-auth-token: 4094345fecef6
 ## /v1/subHost/accept - PUT
 * Content-Type: application/json
 * Accept the sub host request by allowing sub host to view the kids
+* When adding a kid under a subhost, use this API as well
 * Get ```subHostId``` from [GET   /v1/subHost/list](#v1subhostlist---get) API
 
 #### Request Parameters
@@ -1365,6 +1367,7 @@ curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: 6d312cbc54ce05
 
 ## /v1/subHost/deny - PUT
 * Content-Type: application/json
+* It will delete subhost request
 * Get ```subHostId``` from [GET   /v1/subHost/list](#v1subhostlist---get) API
 
 #### Request Parameters
@@ -1387,37 +1390,9 @@ curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: 58lkp329ejbr44
 }' "http://localhost:8111/v1/subHost/deny"
 ```
 
-* Success - Returns updated request
+* Success - Delete completed
 ```
-{
-  "id": 3,
-  "requestFromUser": {
-    "id": 2,
-    "email": "jack08300@gmail.com",
-    "firstName": "Jay",
-    "lastName": "Chen",
-    "lastUpdate": "0001-01-01T00:00:00Z",
-    "dateCreated": "0001-01-01T00:00:00Z",
-    "zipCode": "11111",
-    "phoneNumber": "11111",
-    "profile": "",
-    "registrationId": "123test"
-  },
-  "requestToUser": {
-    "id": 63,
-    "email": "jack08301@gmail.com",
-    "firstName": "JJJ",
-    "lastName": "TTT",
-    "lastUpdate": "0001-01-01T00:00:00Z",
-    "dateCreated": "2017-01-17T00:56:06Z",
-    "zipCode": "11111",
-    "phoneNumber": "",
-    "profile": ""
-  },
-  "status": "DENIED",
-  "createdDate": "2017-01-18T04:03:22Z",
-  "lastUpdated": "2017-01-17T23:16:14.456787738-05:00"
-}
+{}
 ```
 
 ## /v1/subHost/list - GET
@@ -1541,6 +1516,75 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: 58lkp329ejbr44
       "status": "PENDING",
       "createdDate": "2017-02-11T17:28:57Z",
       "lastUpdated": "2017-02-11T17:28:57Z"
+    }
+  ]
+}
+```
+
+## /v1/subHost/removeKid - PUT
+* Content-Type: application/json
+* It will delete a kid under the SubHost
+* Get ```subHostId``` from [GET   /v1/subHost/list](#v1subhostlist---get) API
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| :-----|
+| subHostId     | Yes | Integer | 2 |
+| kidId         | Yes | Integer | 1 |
+
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Accept successfully |
+| 400     | Bad request. Missing some parameters, or the type is wrong |
+| 403     | Forbidden. The user doesn't have permission |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: 0838289b3d518dd263e2356900a00241" -d '{
+  "subHostId": 1,
+  "kidId": 1
+}' "http://localhost:8111/v1/subHost/removeKid"
+```
+
+* Success - Delete completed, and return sub host info
+```
+{
+  "id": 1,
+  "requestFromUser": {
+    "id": 3,
+    "email": "jack083002@gmail.com",
+    "firstName": "JJJ",
+    "lastName": "TTT",
+    "lastUpdate": "0001-01-01T00:00:00Z",
+    "dateCreated": "2017-02-19T13:48:45Z",
+    "zipCode": "11111",
+    "phoneNumber": "",
+    "profile": ""
+  },
+  "requestToUser": {
+    "id": 2,
+    "email": "jack08300@gmail.com",
+    "firstName": "Jay",
+    "lastName": "Chen",
+    "lastUpdate": "0001-01-01T00:00:00Z",
+    "dateCreated": "0001-01-01T00:00:00Z",
+    "zipCode": "",
+    "phoneNumber": "",
+    "profile": ""
+  },
+  "status": "ACCEPTED",
+  "createdDate": "2017-02-19T13:51:02Z",
+  "lastUpdated": "2017-02-19T13:51:02Z",
+  "kids": [
+    {
+      "id": 3,
+      "name": "second kids3",
+      "dateCreated": "2017-02-19T15:49:28Z",
+      "macId": "Mac_ID3",
+      "profile": ""
     }
   ]
 }

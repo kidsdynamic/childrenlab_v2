@@ -28,12 +28,26 @@ type RequestSubHostWithMacIDRequest struct {
 }
 
 type RequestSubHostToUser struct {
-	HostID int64 `json:"hostId" db:"request_to_id" binding:"required"`
+	HostID int64 `json:"hostId" binding:"required"`
 }
 
-type UpdateSubHostRequest struct {
+type DenyRequest struct {
+	SubHostID int64 `json:"subHostId" binding:"required"`
+}
+
+type AcceptSubHostRequest struct {
 	SubHostID int64   `json:"subHostId" binding:"required"`
 	KidID     []int64 `json:"kidId"`
+}
+
+type RemoveSubHostRequest struct {
+	SubHostID int64 `json:"subHostId" binding:"required"`
+	KidID     int64 `json:"kidId"  binding:"required"`
+}
+
+type AddKidToSubHost struct {
+	SubHostID int64 `json:"subHostId" binding:"required"`
+	KidID     int64 `json:"kidId" binding:"required"`
 }
 
 func (SubHost) TableName() string {
