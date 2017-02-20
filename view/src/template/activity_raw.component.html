@@ -1,4 +1,5 @@
-<h3> Device-Kid List</h3>
+<h3> Activity - </h3>
+<a routerLink="/device" class="btn btn-link"><span class="glyphicon glyphicon-chevron-left"></span>Back</a>
 <div class="error">
     {{ error }}
 </div>
@@ -9,19 +10,16 @@
             ID
         </th>
         <th>
-            Activity
+            Indoor
         </th>
         <th>
-            Name
+            Outdoor
         </th>
         <th>
-            Mac ID
+            Time
         </th>
         <th>
-            Profile
-        </th>
-        <th>
-            Parent
+            Timezone Offset
         </th>
         <th>
             Date Created
@@ -29,29 +27,24 @@
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let kid of kids">
+    <tr *ngFor="let activity of activities">
         <td>
-            {{ kid.id }}
+            {{ activity.id }}
         </td>
         <td>
-            <a [routerLink]="['/activity', kid.id]">Activity</a>
-            |
-            <a [routerLink]="['/activity_raw', kid.macId]">Raw Data</a>
+            {{ activity.indoor }}
         </td>
         <td>
-            {{ kid.name }}
+            {{ activity.outdoor }}
         </td>
         <td>
-            {{ kid.macId }}
+            {{ activity.time }}
         </td>
         <td>
-            {{ kid.profile }}
+            {{ activity.timeZoneOffset }}
         </td>
         <td>
-            {{ kid.parent.email }}
-        </td>
-        <td>
-            {{ kid.dateCreated }}
+            {{ activity.dateCreated }}
         </td>
 
     </tr>

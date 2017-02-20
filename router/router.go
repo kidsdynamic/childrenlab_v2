@@ -7,6 +7,8 @@ func New() *gin.Engine {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 
+	initAdminRouter(r)
+
 	initUserRouter(r)
 	initKidRouter(r)
 	initAvatarRouter(r)

@@ -361,3 +361,20 @@ func GetActivityList(c *gin.Context) {
 
 	c.JSON(http.StatusOK, activity)
 }
+
+func GetActivityRaw(c *gin.Context) {
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+	db := database.NewGORM()
+	defer db.Close()
+
+	var activityRaw []model.ActivityRawData
+	if err := db.Where("mac_id = ?", c.Param("macId")).Find(&activityRaw).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error on getting activities",
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, activityRaw)
+}

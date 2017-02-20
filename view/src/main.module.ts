@@ -10,10 +10,12 @@ import { DashboardComponent } from './dashboard.component'
 import { UserComponent } from './user.component'
 import { KidComponent } from './kid.component'
 import { ActivityComponent } from './activity.component'
+import { ActivityRawComponent } from './activity_raw.component'
 
 import { UserService } from './service/user.service'
 import { KidService } from './service/kid.service'
 import { ActivityService } from './service/activity.service'
+import { APP_CONFIG, AppConfig } from './constant/app.config'
 
 import { Routing } from './routing.module'
 
@@ -30,9 +32,19 @@ import { Routing } from './routing.module'
         DashboardComponent,
         UserComponent,
         KidComponent,
-        ActivityComponent
+        ActivityComponent,
+        ActivityRawComponent
     ],
-    providers: [ UserService, KidService, ActivityService ],
+    providers: [
+        UserService,
+        KidService,
+        ActivityService,
+        {
+            provide: APP_CONFIG,
+            useValue: AppConfig
+        }
+
+    ],
     bootstrap: [ DashboardComponent ]
 })
 

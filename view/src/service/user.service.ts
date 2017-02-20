@@ -2,21 +2,22 @@
  * Created by yen-chiehchen on 2/4/17.
  */
 
-import { Injectable } from '@angular/core'
+import { Injectable, Inject } from '@angular/core'
 import { Headers, Http} from '@angular/http'
 import 'rxjs/add/operator/toPromise'
+import { APP_CONFIG, IAppConfig } from '../constant/app.config'
 
 import { User } from '../model/user'
 
 @Injectable()
 export class UserService {
 
-    private userListUrl = 'https://www.childrenlab.com/v1/user/userList';
+    private userListUrl = 'user/userList';
 
-    constructor(private http: Http) {}
+    constructor(private http: Http, @Inject(APP_CONFIG) private config: IAppConfig ) {}
 
     getUserList(): Promise<User[]> {
-        return this.http.get(this.userListUrl)
+        return this.http.get(`${this.config.apiEndpoint + this.userListUrl}`)
             .toPromise()
             .then(response => response.json() as User[])
             .catch(this.handlerError)

@@ -9,12 +9,14 @@ import { UserComponent } from './user.component'
 import { DashboardComponent} from './dashboard.component'
 import { KidComponent } from './kid.component'
 import { ActivityComponent } from './activity.component'
+import { ActivityRawComponent } from './activity_raw.component'
 
 const routes: Routes = [
     { path: 'dashboard', component: DashboardComponent },
     { path: 'user', component: UserComponent },
     { path: 'device', component: KidComponent },
-    { path: 'activity/:kidId', component: ActivityComponent }
+    { path: 'activity/:kidId', component: ActivityComponent },
+    { path: 'activity_raw/:macId', component: ActivityRawComponent }
 ];
 
 @NgModule({
