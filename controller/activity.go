@@ -368,7 +368,7 @@ func GetActivityRaw(c *gin.Context) {
 	defer db.Close()
 
 	var activityRaw []model.ActivityRawData
-	if err := db.Where("mac_id = ?", c.Param("macId")).Order("date_created desc").Find(&activityRaw).Error; err != nil {
+	if err := db.Where("mac_id = ?", c.Param("macId")).Order("id desc").Find(&activityRaw).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error on getting activities",
 			"error":   err,
