@@ -3,15 +3,15 @@ package model
 import "time"
 
 type ActivityRawData struct {
-	ID             int64  `json:"id" gorm:"AUTO_INCREMENT"`
-	Indoor         string `json:"indoorActivity" binding:"required"`
-	Outdoor        string `json:"outdoorActivity" binding:"required"`
-	Time           int64  `json:"time" binding:"required"`
-	MacID          string `json:"macId" binding:"required"`
-	TimeZoneOffset int64  `json:"timeZoneOffset"`
-	UserID         int64
-	DateCreated    time.Time
-	LastUpdated    time.Time
+	ID             int64     `json:"id" gorm:"AUTO_INCREMENT"`
+	Indoor         string    `json:"indoorActivity" binding:"required"`
+	Outdoor        string    `json:"outdoorActivity" binding:"required"`
+	Time           int64     `json:"time" binding:"required"`
+	MacID          string    `json:"macId" binding:"required"`
+	TimeZoneOffset int64     `json:"timeZoneOffset"`
+	UserID         int64     `json:"userId"`
+	DateCreated    time.Time `json:"dateCreated"`
+	LastUpdated    time.Time `json:"lastUpdated"`
 }
 
 func (ActivityRawData) TableName() string {

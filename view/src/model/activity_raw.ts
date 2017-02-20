@@ -3,8 +3,8 @@
  */
 export class ActivityRaw {
     id: number;
-    indoor: string;
-    outdoor: string;
+    indoorActivity: string;
+    outdoorActivity: string;
     time: number;
     timeZoneOffset: number;
     dateCreated: string;
