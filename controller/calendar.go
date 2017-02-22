@@ -325,7 +325,7 @@ func RetrieveAllEventWithTodoByUser(c *gin.Context) {
 
 	db := database.NewGORM()
 	defer db.Close()
-	var events []model.Event
+	events := []model.Event{}
 
 	var kidsID []model.UserKidIDs
 	if err := db.Table("kids").Select("id").Where("parent_id = ?", user.ID).Find(&kidsID).Error; err != nil && err != gorm.ErrRecordNotFound {
