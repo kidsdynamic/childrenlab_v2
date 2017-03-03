@@ -1,2 +1,6 @@
+#!/bin/bash
+
+git pull
 rm /var/www/html/*
 cp /root/golang/src/childrenlab_v2/view/dist/* /var/www/html
+echo done

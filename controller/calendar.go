@@ -199,7 +199,7 @@ func DeleteEvent(c *gin.Context) {
 		return
 	}
 
-	eventID, err := strconv.ParseInt(eventIDString, 10, 6)
+	eventID, err := strconv.ParseInt(eventIDString, 10, 16)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
