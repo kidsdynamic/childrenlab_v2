@@ -8,6 +8,7 @@ type Event struct {
 	UserID         int64     `json:"-"`
 	Kid            []Kid     `json:"kid" gorm:"many2many:event_kid;"`
 	Name           string    `json:"name" gorm:"not null"`
+	PushTimeUTC    time.Time `json:"-"`
 	Start          time.Time `json:"startDate" gorm:"not null"`
 	End            time.Time `json:"endDate" gorm:"not null"`
 	Color          string    `json:"color" gorm:"not null"`

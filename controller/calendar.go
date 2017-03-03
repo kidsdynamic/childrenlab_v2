@@ -58,6 +58,8 @@ func AddCalendarEvent(c *gin.Context) {
 
 	var event model.Event
 
+	event.PushTimeUTC = request.Start.Add(time.Duration(request.TimezoneOffset) * time.Minute)
+
 	event.Status = EVENT_OPEN
 	event.User = user
 	event.Alert = request.Alert
