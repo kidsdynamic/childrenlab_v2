@@ -478,6 +478,7 @@ func toString(kidsID []model.UserKidIDs) []int64 {
 }
 
 func removeUnacceptableKid(db *gorm.DB, user *model.User, event *model.Event) {
+	var removedCount int = 0
 	for key, kid := range event.Kid {
 		var exists bool
 		row := db.Raw("SELECT EXISTS(SELECT id FROM sub_host s JOIN sub_host_kid sk ON s.id = sk.sub_host_id WHERE s.request_from_id = ? and sk.kid_id = ? and s.status = ? LIMIT 1)", user.ID, kid.ID, SubHostStatusAccepted).Row()
@@ -486,9 +487,10 @@ func removeUnacceptableKid(db *gorm.DB, user *model.User, event *model.Event) {
 		if !exists {
 			if len(event.Kid) > 0 {
 				kids := event.Kid
-				kids = append(kids[:key], kids[key+1:]...)
+				kids = append(kids[:key-removedCount], kids[key+1-removedCount:]...)
 				event.Kid = kids
 			}
+			removedCount++
 
 		}
 
