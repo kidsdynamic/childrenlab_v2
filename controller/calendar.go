@@ -484,9 +484,12 @@ func removeUnacceptableKid(db *gorm.DB, user *model.User, event *model.Event) {
 
 		row.Scan(&exists)
 		if !exists {
-			kids := event.Kid
-			kids = append(kids[:key], kids[key+1:]...)
-			event.Kid = kids
+			if len(event.Kid) > 0 {
+				kids := event.Kid
+				kids = append(kids[:key], kids[key+1:]...)
+				event.Kid = kids
+			}
+
 		}
 
 	}
