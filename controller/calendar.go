@@ -50,7 +50,7 @@ func AddCalendarEvent(c *gin.Context) {
 	defer db.Close()
 
 	if !HasPermissionToKid(db, &user, request.KidID) {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusForbidden, gin.H{
 			"message": "You don't have permission to do it",
 		})
 		return
