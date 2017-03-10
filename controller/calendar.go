@@ -134,19 +134,12 @@ func UpdateCalendarEvent(c *gin.Context) {
 
 	var event model.Event
 
-	if err := db.Where("id = ?", eventRequest.ID).Preload("User").Preload("Kid").Preload("Todo").First(&event).Error; err != nil {
+	user := GetSignedInUser(c)
+
+	if err := db.Where("id = ? and user_id = ?", eventRequest.ID, user.ID).Preload("User").Preload("Kid").Preload("Todo").First(&event).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Can't find the event from database",
 			"error":   err.Error(),
-		})
-		return
-	}
-
-	user := GetSignedInUser(c)
-
-	if user.ID != event.User.ID {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "You don't have permission to do it",
 		})
 		return
 	}
@@ -176,7 +169,16 @@ func UpdateCalendarEvent(c *gin.Context) {
 		event.Todo = todos
 	}
 
-	if err := db.Model(&event).Updates(&eventRequest).Error; err != nil {
+	event.Color = eventRequest.Color
+	event.Alert = eventRequest.Alert
+	event.Description = eventRequest.Description
+	event.Start = eventRequest.Start
+	event.End = eventRequest.End
+	event.Name = eventRequest.Name
+	event.Repeat = eventRequest.Repeat
+	event.PushTimeUTC = eventRequest.Start.Add(time.Duration(-eventRequest.TimezoneOffset) * time.Minute)
+
+	if err := db.Model(&model.Event{}).Updates(&event).Error; err != nil {
 		log.Printf("Error on Updat event. %#v", err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error on updating event",

@@ -60,18 +60,18 @@ type EventRequest struct {
 }
 
 type UpdateEventRequest struct {
-	ID             int64       `json:"eventId" binding:"required"`
-	Name           string      `json:"name" binding:"required"`
-	Start          interface{} `json:"startDate" binding:"required"`
-	End            interface{} `json:"endDate" binding:"required"`
-	Color          string      `json:"color" binding:"required"`
-	Description    string      `json:"description"`
-	Alert          int64       `json:"alert"`
-	City           string      `json:"city"`
-	State          string      `json:"state"`
-	Repeat         string      `json:"repeat"`
-	TimezoneOffset int64       `json:"timezoneOffset"`
-	Todo           []string    `json:"todo"`
+	ID             int64     `json:"eventId" binding:"required"`
+	Name           string    `json:"name" binding:"required"`
+	Start          time.Time `json:"startDate" binding:"required"`
+	End            time.Time `json:"endDate" binding:"required"`
+	Color          string    `json:"color" binding:"required"`
+	Description    string    `json:"description"`
+	Alert          int64     `json:"alert"`
+	City           string    `json:"city"`
+	State          string    `json:"state"`
+	Repeat         string    `json:"repeat"`
+	TimezoneOffset int64     `json:"timezoneOffset"`
+	Todo           []string  `json:"todo"`
 }
 
 type DeleteEventRequest struct {
