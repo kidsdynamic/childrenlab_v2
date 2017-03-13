@@ -175,16 +175,30 @@ func UpdateCalendarEvent(c *gin.Context) {
 	event.Start = eventRequest.Start
 	event.End = eventRequest.End
 	event.Name = eventRequest.Name
+
 	event.Repeat = eventRequest.Repeat
+
 	event.PushTimeUTC = eventRequest.Start.Add(time.Duration(-eventRequest.TimezoneOffset) * time.Minute)
 
-	if err := db.Model(&model.Event{}).Updates(&event).Error; err != nil {
+	if err := db.Model(&model.Event{}).Omit("User").Updates(&event).Error; err != nil {
 		log.Printf("Error on Updat event. %#v", err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error on updating event",
 			"error":   err.Error(),
 		})
 		return
+	}
+	//Update event to empty if user set never
+	if eventRequest.Repeat == "" {
+
+		if err := db.Model(&model.Event{}).Where("id = ?", eventRequest.ID).Update("repeat", "").Error; err != nil {
+			log.Printf("Error on Updat event. %#v", err)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "Error on updating event",
+				"error":   err.Error(),
+			})
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
