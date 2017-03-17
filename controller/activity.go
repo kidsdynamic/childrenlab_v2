@@ -74,7 +74,7 @@ func UploadRawActivityData(c *gin.Context) {
 	indoorActivity.Date = time.Unix(indoorActivityLong, 0)
 	indoorActivity.TimeLong = indoorActivityLong
 	indoorActivity.TimeZone = request.TimeZoneOffset
-	log.Printf("Received Indoor Activity Time: %s", indoorActivity.Date)
+	log.Printf("Received Indoor Activity Time: %s, User Timezone: %d", indoorActivity.Date, request.TimeZoneOffset)
 
 	outdoor := strings.Split(request.Outdoor, ",")
 	outdoorActivityLong, err := strconv.ParseInt(outdoor[0], 0, 64)
@@ -116,6 +116,7 @@ func UploadRawActivityData(c *gin.Context) {
 func calculateActivity(db *gorm.DB, indoorActivity, outdoorActivity model.ActivityInsight, kid model.Kid) error {
 	var todayActivity []model.Activity
 	timeWithZone := indoorActivity.Date.Add(time.Duration(indoorActivity.TimeZone) * time.Minute)
+	log.Printf("Get Indoor Time With TimeZone: %v\n", timeWithZone)
 	if err := db.Where("mac_id = ? AND (YEAR(received_date) = ? AND MONTH(received_date) = ? AND DAY(received_date) = ?)", kid.MacID, timeWithZone.Year(), timeWithZone.Month(), timeWithZone.Day()).
 		Find(&todayActivity).Error; err != nil {
 		return err

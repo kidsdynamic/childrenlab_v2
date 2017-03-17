@@ -39,6 +39,10 @@ type Activity struct {
 	LastUpdated  time.Time
 }
 
+func (Activity) TableName() string {
+	return "activity"
+}
+
 type ActivityRequest struct {
 	KidID  int64  `json:"kidId" binding:"required"`
 	Period string `json:"period" binding:"required"`
