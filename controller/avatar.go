@@ -20,6 +20,7 @@ func UploadAvatar(c *gin.Context) {
 	file, _, err := c.Request.FormFile("upload")
 	fileName := fmt.Sprintf("avatar_%d.jpg", user.ID)
 	if err != nil {
+		log.Printf("Error on save avatar: %#v", err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "upload parameter is required",
 			"error":   err,
