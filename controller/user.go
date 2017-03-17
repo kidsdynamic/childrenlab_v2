@@ -88,7 +88,7 @@ func Register(c *gin.Context) {
 		})
 		return
 	}
-
+	log.Printf("\nEmail: %s, Password:%s, Line: %d\n", userRequest.Email, userRequest.Password, log.LstdFlags)
 	db := database.NewGORM()
 	defer db.Close()
 
