@@ -31,6 +31,10 @@ type RequestSubHostToUser struct {
 	HostID int64 `json:"hostId" binding:"required"`
 }
 
+type DeleteSubHostRequest struct {
+	SubHostID int64 `json:"subHostId" binding:"required"`
+}
+
 type DenyRequest struct {
 	SubHostID int64 `json:"subHostId" binding:"required"`
 }

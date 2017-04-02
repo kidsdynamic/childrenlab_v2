@@ -140,10 +140,59 @@ func AcceptRequest(c *gin.Context) {
 
 	var updatedSubHost model.SubHost
 	if err := db.Model(&updatedSubHost).Preload("Kids").Preload("RequestFrom").Preload("RequestTo").Where("id = ?", subHost.ID).First(&updatedSubHost).Error; err != nil {
-		fmt.Printf("ERror on retrieve subhost. Error: %#v", err)
+		fmt.Printf("Error on retrieve subhost. Error: %#v", err)
 	}
 
 	c.JSON(http.StatusOK, updatedSubHost)
+}
+
+func DeleteRequest(c *gin.Context) {
+	subHostId := c.Query("subHostId")
+	if subHostId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "One of parameter is missing",
+		})
+		return
+	}
+	user := GetSignedInUser(c)
+
+	db := database.NewGORM()
+	defer db.Close()
+
+	var subHost model.SubHost
+
+	if err := db.Model(&subHost).Where("id = ? AND request_from_id = ?", subHostId, user.ID).Preload("Kids").First(&subHost).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusOK, gin.H{})
+			return
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Error on retrieve subhost",
+				"error":   err,
+			})
+		}
+	}
+
+	if err := db.Where("sub_host_id = ?", subHost.ID).Delete(model.SubHostKid{}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Error on updating status",
+			"error":   err,
+		})
+
+		return
+	}
+
+	if err := db.Delete(&subHost).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Error on updating status",
+			"error":   err,
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{})
+
 }
 
 func DenyRequest(c *gin.Context) {

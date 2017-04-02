@@ -44,6 +44,7 @@
 * [PUT   /v1/subHost/deny](#v1subhostdeny---put)
 * [GET   /v1/subHost/list](#v1subhostlist---get)
 * [PUT   /v1/subHost/removeKid](#v1subhostremovekid---put)
+* [DELETE   /v1/subHost/delete](#v1subhostdelete---delete)
 
 ## /v1/user/login - POST
 * Content-Type: application/json
@@ -1588,4 +1589,35 @@ curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: 0838289b3d518d
     }
   ]
 }
+```
+
+## /v1/subHost/delete - DELETE
+* It's ***DELETE*** method, so no content-type. Add parameters to the ***URL***
+* It will delete the SubHost
+* Get ```subHostId``` from [GET   /v1/subHost/list](#v1subhostlist---get) API
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| :-----|
+| subHostId     | Yes | Integer | 25 |
+
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Delete successfully |
+| 400     | Bad request. Missing some parameters, or the type is wrong |
+| 403     | Forbidden. The user doesn't have permission |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl --request DELETE \
+  --url 'http://localhost:8111/v1/subHost/delete?subHostId=25' \
+  --header 'x-auth-token: b0d2d81ee32cc8c9ff276f4469b0dd61'
+```
+
+* Success - Delete completed, and return sub host info
+```
+{}
 ```

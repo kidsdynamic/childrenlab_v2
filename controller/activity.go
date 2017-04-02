@@ -219,8 +219,8 @@ func GetActivity(c *gin.Context) {
 
 	db := database.NewGORM()
 	defer db.Close()
-	var activity []model.Activity
-	if err := db.Joins("JOIN kids ON kids.id = activity.kid_id").Where("kids.id = ? AND kids.parent_id = ? AND activity.received_Date > ?", activityRequest.KidID, user.ID, &periodDate).Find(&activity).Error; err != nil {
+	var activities []model.Activity
+	if err := db.Joins("JOIN kids ON kids.id = activity.kid_id").Where("kids.id = ? AND kids.parent_id = ? AND activity.received_Date > ?", activityRequest.KidID, user.ID, &periodDate).Find(&activities).Error; err != nil {
 		log.Printf("Error on retrieve Activity: %#v\n", err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": fmt.Sprintf("Error on retriving activity: %#v\n", activityRequest),
@@ -229,8 +229,14 @@ func GetActivity(c *gin.Context) {
 		return
 	}
 
+	//TODO: It's temp solution: Task: https://app.asana.com/0/33043844747220/308456358881086
+	for i, activity := range activities {
+		newSteps := float32(activity.Steps) * 0.7
+		activities[i].Steps = int64(newSteps)
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"activities": activity,
+		"activities": activities,
 	})
 }
 
@@ -281,9 +287,9 @@ func GetActivityByTime(c *gin.Context) {
 	db := database.NewGORM()
 	defer db.Close()
 
-	var activity []model.Activity
+	var activities []model.Activity
 
-	if err := db.Joins("JOIN kids ON kids.id = activity.kid_id").Where("kids.id = ? AND kids.parent_id = ? AND (activity.received_Date between ? and ?)", kidID, user.ID, start, end).Find(&activity).Error; err != nil {
+	if err := db.Joins("JOIN kids ON kids.id = activity.kid_id").Where("kids.id = ? AND kids.parent_id = ? AND (activity.received_Date between ? and ?)", kidID, user.ID, start, end).Find(&activities).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error on getting activities",
 			"error":   err,
@@ -291,8 +297,14 @@ func GetActivityByTime(c *gin.Context) {
 		return
 	}
 
+	//TODO: It's temp solution: Task: https://app.asana.com/0/33043844747220/308456358881086
+	for i, activity := range activities {
+		newSteps := float32(activity.Steps) * 0.7
+		activities[i].Steps = int64(newSteps)
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"activities": activity,
+		"activities": activities,
 	})
 }
 
