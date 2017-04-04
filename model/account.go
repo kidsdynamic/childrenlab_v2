@@ -28,19 +28,20 @@ type ProfileUpdateRequest struct {
 }
 
 type User struct {
-	ID             int64     `json:"id" gorm:"AUTO_INCREMENT"`
-	Email          string    `json:"email" gorm:"unique"`
-	Password       string    `json:"-"`
-	FirstName      string    `json:"firstName" gorm:"not null"`
-	LastName       string    `json:"lastName" gorm:"not null"`
-	LastUpdated    time.Time `json:"lastUpdate"`
-	DateCreated    time.Time `json:"dateCreated"`
-	ZipCode        string    `json:"zipCode"`
-	PhoneNumber    string    `json:"phoneNumber"`
-	Profile        string    `json:"profile"`
-	RegistrationID string    `json:"registrationId,omitempty"`
-	Role           Role      `json:"-"`
-	RoleID         int64     `json:"-"`
+	ID                       int64     `json:"id" gorm:"AUTO_INCREMENT"`
+	Email                    string    `json:"email" gorm:"unique"`
+	Password                 string    `json:"-"`
+	FirstName                string    `json:"firstName" gorm:"not null"`
+	LastName                 string    `json:"lastName" gorm:"not null"`
+	LastUpdated              time.Time `json:"lastUpdate"`
+	DateCreated              time.Time `json:"dateCreated"`
+	ZipCode                  string    `json:"zipCode"`
+	PhoneNumber              string    `json:"phoneNumber"`
+	Profile                  string    `json:"profile"`
+	RegistrationID           string    `json:"-"`
+	AndroidRegistrationToken string    `json:"-"`
+	Role                     Role      `json:"-"`
+	RoleID                   int64     `json:"-"`
 }
 
 type Role struct {

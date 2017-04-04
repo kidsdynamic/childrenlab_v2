@@ -253,12 +253,12 @@ func FindUserByEmail(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-type iOS struct {
+type PushNotificationID struct {
 	RegistrationId string
 }
 
 func UpdateIOSRegistrationId(c *gin.Context) {
-	var ios iOS
+	var ios PushNotificationID
 
 	err := c.BindJSON(&ios)
 
@@ -274,6 +274,35 @@ func UpdateIOSRegistrationId(c *gin.Context) {
 	user := GetSignedInUser(c)
 
 	user.RegistrationID = ios.RegistrationId
+
+	if err := db.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Something wrong on server side",
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
+}
+
+func UpdateAndroidRegistrationId(c *gin.Context) {
+	var android PushNotificationID
+
+	err := c.BindJSON(&android)
+
+	if err != nil {
+		log.Printf("Error on UpdateIosRegistrationId: Error: %#v", err)
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
+	}
+
+	db := database.NewGORM()
+	defer db.Close()
+
+	user := GetSignedInUser(c)
+
+	user.AndroidRegistrationToken = android.RegistrationId
 
 	if err := db.Save(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

@@ -21,5 +21,6 @@ func initUserRouter(r *gin.Engine) {
 	authAPI.PUT("/updateProfile", controller.UpdateProfile)
 	authAPI.GET("/retrieveUserProfile", controller.UserProfile)
 	authAPI.PUT("/updateIOSRegistrationId", controller.UpdateIOSRegistrationId)
+	authAPI.PUT("/updateAndroidRegistrationId", controller.UpdateAndroidRegistrationId)
 
 }
