@@ -9,6 +9,7 @@
 * [GET    /v1/user/retrieveUserProfile](#v1userretrieveuserprofile---get)
 * [PUT    /v1/user/updateIOSRegistrationId](#v1userupdateiosregistrationid---put)
 * [GET    /v1/user/findByEmail](#v1userfindbyemail---get)
+* [POST    /v1/user/updateLanguage](#v1userupdatelanguage---post)
 
 
 ### Kid API
@@ -96,6 +97,7 @@
 | lastName     | Yes | String |   Chen |
 | phoneNumber     | No | String |   3442314231 |
 | zipCode     | No | String |   11101 |
+| language | No | String | en, ja, es, fr |
 
 #### Response Status
 | Status Code    | Meaning      |
@@ -272,6 +274,34 @@ curl -X POST -H "x-auth-token: pej57nakctvf7gcr7j9m7macdbad3637" -d '' "http://l
     "profile": ""
   }
 }
+```
+
+## /v1/user/updateLanguage - POST
+* Update user's language
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| -----:|
+| language     | Yes | String |   en |
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Update the registration id successfully |
+| 400     | Bad request. The token is invalid |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl --request POST \
+  --url http://localhost:8111/v1/user/updateLanguage \
+  --header 'content-type: application/json' \
+  --header 'x-auth-token: a87de39359d989f4a3a34d732d9b1529' \
+  --data '{\n  "language": "es"\n}'
+```
+* Success - Return user profile
+```
+{}
 ```
 
 ## /v1/user/updateIOSRegistrationId - PUT

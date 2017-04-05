@@ -38,6 +38,7 @@ type User struct {
 	ZipCode                  string    `json:"zipCode"`
 	PhoneNumber              string    `json:"phoneNumber"`
 	Profile                  string    `json:"profile"`
+	Language                 string    `json:"language"`
 	RegistrationID           string    `json:"-"`
 	AndroidRegistrationToken string    `json:"-"`
 	Role                     Role      `json:"-"`
@@ -56,6 +57,7 @@ type RegisterRequest struct {
 	LastName    string `json:"lastName" db:"last_name" binding:"required"`
 	PhoneNumber string `json:"phoneNumber" db:"phone_number"`
 	ZipCode     string `json:"zipCode" db:"zip_code"`
+	Language    string `json:"language"`
 }
 
 func (User) TableName() string {

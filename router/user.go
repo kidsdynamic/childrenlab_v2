@@ -14,6 +14,7 @@ func initUserRouter(r *gin.Engine) {
 	v1.GET("/isEmailAvailableToRegister", controller.IsEmailAvailableToRegister)
 	v1.GET("/findByEmail", controller.FindUserByEmail)
 	v1.GET("/userList", controller.GetAllUser)
+	v1.POST("/updateLanguage", controller.UpdateLanguage)
 
 	authAPI := r.Group("/v1/user")
 

@@ -105,6 +105,11 @@ func Register(c *gin.Context) {
 
 	userRequest.Password = database.EncryptPassword(userRequest.Password)
 
+	//Set default language
+	if userRequest.Language == "" {
+		userRequest.Language = "en"
+	}
+
 	//set user role
 	role := GetUserRole(db)
 	user.Role = role
@@ -115,6 +120,7 @@ func Register(c *gin.Context) {
 	user.LastName = userRequest.LastName
 	user.PhoneNumber = userRequest.PhoneNumber
 	user.ZipCode = userRequest.ZipCode
+	user.Language = userRequest.Language
 
 	if err := db.Create(&user).Error; err != nil {
 		log.Println(err)
@@ -127,6 +133,38 @@ func Register(c *gin.Context) {
 
 	c.JSON(http.StatusOK, user)
 
+}
+
+type LanguageRequest struct {
+	Language string `json:"language"`
+}
+
+func UpdateLanguage(c *gin.Context) {
+	var languageRequest LanguageRequest
+
+	if err := c.BindJSON(&languageRequest); err != nil {
+		log.Printf("Register Error: %#v", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Missing some of required paramters.",
+			"error":   err,
+		})
+		return
+	}
+
+	db := database.NewGORM()
+	defer db.Close()
+
+	user := GetSignedInUser(c)
+
+	if err := db.Model(&model.User{}).Where("id = ?", user).UpdateColumn("language", languageRequest.Language).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error when update user language",
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 func IsTokenValid(c *gin.Context) {
