@@ -156,7 +156,7 @@ func UpdateLanguage(c *gin.Context) {
 
 	user := GetSignedInUser(c)
 
-	if err := db.Model(&model.User{}).Where("id = ?", user).UpdateColumn("language", languageRequest.Language).Error; err != nil {
+	if err := db.Model(&model.User{}).Where("id = ?", user.ID).UpdateColumn("language", languageRequest.Language).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error when update user language",
 			"error":   err,
