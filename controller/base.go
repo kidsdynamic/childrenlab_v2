@@ -9,16 +9,8 @@ import (
 
 	"net/http"
 
-	"bytes"
-
-	"os"
-
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awsutil"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/kidsdynamic/childrenlab_v2/constants"
@@ -28,7 +20,6 @@ import (
 
 const (
 	SignedUserKey = "SignedUser"
-	S3ProfilePath = "userProfile"
 )
 
 func randToken() string {
@@ -95,45 +86,6 @@ func GetKidByMacID(db *gorm.DB, macID string) (model.Kid, error) {
 
 	err := db.Where("mac_id = ?", macID).Preload("Parent").First(&kid).Error
 	return kid, err
-}
-
-func UploadFileToS3(file *os.File, fileName string) error {
-
-	ss, err := session.NewSession()
-	if err != nil {
-		log.Fatal(err)
-	}
-	_, err = ss.Config.Credentials.Get()
-	if err != nil {
-		log.Fatal(err)
-	}
-	svc := s3.New(session.New(&aws.Config{}))
-
-	fileInfo, _ := file.Stat()
-	var size int64 = fileInfo.Size()
-
-	buffer := make([]byte, size)
-	file.Read(buffer)
-	fileBytes := bytes.NewReader(buffer)
-	fileType := http.DetectContentType(buffer)
-
-	uploadResult, err := svc.PutObject(&s3.PutObjectInput{
-		Body:          fileBytes,
-		Bucket:        aws.String(model.AwsConfig.Bucket),
-		Key:           aws.String(fmt.Sprintf("/userProfile/%s", fileName)),
-		ContentLength: aws.Int64(size),
-		ContentType:   aws.String(fileType),
-		ACL:           aws.String("public-read"),
-	})
-	if err != nil {
-		log.Printf("Failed to upload data to %s\n", err)
-		return err
-	}
-
-	log.Printf("Response: %s\n", awsutil.StringValue(uploadResult))
-
-	return nil
-
 }
 
 func GetKidsByUser(user model.User) ([]model.Kid, error) {
