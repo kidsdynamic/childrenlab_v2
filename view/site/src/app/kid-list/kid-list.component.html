@@ -1,0 +1,59 @@
+<h3> Device-Kid List</h3>
+<div class="error">
+    <label class="error-message label-danger label" *ngIf="error">{{ error }}</label>
+</div>
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>
+                ID
+            </th>
+            <th>
+                Activity
+            </th>
+            <th>
+                Name
+            </th>
+            <th>
+                Mac ID
+            </th>
+            <th>
+                Profile
+            </th>
+            <th>
+                Parent
+            </th>
+            <th>
+                Date Created
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let kid of kidList">
+            <td>
+                {{ kid.id }}
+            </td>
+            <td>
+                <a [routerLink]="['/dashboard/activity', kid.id]">Activity</a> |
+                <a [routerLink]="['/dashboard/activity-raw', kid.macId]">Raw Data</a>
+            </td>
+            <td>
+                {{ kid.name }}
+            </td>
+            <td>
+                {{ kid.macId }}
+            </td>
+            <td>
+                {{ kid.profile }}
+            </td>
+            <td>
+                {{ kid.parent.email }}
+            </td>
+            <td>
+                {{ kid.dateCreated }}
+            </td>
+
+        </tr>
+    </tbody>
+
+</table>

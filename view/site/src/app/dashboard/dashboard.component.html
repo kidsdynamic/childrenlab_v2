@@ -1,0 +1,13 @@
+<div class="dashboard">
+  <legend>
+    Menu
+  </legend>
+    <button md-raised-button [routerLink]="['/dashboard/userList']">User</button>
+    <button md-raised-button [routerLink]="['/dashboard/kidList']">Kid</button>
+    <button md-raised-button (click)="logout()" class="logout" color="accent">Logout</button>
+  <hr/>
+</div>
+
+<div class="container">
+  <router-outlet></router-outlet>
+</div>

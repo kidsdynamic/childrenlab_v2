@@ -2,6 +2,18 @@ package model
 
 import "time"
 
+type AdminLogin struct {
+	Name     string `json:"name" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+type AdminSignUpRequest struct {
+	Name      string `json:"name" binding:"required"`
+	Password  string `json:"password" binding:"required"`
+	FirstName string `json:"first_name" binding:"required"`
+	LastName  string `json:"last_name" binding:"required"`
+}
+
 type Login struct {
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
@@ -39,8 +51,8 @@ type User struct {
 	PhoneNumber              string    `json:"phoneNumber"`
 	Profile                  string    `json:"profile"`
 	Language                 string    `json:"language"`
-	RegistrationID           string    `json:"-"`
-	AndroidRegistrationToken string    `json:"-"`
+	RegistrationID           string    `json:"ios_registration_id"`
+	AndroidRegistrationToken string    `json:"android_registration_id"`
 	Role                     Role      `json:"-"`
 	RoleID                   int64     `json:"-"`
 }
@@ -49,6 +61,9 @@ type Role struct {
 	ID        int64  `json:"-" gorm:"AUTO_INCREMENT"`
 	Authority string `json:"authority" gorm:"unique"`
 }
+
+var ROLE_ADMIN string = "ROLE_ADMIN"
+var ROLE_USER string = "ROLE_USER"
 
 type RegisterRequest struct {
 	Email       string `json:"email" db:"email" binding:"required"`

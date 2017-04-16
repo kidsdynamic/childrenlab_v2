@@ -15,6 +15,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/kidsdynamic/childrenlab_v2/constants"
 	"github.com/kidsdynamic/childrenlab_v2/database"
+	"github.com/kidsdynamic/childrenlab_v2/global"
 	"github.com/kidsdynamic/childrenlab_v2/model"
 )
 
@@ -56,6 +57,50 @@ func Auth(c *gin.Context) {
 
 	c.Next()
 
+}
+
+func AdminAuth(c *gin.Context) {
+	authToken := c.Request.Header.Get("x-auth-token")
+	if authToken == "" {
+		c.JSON(http.StatusForbidden, gin.H{})
+		c.Abort()
+		return
+	}
+
+	db := database.NewGORM()
+	defer db.Close()
+
+	var user model.User
+
+	err := db.Table("user").Joins("JOIN authentication_token a ON user.email = a.email").Joins("JOIN role ON user.role_id = role.id").Where("a.token = ? and authority = ?", authToken, model.ROLE_ADMIN).Find(&user).Error
+
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{})
+		c.Abort()
+		return
+	}
+
+	log.Printf("\nLogged in admin: %#v\n", user)
+	c.Set(SignedUserKey, user)
+
+	c.Next()
+
+}
+
+func SuperAdminAuth(c *gin.Context) {
+	authToken := c.Request.Header.Get("x-auth-token")
+	if authToken == "" {
+		c.JSON(http.StatusForbidden, gin.H{})
+		c.Abort()
+		return
+	}
+
+	if authToken != global.SuperAdminToken {
+		c.JSON(http.StatusForbidden, gin.H{})
+		c.Abort()
+		return
+	}
+	c.Next()
 }
 
 func GetSignedInUser(c *gin.Context) model.User {

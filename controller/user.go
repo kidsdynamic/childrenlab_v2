@@ -352,20 +352,3 @@ func UpdateAndroidRegistrationId(c *gin.Context) {
 
 	c.JSON(http.StatusOK, user)
 }
-
-func GetAllUser(c *gin.Context) {
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-	db := database.NewGORM()
-	defer db.Close()
-
-	var userList []model.User
-	if err := db.Joins("JOIN role ON role.id = user.role_id").Where("role.authority = 'ROLE_USER'").Order("date_created desc").Limit(50).Find(&userList).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Error on retriving user list",
-			"error":   err,
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, userList)
-}
