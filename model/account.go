@@ -7,6 +7,13 @@ type AdminLogin struct {
 	Password string `json:"password" binding:"required"`
 }
 
+type AdminSignUpRequest struct {
+	Name      string `json:"name" binding:"required"`
+	Password  string `json:"password" binding:"required"`
+	FirstName string `json:"first_name" binding:"required"`
+	LastName  string `json:"last_name" binding:"required"`
+}
+
 type Login struct {
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`

@@ -7,14 +7,11 @@ import (
 
 	"log"
 
-	"math"
-
 	"github.com/gin-gonic/gin"
 	"github.com/kidsdynamic/childrenlab_v2/model"
 )
 
 func AdminLogin(c *gin.Context) {
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 	var adminLogin model.AdminLogin
 
 	if c.BindJSON(&adminLogin) != nil {
@@ -51,8 +48,6 @@ func AdminLogin(c *gin.Context) {
 		})
 		return
 	}
-
-	c.SetCookie("GOSESSION", accessToken.Token, math.MaxInt8, "/", "localhost", true, true)
 
 	c.JSON(http.StatusOK, gin.H{
 		"username":     accessToken.Email,
@@ -106,4 +101,55 @@ func GetActivityRawForAdmin(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, activityRaw)
+}
+
+// Only for internal use
+func CreateAdminUser(c *gin.Context) {
+	var request model.AdminSignUpRequest
+
+	if c.BindJSON(&request) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
+	}
+
+	db := database.NewGORM()
+	defer db.Close()
+	var admin model.User
+
+	request.Password = database.EncryptPassword(request.Password)
+	db.Table("user").Joins("JOIN role ON user.role_id = role.id").Where("email = ? AND password = ? and authority = ?", request.Name, request.Password, model.ROLE_ADMIN).First(&admin)
+
+	if admin.ID != 0 {
+		c.JSON(http.StatusConflict, gin.H{
+			"message": "The admin name exists",
+		})
+		return
+	}
+
+	var role model.Role
+	if err := db.Where("authority = ?", model.ROLE_ADMIN).First(&role).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Error on getting admin role",
+			"error":   err,
+		})
+		return
+	}
+
+	adminUser := model.User{
+		Email:     request.Name,
+		Password:  request.Password,
+		FirstName: request.FirstName,
+		LastName:  request.LastName,
+		Role:      role,
+	}
+
+	if err := db.Create(&adminUser).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Error on creating admin user",
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{})
 }

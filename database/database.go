@@ -80,26 +80,26 @@ func InitDatabase() {
 	}
 
 	//Create Admin
-	users := []model.User{
-		{
-			Email:     "admin",
-			Password:  EncryptPassword("admin"),
-			FirstName: "admin",
-			LastName:  "admin",
-			Role:      adminRole,
-		},
-		{
-			Email:     "jack08300@gmail.com",
-			Password:  EncryptPassword("aaaaaa"),
-			FirstName: "Jay",
-			LastName:  "Chen",
-			Role:      userRole,
-		},
-	}
+	/*	users := []model.User{
+			{
+				Email:     "admin",
+				Password:  EncryptPassword("admin"),
+				FirstName: "admin",
+				LastName:  "admin",
+				Role:      adminRole,
+			},
+			{
+				Email:     "jack08300@gmail.com",
+				Password:  EncryptPassword("aaaaaa"),
+				FirstName: "Jay",
+				LastName:  "Chen",
+				Role:      userRole,
+			},
+		}
 
-	for _, user := range users {
-		db.Create(&user)
-	}
+		for _, user := range users {
+			db.Create(&user)
+		}*/
 
 }
 

@@ -6,6 +6,10 @@ import (
 )
 
 func initAdminRouter(r *gin.Engine) {
+	superAdminAuthAPI := r.Group("/superAdmin")
+	superAdminAuthAPI.Use(controller.SuperAdminAuth)
+	superAdminAuthAPI.POST("/createAdminUser", controller.CreateAdminUser)
+
 	adminAuthAPI := r.Group("/admin")
 	adminAuthAPI.Use(controller.AdminAuth)
 	r.POST("/admin/login", controller.AdminLogin)

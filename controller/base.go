@@ -15,6 +15,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/kidsdynamic/childrenlab_v2/constants"
 	"github.com/kidsdynamic/childrenlab_v2/database"
+	"github.com/kidsdynamic/childrenlab_v2/global"
 	"github.com/kidsdynamic/childrenlab_v2/model"
 )
 
@@ -84,6 +85,22 @@ func AdminAuth(c *gin.Context) {
 
 	c.Next()
 
+}
+
+func SuperAdminAuth(c *gin.Context) {
+	authToken := c.Request.Header.Get("x-auth-token")
+	if authToken == "" {
+		c.JSON(http.StatusForbidden, gin.H{})
+		c.Abort()
+		return
+	}
+
+	if authToken != global.SuperAdminToken {
+		c.JSON(http.StatusForbidden, gin.H{})
+		c.Abort()
+		return
+	}
+	c.Next()
 }
 
 func GetSignedInUser(c *gin.Context) model.User {

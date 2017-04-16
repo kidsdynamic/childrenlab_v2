@@ -8,6 +8,7 @@ import (
 	"github.com/kidsdynamic/childrenlab_v2/router"
 
 	"github.com/kidsdynamic/childrenlab_v2/database"
+	"github.com/kidsdynamic/childrenlab_v2/global"
 	"github.com/urfave/cli"
 )
 
@@ -46,6 +47,12 @@ func main() {
 			Usage:  "Database name",
 			Value:  "swing_test_record",
 		},
+		cli.StringFlag{
+			EnvVar: "SUPER_ADMIN_TOKEN",
+			Name:   "super_admin_token",
+			Value:  "1",
+			Usage:  "",
+		},
 	}
 
 	app.Action = func(c *cli.Context) error {
@@ -55,6 +62,8 @@ func main() {
 			Password: c.String("database_password"),
 			IP:       c.String("database_IP"),
 		}
+
+		global.SuperAdminToken = c.String("super_admin_token")
 
 		fmt.Printf("Database: %v", database.DatabaseInfo)
 
