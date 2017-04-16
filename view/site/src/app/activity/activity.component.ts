@@ -12,8 +12,8 @@ import {Activity} from "../model/activity";
 })
 export class ActivityComponent implements OnInit {
 
-  private error: string;
-  private activityList: Activity[];
+  error: string;
+  activityList: Activity[];
 
   constructor(private serverService: ServerService,
               private route: ActivatedRoute,

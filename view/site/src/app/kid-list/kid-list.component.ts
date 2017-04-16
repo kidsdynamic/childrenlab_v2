@@ -9,8 +9,8 @@ import {ServerService} from "../server.service";
 })
 export class KidListComponent implements OnInit {
 
-  private error: string;
-  private kidList: Kid[];
+  error: string;
+  kidList: Kid[];
 
   constructor(
     private serverService: ServerService
