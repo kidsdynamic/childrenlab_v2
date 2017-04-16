@@ -166,7 +166,6 @@ func GetKidList(c *gin.Context) {
 }
 
 func GetAllKidList(c *gin.Context) {
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 	db := database.NewGORM()
 	defer db.Close()
 

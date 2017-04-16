@@ -6,7 +6,11 @@ import (
 )
 
 func initAdminRouter(r *gin.Engine) {
-	v1 := r.Group("/v1/admin/")
-	v1.GET("/kids/list", controller.GetAllKidList)
-	v1.GET("/activity/raw/:macId", controller.GetActivityRaw)
+	adminAuthAPI := r.Group("/admin")
+	adminAuthAPI.Use(controller.AdminAuth)
+	r.POST("/admin/login", controller.AdminLogin)
+	adminAuthAPI.GET("/userList", controller.GetAllUser)
+	adminAuthAPI.GET("/kidList", controller.GetAllKidList)
+	adminAuthAPI.GET("/activityList/:kidId", controller.GetActivityListForAdmin)
+	adminAuthAPI.GET("/activityRawList/:macId", controller.GetActivityRawForAdmin)
 }

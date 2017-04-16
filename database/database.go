@@ -72,10 +72,10 @@ func InitDatabase() {
 
 	var adminRole model.Role
 	var userRole model.Role
-	if err := db.Where("authority = ?", "ROLE_ADMIN").First(&adminRole).Error; err != nil {
+	if err := db.Where("authority = ?", model.ROLE_ADMIN).First(&adminRole).Error; err != nil {
 		panic(err)
 	}
-	if err := db.Where("authority = ?", "ROLE_USER").First(&userRole).Error; err != nil {
+	if err := db.Where("authority = ?", model.ROLE_USER).First(&userRole).Error; err != nil {
 		panic(err)
 	}
 
