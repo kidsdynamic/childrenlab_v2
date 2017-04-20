@@ -7,6 +7,7 @@ import {UserListComponent} from "../user-list/user-list.component";
 import {KidListComponent} from "../kid-list/kid-list.component";
 import { ActivityComponent } from "../activity/activity.component";
 import { ActivityRawComponent } from "app/activity-raw/activity-raw.component";
+import {DashboardMainComponent} from "../dashboard-main/dashboard-main.component";
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -30,6 +31,10 @@ const routes: Routes = [
       {
         path: 'activity-raw/:macId',
         component: ActivityRawComponent
+      },
+      {
+        path: 'dashboard-main',
+        component: DashboardMainComponent
       }
     ]
   },

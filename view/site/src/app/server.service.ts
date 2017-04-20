@@ -8,6 +8,7 @@ import {User} from "./model/user";
 import {Kid} from "./model/kid";
 import {Activity} from "./model/activity";
 import {ActivityRaw} from "./model/activity-raw";
+import {Dashboard} from "./model/dashboard";
 
 @Injectable()
 export class ServerService {
@@ -18,6 +19,7 @@ export class ServerService {
   KID_LIST_API = '/admin/kidList';
   ACTIVITY_LIST_API = '/admin/activityList';
   ACTIVITY_RAW_LIST_API = '/admin/activityRawList';
+  DASHBOARD_API='/admin/dashboard';
 
   @LocalStorage() public token: AdminToken;
 
@@ -64,6 +66,14 @@ export class ServerService {
     return this.http.get(`${environment.BaseURL + this.ACTIVITY_RAW_LIST_API}/${kidId}`, options)
       .toPromise()
       .then(response => response.json() as ActivityRaw[])
+      .catch(this.handleError)
+  }
+
+  getDashboardData(): Promise<Dashboard> {
+    let options = this.addTokenHeader();
+    return this.http.get(`${environment.BaseURL + this.DASHBOARD_API}`, options)
+      .toPromise()
+      .then(response => response.json() as Dashboard)
       .catch(this.handleError)
   }
 

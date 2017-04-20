@@ -5,5 +5,5 @@
 
 export const environment = {
   production: false,
-  BaseURL: "http://dev.childrenlab.com"
+  BaseURL: "http://localhost:8110"
 };

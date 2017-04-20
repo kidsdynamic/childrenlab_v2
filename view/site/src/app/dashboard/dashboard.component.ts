@@ -11,6 +11,8 @@ import {LocalStorageService} from 'ng2-webstorage';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
+  error: string;
+
   @LocalStorage() public token: AdminToken;
 
   constructor(
@@ -20,9 +22,15 @@ export class DashboardComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.serverService.tokenValidation().then().catch(err => {
+    this.serverService.tokenValidation().then(() => {
+      this.loadDashboard();
+    }).catch(err => {
       this.router.navigate(['/login']);
     })
+  }
+
+  loadDashboard() {
+    this.router.navigate(["dashboard/dashboard-main"]);
   }
 
   logout() {

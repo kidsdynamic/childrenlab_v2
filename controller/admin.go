@@ -153,3 +153,44 @@ func CreateAdminUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{})
 }
+
+func Dashboard(c *gin.Context) {
+	db := database.NewGORM()
+	defer db.Close()
+
+	var dashboard model.Dashboard
+
+	var signupCounts []model.SignupCountByDate
+	if rows, err := db.Raw("select count(*) as signup, DATE_FORMAT(DATE(date_created), '%Y/%m/%d') as date from user u JOIN role r ON u.role_id = r.id where date_created != 0000-00-00" +
+		" and r.`authority` = 'ROLE_USER' group by date order by date desc LIMIT 10").Rows(); err != nil {
+		if err != nil {
+			log.Println(err)
+		}
+	} else {
+		defer rows.Close()
+		for rows.Next() {
+			var signup model.SignupCountByDate
+			rows.Scan(&signup.SignupCount, &signup.Date)
+			signupCounts = append(signupCounts, signup)
+		}
+	}
+	dashboard.Signup = signupCounts
+
+	var activityCount []model.ActivityCountByDate
+	if rows, err := db.Raw("select count(*), DATE_FORMAT(DATE(date_created), '%Y/%m/%d') as date from activity_raw group by date order by date desc LIMIT 20").Rows(); err != nil {
+		if err != nil {
+			log.Println(err)
+		}
+	} else {
+		defer rows.Close()
+		for rows.Next() {
+			var activity model.ActivityCountByDate
+			rows.Scan(&activity.ActivityCount, &activity.Date)
+			activityCount = append(activityCount, activity)
+		}
+	}
+
+	dashboard.Activity = activityCount
+
+	c.JSON(http.StatusOK, dashboard)
+}

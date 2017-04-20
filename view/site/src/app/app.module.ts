@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { AppComponent } from './app.component';
-import {MdButtonModule, MdInputModule, MdToolbarModule, MdProgressSpinnerModule} from '@angular/material';
+import {MdButtonModule, MdInputModule, MdToolbarModule, MdProgressSpinnerModule, MdGridListModule} from '@angular/material';
 import {ServerService} from "./server.service";
 import {Ng2Webstorage} from 'ng2-webstorage';
 import { DashboardComponent } from './dashboard/dashboard.component';
@@ -14,6 +14,7 @@ import { UserListComponent } from './user-list/user-list.component';
 import { KidListComponent } from './kid-list/kid-list.component';
 import { ActivityComponent } from './activity/activity.component';
 import { ActivityRawComponent } from './activity-raw/activity-raw.component';
+import { DashboardMainComponent } from './dashboard-main/dashboard-main.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { ActivityRawComponent } from './activity-raw/activity-raw.component';
     UserListComponent,
     KidListComponent,
     ActivityComponent,
-    ActivityRawComponent
+    ActivityRawComponent,
+    DashboardMainComponent
   ],
   imports: [
     BrowserModule,
@@ -35,7 +37,8 @@ import { ActivityRawComponent } from './activity-raw/activity-raw.component';
     MdInputModule,
     MdToolbarModule,
     Ng2Webstorage,
-    MdProgressSpinnerModule
+    MdProgressSpinnerModule,
+    MdGridListModule
   ],
   providers: [
     ServerService

@@ -2,6 +2,7 @@
   <legend>
     Menu
   </legend>
+    <button md-raised-button [routerLink]="['/dashboard/dashboard-main']">Dashboard</button>
     <button md-raised-button [routerLink]="['/dashboard/userList']">User</button>
     <button md-raised-button [routerLink]="['/dashboard/kidList']">Kid</button>
     <button md-raised-button (click)="logout()" class="logout" color="accent">Logout</button>

@@ -1,0 +1,57 @@
+<h3> Dashboard </h3>
+<div class="error">
+  {{ error }}
+</div>
+
+<div class="dashboardTable">
+  <table class="table table-striped table-hover">
+    <thead>
+    <tr>
+      <th>
+        Sign-up Count
+      </th>
+      <th>
+        Date
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let d of dashboard.signup">
+      <td>
+        {{ d.signupCount }}
+      </td>
+      <td>
+        {{ d.date }}
+      </td>
+
+    </tr>
+    </tbody>
+  </table>
+</div>
+<div class="dashboardTable">
+  <table class="table table-striped table-hover">
+    <thead>
+    <tr>
+      <th>
+        Activity Count
+      </th>
+      <th>
+        Date
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let d of dashboard.activity">
+      <td>
+        {{ d.activityCount }}
+      </td>
+      <td>
+        {{ d.date }}
+      </td>
+
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+
