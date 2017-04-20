@@ -3,6 +3,6 @@
  */
 
 export const environment = {
-  production: false,
+  production: true,
   BaseURL: "http://dev.childrenlab.com"
 };

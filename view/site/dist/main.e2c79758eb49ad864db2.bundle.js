@@ -442,7 +442,7 @@ exports = module.exports = __webpack_require__(7)();
 
 
 // module
-exports.push([module.i, ".dashboardTable {\n  display: inline-block; }\n", ""]);
+exports.push([module.i, "", ""]);
 
 // exports
 
@@ -1012,7 +1012,7 @@ var _a;
 /**
  * Created by yen-chiehchen on 4/17/17.
  */ var environment = {
-    production: false,
+    production: true,
     BaseURL: "http://dev.childrenlab.com"
 };
 //# sourceMappingURL=environment.js.map
@@ -1020,4 +1020,4 @@ var _a;
 /***/ })
 
 },[259]);
-//# sourceMappingURL=main.bundle.js.map
+//# sourceMappingURL=main.e2c79758eb49ad864db2.bundle.js.map
