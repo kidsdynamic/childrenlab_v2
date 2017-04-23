@@ -74,7 +74,7 @@ func main() {
 		if c.Bool("debug") {
 			return r.Run(":8111")
 		} else {
-			return r.RunTLS(":8111", "/root/.ssh/childrenlab.chained.crt", "/root/.ssh/childrenlab.com.key")
+			return r.RunTLS(":8111", ".ssh/childrenlab.chained.crt", ".ssh/childrenlab.com.key")
 		}
 
 	}
