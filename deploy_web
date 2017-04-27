@@ -1,6 +1,10 @@
 #!/bin/bash
 
 git pull
+cd view/site
+yarn
+ng build -dev -oh all
+cd ../..
 rm /var/www/html/*
-cp /root/golang/src/childrenlab_v2/view/dist/* /var/www/html
+cp /root/code/src/github.com/kidsdynamic/childrenlab_v2/view/site/dist/* /var/www/html
 echo done
