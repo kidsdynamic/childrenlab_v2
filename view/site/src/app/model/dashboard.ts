@@ -9,5 +9,6 @@ class DashboardSignup {
 }
 class DashboardActivity {
   activityCount: number;
+  userCount: number;
   date: string;
 }

@@ -36,6 +36,9 @@
         Activity Count
       </th>
       <th>
+        User Count
+      </th>
+      <th>
         Date
       </th>
     </tr>
@@ -44,6 +47,9 @@
     <tr *ngFor="let d of dashboard.activity">
       <td>
         {{ d.activityCount }}
+      </td>
+      <td>
+        {{ d.userCount }}
       </td>
       <td>
         {{ d.date }}
