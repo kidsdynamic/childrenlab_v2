@@ -15,6 +15,13 @@ import { KidListComponent } from './kid-list/kid-list.component';
 import { ActivityComponent } from './activity/activity.component';
 import { ActivityRawComponent } from './activity-raw/activity-raw.component';
 import { DashboardMainComponent } from './dashboard-main/dashboard-main.component';
+import { ChartModule } from 'angular2-highcharts';
+import { HighchartsStatic } from 'angular2-highcharts/dist/HighchartsService';
+
+declare var require: any;
+export function highchartsFactory() {
+  return require('highcharts');
+}
 
 @NgModule({
   declarations: [
@@ -38,10 +45,15 @@ import { DashboardMainComponent } from './dashboard-main/dashboard-main.componen
     MdToolbarModule,
     Ng2Webstorage,
     MdProgressSpinnerModule,
-    MdGridListModule
+    MdGridListModule,
+    ChartModule
   ],
   providers: [
-    ServerService
+    ServerService,
+    {
+      provide: HighchartsStatic,
+      useFactory: highchartsFactory
+    }
   ],
   bootstrap: [AppComponent]
 })

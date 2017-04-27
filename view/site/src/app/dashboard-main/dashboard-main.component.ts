@@ -11,6 +11,7 @@ export class DashboardMainComponent implements OnInit {
 
   error: string;
   dashboard: Dashboard;
+  options: Object;
   constructor(private serverService: ServerService) { }
 
   ngOnInit() {
@@ -18,12 +19,25 @@ export class DashboardMainComponent implements OnInit {
 
     this.serverService.getDashboardData()
       .then(dashboard => {
-        console.error(dashboard);
         this.dashboard = dashboard;
       })
       .catch(err => {
         console.error(err);
       });
+  }
+
+  setupChart(){
+    let data = [];
+    for(let s of this.dashboard.signup) {
+      data.push(s.signupCount);
+    }
+    console.error(data);
+    this.options = {
+      title: { text: 'Sign up'},
+      series: [
+        data
+      ]
+    }
   }
 
 }

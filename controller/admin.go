@@ -177,15 +177,14 @@ func Dashboard(c *gin.Context) {
 	dashboard.Signup = signupCounts
 
 	var activityCount []model.ActivityCountByDate
-	if rows, err := db.Raw("select count(*), DATE_FORMAT(DATE(date_created), '%Y/%m/%d') as date from activity_raw group by date order by date desc LIMIT 20").Rows(); err != nil {
-		if err != nil {
-			log.Println(err)
-		}
+	if rows, err := db.Raw("select count(*), DATE_FORMAT(DATE(date_created), '%Y/%m/%d') as date, count(DISTINCT(user_id)) as userCount from activity_raw group by date order by date desc LIMIT 20").Rows(); err != nil {
+		log.Println(err)
+
 	} else {
 		defer rows.Close()
 		for rows.Next() {
 			var activity model.ActivityCountByDate
-			rows.Scan(&activity.ActivityCount, &activity.Date)
+			rows.Scan(&activity.ActivityCount, &activity.Date, &activity.UserCount)
 			activityCount = append(activityCount, activity)
 		}
 	}

@@ -12,5 +12,6 @@ type SignupCountByDate struct {
 
 type ActivityCountByDate struct {
 	ActivityCount int64  `json:"activityCount"`
+	UserCount     int64  `json:"userCount"`
 	Date          string `json:"date"`
 }
