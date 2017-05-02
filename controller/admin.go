@@ -162,7 +162,7 @@ func Dashboard(c *gin.Context) {
 
 	var signupCounts []model.SignupCountByDate
 	if rows, err := db.Raw("select count(*) as signup, DATE_FORMAT(DATE(date_created), '%Y/%m/%d') as date from user u JOIN role r ON u.role_id = r.id where date_created != 0000-00-00" +
-		" and r.`authority` = 'ROLE_USER' group by date order by date desc LIMIT 10").Rows(); err != nil {
+		" and r.`authority` = 'ROLE_USER' group by date order by date desc LIMIT 20").Rows(); err != nil {
 		if err != nil {
 			log.Println(err)
 		}
@@ -187,6 +187,14 @@ func Dashboard(c *gin.Context) {
 			rows.Scan(&activity.ActivityCount, &activity.Date, &activity.UserCount)
 			activityCount = append(activityCount, activity)
 		}
+	}
+
+	if err := db.Table("user").Joins("JOIN role ON user.role_id = role.id where date_created != 0000-00-00 and authority = 'ROLE_USER' AND email not like '%kidsdynamic.com'").Count(&dashboard.TotalUserCount); err != nil {
+		log.Println(err)
+	}
+
+	if err := db.Table("activity_raw").Count(&dashboard.TotalActivityCount); err != nil {
+		log.Println(err)
 	}
 
 	dashboard.Activity = activityCount

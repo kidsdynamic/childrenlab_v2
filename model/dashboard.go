@@ -1,8 +1,10 @@
 package model
 
 type Dashboard struct {
-	Signup   []SignupCountByDate   `json:"signup"`
-	Activity []ActivityCountByDate `json:"activity"`
+	TotalUserCount     int64                 `json:"totalUserCount"`
+	Signup             []SignupCountByDate   `json:"signup"`
+	TotalActivityCount int64                 `json:"totalActivityCount"`
+	Activity           []ActivityCountByDate `json:"activity"`
 }
 
 type SignupCountByDate struct {
