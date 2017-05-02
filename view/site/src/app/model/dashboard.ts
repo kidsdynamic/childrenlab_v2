@@ -1,5 +1,7 @@
 export class Dashboard {
+  totalUserCount: number;
   signup: DashboardSignup[];
+  totalActivityCount: number;
   activity: DashboardActivity[];
 }
 
