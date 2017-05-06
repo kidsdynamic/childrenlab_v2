@@ -22,7 +22,6 @@
     "@angular/platform-browser": "^4.0.0",
     "@angular/platform-browser-dynamic": "^4.0.0",
     "@angular/router": "^4.0.0",
-    "angular2-highcharts": "^0.5.5",
     "core-js": "^2.4.1",
     "ng2-webstorage": "^1.6.2",
     "rxjs": "^5.1.0",
