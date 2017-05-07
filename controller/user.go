@@ -116,6 +116,7 @@ func Register(c *gin.Context) {
 	user.Email = userRequest.Email
 	user.Password = userRequest.Password
 	user.DateCreated = GetNowTime()
+	user.LastUpdated = GetNowTime()
 	user.FirstName = userRequest.FirstName
 	user.LastName = userRequest.LastName
 	user.PhoneNumber = userRequest.PhoneNumber
