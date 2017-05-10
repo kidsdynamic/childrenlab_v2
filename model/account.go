@@ -55,6 +55,7 @@ type User struct {
 	AndroidRegistrationToken string    `json:"android_registration_id"`
 	Role                     Role      `json:"-"`
 	RoleID                   int64     `json:"-"`
+	ResetPasswordToken       string    `json:"-"`
 }
 
 type Role struct {

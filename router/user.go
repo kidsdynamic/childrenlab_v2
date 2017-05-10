@@ -13,7 +13,8 @@ func initUserRouter(r *gin.Engine) {
 	v1.GET("/isTokenValid", controller.IsTokenValid)
 	v1.GET("/isEmailAvailableToRegister", controller.IsEmailAvailableToRegister)
 	v1.GET("/findByEmail", controller.FindUserByEmail)
-
+	v1.GET("/resetPasswordPage", controller.ResetPasswordPage)
+	v1.POST("/resetPassword", controller.ResetPassword)
 	authAPI := r.Group("/v1/user")
 
 	authAPI.Use(controller.Auth)
@@ -22,5 +23,6 @@ func initUserRouter(r *gin.Engine) {
 	authAPI.PUT("/updateIOSRegistrationId", controller.UpdateIOSRegistrationId)
 	authAPI.PUT("/updateAndroidRegistrationId", controller.UpdateAndroidRegistrationId)
 	authAPI.POST("/updateLanguage", controller.UpdateLanguage)
+	authAPI.POST("/sendResetPasswordEmail", controller.SendResetPasswordEmail)
 
 }
