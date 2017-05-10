@@ -342,7 +342,7 @@ func UpdateAndroidRegistrationId(c *gin.Context) {
 
 	user.AndroidRegistrationToken = android.RegistrationId
 
-	if err := db.Save(&user).Error; err != nil {
+	if err := db.Model(&user).Update("android_registration_token", user.AndroidRegistrationToken).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something wrong on server side",
 			"error":   err,
@@ -351,4 +351,143 @@ func UpdateAndroidRegistrationId(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, user)
+}
+
+func SendResetPasswordEmail(c *gin.Context) {
+	user := GetSignedInUser(c)
+
+	if user.ID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
+	}
+	db := database.NewGORM()
+	defer db.Close()
+
+	token := randToken()
+
+	if err := db.Model(&user).Where("id = ?", user.ID).Update("reset_password_token", token).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Error on updating password token",
+			"error":   err,
+		})
+		return
+	}
+
+	emailUser := &EmailUser{
+		Username:    ServerConfig.EmailAuthName,
+		Password:    ServerConfig.EmailAuthPassword,
+		EmailServer: ServerConfig.EmailServer,
+		Port:        ServerConfig.EmailPort,
+	}
+
+	fmt.Printf("\n %#v \n", emailUser)
+
+	htmlBody := `
+		<html>
+		<body style="margin: 0; padding: 0; padding: 50px 20px; text-align: center; background-color: #C4ECF6; color: #FF6A23;">
+		 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
+		  <tr>
+		   <td>
+		    <h2>Reset Swing password</h2>
+		   </td>
+		  </tr>
+		  <tr>
+		    <td>
+		      <h2>Hi %s %s,</h2>
+		      <h3>You have recently requested to reset your Cacoo password. Set a new password here:</h3>
+		    </td>
+		  </tr>
+		  <tr>
+		    <td align="center" style="height: 50px">
+		    	<a href="%s" style="text-decoration: none;line-height: 100%%; background: #FD733D; color: white; font-family: Open Sans,Helvetica,Arial,sans-serif; font-size: 20px; font-weight: bold; text-transform: none; margin: 0px;padding: 10px 50px; border-radius: 9px;">
+		    	  Reset Password
+		    	</a>
+		    </td>
+		  </tr>
+		  <tr>
+		    <td style="margin-top: 20px; text-align: right;">
+		      <p>Team Swing</p>
+		    </td>
+		  </tr>
+
+		 </table>
+		</body>
+		</html>
+	`
+	resetPasswordURL := fmt.Sprintf("%s/v1/user/resetPasswordPage?token=%s&email=%s", ServerConfig.BaseURL, token, user.Email)
+	emailBody := fmt.Sprintf(htmlBody, user.FirstName, user.LastName, resetPasswordURL)
+
+	if err := sendMail(emailUser, user.Email, "Reset your Swing password", emailBody); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Please try again later",
+			"error":   err,
+		})
+		return
+	}
+
+}
+
+func ResetPasswordPage(c *gin.Context) {
+	token := c.Query("token")
+	email := c.Query("email")
+
+	if token == "" || email == "" {
+		c.HTML(http.StatusNotFound, "404.html", nil)
+		return
+	}
+
+	db := database.NewGORM()
+	defer db.Close()
+
+	var user model.User
+	if err := db.Model(&model.User{}).Where("reset_password_token = ? and email = ?", token, email).First(&user).Error; err != nil {
+		c.HTML(http.StatusNotFound, "404.html", nil)
+		return
+	}
+
+	c.HTML(http.StatusOK, "reset_password", gin.H{
+		"user":         user,
+		"errorMessage": "",
+	})
+}
+
+func ResetPassword(c *gin.Context) {
+	token := c.PostForm("token")
+	email := c.PostForm("email")
+	password := c.PostForm("password")
+
+	if token == "" || email == "" || password == "" {
+		c.HTML(http.StatusNotFound, "404.html", nil)
+		return
+	}
+
+	db := database.NewGORM()
+	defer db.Close()
+
+	var user model.User
+	if err := db.Model(&model.User{}).Where("reset_password_token = ? and email = ?", token, email).First(&user).Error; err != nil {
+		log.Panic(err)
+		c.HTML(http.StatusNotFound, "404.html", nil)
+		return
+	}
+
+	if len(password) < 6 {
+		c.HTML(http.StatusBadRequest, "reset_password", gin.H{
+			"user":         user,
+			"errorMessage": "The password has to be longer than <strong>6</strong> characters",
+		})
+		return
+	}
+
+	password = database.EncryptPassword(password)
+
+	if err := db.Exec("UPDATE user SET password = ?, reset_password_token = null WHERE email = ? and reset_password_token = ?", password, email, token).Error; err != nil {
+		c.HTML(http.StatusBadRequest, "reset_password", gin.H{
+			"user":         user,
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+
+	c.HTML(http.StatusOK, "reset_password_success", nil)
 }

@@ -11,6 +11,9 @@ import (
 
 	"time"
 
+	"net/smtp"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/kidsdynamic/childrenlab_v2/constants"
@@ -22,6 +25,16 @@ import (
 const (
 	SignedUserKey = "SignedUser"
 )
+
+var ServerConfig ServerConfiguration
+
+type ServerConfiguration struct {
+	BaseURL           string
+	EmailAuthName     string
+	EmailAuthPassword string
+	EmailServer       string
+	EmailPort         int
+}
 
 func randToken() string {
 	b := make([]byte, 8)
@@ -189,4 +202,37 @@ func HasPermissionToKid(db *gorm.DB, user *model.User, kidID []int64) bool {
 
 	return exists
 
+}
+
+type EmailUser struct {
+	Username    string
+	Password    string
+	EmailServer string
+	Port        int
+}
+
+func sendMail(emailUser *EmailUser, toEmail, subject, message string) error {
+
+	auth := smtp.PlainAuth(
+		"Swing",
+		emailUser.Username,
+		emailUser.Password,
+		emailUser.EmailServer,
+	)
+
+	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
+	body := fmt.Sprintf("TO: %s\r\n"+
+		"Subject: %s\r\n%s"+
+		"\r\n%s", toEmail, subject, mime, message)
+
+	// Connect to the server, authenticate, set the sender and recipient,
+	// and send the email all in one step.
+	err := smtp.SendMail(
+		emailUser.EmailServer+":"+strconv.Itoa(emailUser.Port),
+		auth,
+		emailUser.Username,
+		[]string{toEmail},
+		[]byte(body),
+	)
+	return err
 }

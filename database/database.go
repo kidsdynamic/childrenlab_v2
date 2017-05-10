@@ -78,29 +78,6 @@ func InitDatabase() {
 	if err := db.Where("authority = ?", model.ROLE_USER).First(&userRole).Error; err != nil {
 		panic(err)
 	}
-
-	//Create Admin
-	/*	users := []model.User{
-			{
-				Email:     "admin",
-				Password:  EncryptPassword("admin"),
-				FirstName: "admin",
-				LastName:  "admin",
-				Role:      adminRole,
-			},
-			{
-				Email:     "jack08300@gmail.com",
-				Password:  EncryptPassword("aaaaaa"),
-				FirstName: "Jay",
-				LastName:  "Chen",
-				Role:      userRole,
-			},
-		}
-
-		for _, user := range users {
-			db.Create(&user)
-		}*/
-
 }
 
 func EncryptPassword(password string) string {

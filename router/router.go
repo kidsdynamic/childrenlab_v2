@@ -7,6 +7,9 @@ func New() *gin.Engine {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 
+	r.LoadHTMLGlob("src/github.com/kidsdynamic/childrenlab_v2/view/template/*")
+	r.Static("/server/assets", "src/github.com/kidsdynamic/childrenlab_v2/view/assets")
+
 	initAdminRouter(r)
 
 	initUserRouter(r)
