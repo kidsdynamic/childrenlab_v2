@@ -10,9 +10,10 @@ import (
 
 	"fmt"
 
+	"github.com/pkg/errors"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"github.com/jmoiron/sqlx"
 	"github.com/kidsdynamic/childrenlab_v2/constants"
 	"github.com/kidsdynamic/childrenlab_v2/database"
 	"github.com/kidsdynamic/childrenlab_v2/model"
@@ -29,7 +30,7 @@ func AddCalendarEvent(c *gin.Context) {
 	var request model.EventRequest
 
 	if err := c.BindJSON(&request); err != nil {
-		log.Printf("Error on Add Event. Bind with json. %#v", err)
+		logError(errors.Wrap(err, "Error on Add Event. Bind with json"))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "missing some parameters",
 			"error":   err,
@@ -77,7 +78,7 @@ func AddCalendarEvent(c *gin.Context) {
 
 	var kids []model.Kid
 	if err := db.Model(model.Kid{}).Where("id in (?)", request.KidID).Find(&kids).Error; err != nil {
-		log.Printf("Error on retrieve Kid. %#v", err)
+		logError(errors.Wrap(err, "Error on retrieve Kid"))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error on retrieve Kid",
 			"error":   err.Error(),
@@ -103,7 +104,7 @@ func AddCalendarEvent(c *gin.Context) {
 	event.Todo = todos
 
 	if err := db.Create(&event).Error; err != nil {
-		log.Printf("Error on Add Event. %#v", err)
+		logError(errors.Wrap(err, "Error on adding the event to database"))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error on adding the event to database",
 			"error":   err.Error(),
@@ -115,13 +116,15 @@ func AddCalendarEvent(c *gin.Context) {
 		"event": event,
 	})
 
+	LogUserActivity(db, &user, fmt.Sprintf("Create Calendar Event (%d)", event.ID), nil)
+
 }
 
 func UpdateCalendarEvent(c *gin.Context) {
 	var eventRequest model.UpdateEventRequest
 
 	if err := c.BindJSON(&eventRequest); err != nil {
-		log.Printf("Error on Add Event. Bind with json. %#v", err)
+		logError(errors.Wrap(err, "Error on Add Event. Bind with json"))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "missing some parameters",
 			"error":   err,
@@ -137,6 +140,7 @@ func UpdateCalendarEvent(c *gin.Context) {
 	user := GetSignedInUser(c)
 
 	if err := db.Where("id = ? and user_id = ?", eventRequest.ID, user.ID).Preload("User").Preload("Kid").Preload("Todo").First(&event).Error; err != nil {
+		logError(errors.Wrap(err, "Can't find the event from database"))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Can't find the event from database",
 			"error":   err.Error(),
@@ -159,7 +163,7 @@ func UpdateCalendarEvent(c *gin.Context) {
 
 	if len(todos) > 0 {
 		if err := db.Delete(model.Todo{}, "event_id = ?", event.ID).Error; err != nil {
-			log.Printf("Error on Deleting todo. %#v", err)
+			logError(errors.Wrap(err, "Error on Deleting todo"))
 			c.JSON(http.StatusBadRequest, gin.H{
 				"message": "Error on Delete todo",
 				"error":   err.Error(),
@@ -181,7 +185,7 @@ func UpdateCalendarEvent(c *gin.Context) {
 	event.PushTimeUTC = eventRequest.Start.Add(time.Duration(-eventRequest.TimezoneOffset) * time.Minute)
 
 	if err := db.Model(&model.Event{}).Omit("User").Updates(&event).Error; err != nil {
-		log.Printf("Error on Updat event. %#v", err)
+		logError(errors.Wrap(err, "Error on Updat event"))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error on updating event",
 			"error":   err.Error(),
@@ -192,7 +196,7 @@ func UpdateCalendarEvent(c *gin.Context) {
 	if eventRequest.Repeat == "" {
 
 		if err := db.Model(&model.Event{}).Where("id = ?", eventRequest.ID).Update("repeat", "").Error; err != nil {
-			log.Printf("Error on Updat event. %#v", err)
+			logError(errors.Wrap(err, "Error on Updat event"))
 			c.JSON(http.StatusBadRequest, gin.H{
 				"message": "Error on updating event",
 				"error":   err.Error(),
@@ -204,6 +208,8 @@ func UpdateCalendarEvent(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"event": event,
 	})
+
+	LogUserActivity(db, &user, fmt.Sprintf("Update calendar event (%d)", event.ID), nil)
 
 }
 
@@ -220,6 +226,7 @@ func DeleteEvent(c *gin.Context) {
 	eventID, err := strconv.ParseInt(eventIDString, 10, 16)
 
 	if err != nil {
+		logError(errors.Wrap(err, "The event id has to be a number"))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "The event id has to be a number",
 		})
@@ -233,9 +240,9 @@ func DeleteEvent(c *gin.Context) {
 
 	if err := db.Where("id = ?", eventID).Preload("User").First(&event).Error; err != nil {
 		if err != nil {
+			logError(errors.Wrapf(err, "Error when retriving event. Event ID: %d", eventID))
 			c.JSON(http.StatusBadRequest, gin.H{
 				"message": "Error when retriving event",
-				"error":   err.Error,
 			})
 			return
 		}
@@ -252,6 +259,7 @@ func DeleteEvent(c *gin.Context) {
 
 	if err := db.Delete(&model.Event{}, "id = ?", eventID).Error; err != nil {
 		if err != nil {
+			logError(errors.Wrap(err, "Error on retrieve signup dashboard from Admin"))
 			fmt.Printf("Error on deleting event. %#v", err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"message": "Error when deleting event",
@@ -264,6 +272,7 @@ func DeleteEvent(c *gin.Context) {
 	if len(event.Todo) > 0 {
 		if err := db.Delete(&model.Todo{}, "event_id = ?", eventID).Error; err != nil {
 			if err != nil {
+				logError(errors.Wrapf(err, "Error when deleting todo from deleting event. Event ID: %d", eventID))
 				c.JSON(http.StatusBadRequest, gin.H{
 					"message": "Error when deleting todo",
 					"error":   err.Error,
@@ -276,7 +285,7 @@ func DeleteEvent(c *gin.Context) {
 
 	if err := db.Delete(&model.EventKid{}, "event_id = ?", eventID).Error; err != nil {
 		if err != nil {
-			fmt.Printf("Error on deleting event_kid. %#v", err)
+			logError(errors.Wrapf(err, "Error when deleting event kid from deleting event. Event ID: %d", eventID))
 			c.JSON(http.StatusBadRequest, gin.H{
 				"message": "Error when deleting event_kid",
 				"error":   err.Error,
@@ -286,6 +295,8 @@ func DeleteEvent(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{})
+
+	LogUserActivity(db, &user, fmt.Sprintf("Delete Calendar Event (%d)", event.ID), nil)
 }
 
 func GetCalendarEvent(c *gin.Context) {
@@ -358,6 +369,7 @@ func RetrieveAllEventWithTodoByUser(c *gin.Context) {
 	if len(kidsID) > 0 {
 		if err := db.Model(model.Event{}).Joins("JOIN event_kid ON event.id = event_kid.event_id").Where("event_kid.kid_id in (?)", toString(kidsID)).Group("event.id").Preload("User").Preload("Kid").Preload("Todo").Find(&events).Error; err != nil {
 
+			logError(errors.Wrapf(err, "Error on retriving event from kids ID: %#v", kidsID))
 			fmt.Printf("Error on retriving events. %#v", err)
 
 			c.JSON(http.StatusInternalServerError, gin.H{
@@ -370,6 +382,7 @@ func RetrieveAllEventWithTodoByUser(c *gin.Context) {
 
 	var otherKidID []model.UserKidIDs
 	if err := db.Table("sub_host_kid").Joins("JOIN sub_host ON sub_host.id = sub_host_kid.sub_host_id").Select("kid_id as id").Where("request_from_id = ?", user.ID).Find(&otherKidID).Error; err != nil && err != gorm.ErrRecordNotFound {
+		logError(errors.Wrapf(err, "Error on retriving kid from sub host kid ID: %#v", otherKidID))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something wrong when retrieving User's kid",
 			"error":   err,
@@ -383,7 +396,7 @@ func RetrieveAllEventWithTodoByUser(c *gin.Context) {
 		if err := db.Model(model.Event{}).Joins("JOIN event_kid ON event.id = event_kid.event_id").Where("event_kid.kid_id in (?)", toString(otherKidID)).Preload("User").Preload("Kid").Preload("Todo").Find(&otherkidsEvent).Error; err != nil && err != gorm.ErrRecordNotFound {
 
 			fmt.Printf("Error on retriving events. %#v", err)
-
+			logError(errors.Wrapf(err, "Error on retriving event from sub host kid ID: %#v", otherKidID))
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Something wrong when retrieving events",
 				"error":   err,
@@ -399,18 +412,8 @@ func RetrieveAllEventWithTodoByUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, events)
-}
 
-func retrieveTodosByEventID(db *sqlx.DB, eventID int64) ([]model.Todo, error) {
-	var todoList []model.Todo
-
-	err := db.Select(&todoList, "SELECT id, date_created, last_updated, status, text FROM todo_list WHERE event_id = ?", eventID)
-
-	if err != nil {
-		return todoList, err
-	}
-
-	return todoList, nil
+	LogUserActivity(db, &user, "Retrieve All Event With Todo", nil)
 }
 
 type todoDoneRequest struct {
@@ -433,6 +436,7 @@ func TodoDone(c *gin.Context) {
 	defer db.Close()
 
 	if err := db.Model(&model.Todo{}).Where("id = ? AND event_id = ?", todoDoneRequest.TodoID, todoDoneRequest.EventID).Update("status", TODO_DONE).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on make todo done: %#v", todoDoneRequest))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something wrong when retrieving todos",
 			"error":   err,
@@ -441,12 +445,16 @@ func TodoDone(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{})
+
+	user := GetSignedInUser(c)
+	LogUserActivity(db, &user, fmt.Sprintf("Update Todo done (%d)", todoDoneRequest.TodoID), nil)
 }
 
 func RetrieveEventsByKid(c *gin.Context) {
 	kidIDString := c.Query("kidId")
 	kidID, err := strconv.ParseInt(kidIDString, 10, 64)
 	if err != nil {
+		logError(errors.Wrapf(err, "Error RetrieveEventsByKid on parse string to int: %#v", kidIDString))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error when parse kid ID to int",
 			"error":   err,
@@ -471,8 +479,7 @@ func RetrieveEventsByKid(c *gin.Context) {
 	var events []model.Event
 
 	if err := db.Model(model.Event{}).Joins("JOIN event_kid ON event.id = event_kid.event_id").Where("event_kid.kid_id = ?", kidID).Preload("User").Preload("Todo").Find(&events).Error; err != nil {
-
-		fmt.Printf("Error on retriving events. %#v", err)
+		logError(errors.Wrapf(err, "Error on retriving events kidID: %#v", kidID))
 
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something wrong when retrieving events",
@@ -482,6 +489,8 @@ func RetrieveEventsByKid(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, events)
+
+	LogUserActivity(db, &user, "Retrieve Event By Kid", nil)
 }
 
 func toString(kidsID []model.UserKidIDs) []int64 {

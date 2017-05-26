@@ -1,5 +1,5 @@
-hash: 280db0446ad7d2e1aaefa63807014a3469b45024b60a424732a2f96f21227789
-updated: 2017-05-09T19:12:24.763376646-04:00
+hash: 5c3fa23fed5e0d2faa1f3d4ef34308e645e661e7b07cc9c972f93c0621fd73a4
+updated: 2017-05-25T21:54:01.901234635-04:00
 imports:
 - name: github.com/gin-gonic/gin
   version: e2212d40c62a98b388a5eb48ecbdcf88534688ba
@@ -28,6 +28,8 @@ imports:
   version: ee05b128a739a0fb76c7ebd3ae4810c1de808d6d
 - name: github.com/mattn/go-isatty
   version: 30a891c33c7cde7b02a981314b4228ec99380cca
+- name: github.com/pkg/errors
+  version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/urfave/cli
   version: 0bdeddeeb0f650497d603c4ad7b20cfe685682f6
 - name: golang.org/x/net

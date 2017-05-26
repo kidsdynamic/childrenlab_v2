@@ -14,6 +14,10 @@ import (
 	"net/smtp"
 	"strconv"
 
+	"strings"
+
+	"github.com/pkg/errors"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/kidsdynamic/childrenlab_v2/constants"
@@ -34,6 +38,7 @@ type ServerConfiguration struct {
 	EmailAuthPassword string
 	EmailServer       string
 	EmailPort         int
+	ErrorLogEmail     string
 }
 
 func randToken() string {
@@ -65,7 +70,6 @@ func Auth(c *gin.Context) {
 		return
 	}
 
-	log.Printf("\nLogged in user: %#v\n", user)
 	c.Set(SignedUserKey, user)
 
 	c.Next()
@@ -93,7 +97,6 @@ func AdminAuth(c *gin.Context) {
 		return
 	}
 
-	log.Printf("\nLogged in admin: %#v\n", user)
 	c.Set(SignedUserKey, user)
 
 	c.Next()
@@ -175,7 +178,7 @@ func GetNowTime() time.Time {
 	t, err := time.Parse(constants.TimeLayout, s)
 
 	if err != nil {
-		fmt.Printf("Error on get now time. %#v", err)
+		logError(errors.Wrap(err, "Error on get now time"))
 
 	}
 
@@ -201,7 +204,36 @@ func HasPermissionToKid(db *gorm.DB, user *model.User, kidID []int64) bool {
 	}
 
 	return exists
+}
 
+func LogUserActivity(db *gorm.DB, user *model.User, action string, macID *string) {
+	logAction := &model.LogUserAction{
+		User:        user,
+		UserID:      user.ID,
+		MacID:       macID,
+		Action:      action,
+		DateCreated: time.Now(),
+		LastUpdated: time.Now(),
+	}
+
+	if err := db.Create(logAction).Error; err != nil {
+		logError(errors.Wrap(err, "Error on the log user action"))
+		return
+	}
+}
+
+func logError(err error) {
+	log.Printf("Error occur: \n%+v", err)
+
+	emailUser := &EmailUser{
+		Username:    ServerConfig.EmailAuthName,
+		Password:    ServerConfig.EmailAuthPassword,
+		EmailServer: ServerConfig.EmailServer,
+		Port:        ServerConfig.EmailPort,
+	}
+	body := fmt.Sprintf("%+v", err)
+	body = strings.Replace(body, "\n", "<br/>", -1)
+	sendMail(emailUser, ServerConfig.ErrorLogEmail, fmt.Sprintf("Server Error: %s", ServerConfig.BaseURL), body)
 }
 
 type EmailUser struct {

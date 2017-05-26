@@ -5,6 +5,8 @@ import (
 
 	"fmt"
 
+	"github.com/pkg/errors"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/kidsdynamic/childrenlab_v2/database"
@@ -35,7 +37,12 @@ func RequestSubHostToUser(c *gin.Context) {
 
 	var subHost model.SubHost
 
-	db.Where("request_from_id = ? AND request_to_iD = ?", user.ID, requestSubHostReq.HostID).First(&subHost)
+	if err := db.Where("request_from_id = ? AND request_to_iD = ?", user.ID, requestSubHostReq.HostID).First(&subHost).Error; err != nil {
+		if err != gorm.ErrRecordNotFound {
+			logError(errors.Wrapf(err, "Error on retriving sub host request: %#v", requestSubHostReq))
+		}
+
+	}
 
 	if subHost.ID != 0 {
 		c.JSON(http.StatusConflict, gin.H{
@@ -50,6 +57,7 @@ func RequestSubHostToUser(c *gin.Context) {
 	subHost.LastUpdated = GetNowTime()
 
 	if err := db.Save(&subHost).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on saving sub host: %#v", subHost))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something wrong when inserting request",
 			"error":   err,
@@ -57,7 +65,8 @@ func RequestSubHostToUser(c *gin.Context) {
 		return
 	}
 
-	if err := db.Preload("RequestFrom").Preload("RequestTo").First(&subHost).Error; err != nil {
+	if err := db.Model(&model.SubHost{}).Where("id = ?", subHost.ID).Preload("RequestFrom").Preload("RequestTo").First(&subHost).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on retriving sub host: %#v", subHost))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something wrong when inserting request",
 			"error":   err,
@@ -98,6 +107,7 @@ func AcceptRequest(c *gin.Context) {
 	var kids []model.Kid
 
 	if err := db.Joins("JOIN user ON user.id = kids.parent_id").Where("kids.id in (?) AND kids.parent_id = ?", acceptRequest.KidID, user.ID).Find(&kids).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on update subhost request status: %#v", acceptRequest))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error on updating status",
 			"error":   err,
@@ -130,6 +140,7 @@ func AcceptRequest(c *gin.Context) {
 	subHost.Status = SubHostStatusAccepted
 
 	if err := db.Save(&subHost).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on saving subhost: %#v", subHost))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error on updating status",
 			"error":   err,
@@ -139,8 +150,8 @@ func AcceptRequest(c *gin.Context) {
 	}
 
 	var updatedSubHost model.SubHost
-	if err := db.Model(&updatedSubHost).Preload("Kids").Preload("RequestFrom").Preload("RequestTo").Where("id = ?", subHost.ID).First(&updatedSubHost).Error; err != nil {
-		fmt.Printf("Error on retrieve subhost. Error: %#v", err)
+	if err := db.Model(&updatedSubHost).Where("id = ?", subHost.ID).Preload("Kids").Preload("RequestFrom").Preload("RequestTo").First(&updatedSubHost).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on retriving sub host: %#v", updatedSubHost))
 	}
 
 	c.JSON(http.StatusOK, updatedSubHost)
@@ -166,6 +177,7 @@ func DeleteRequest(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{})
 			return
 		} else {
+			logError(errors.Wrapf(err, "Error on retriving subhost: %#v", subHost))
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Error on retrieve subhost",
 				"error":   err,
@@ -174,6 +186,7 @@ func DeleteRequest(c *gin.Context) {
 	}
 
 	if err := db.Where("sub_host_id = ?", subHost.ID).Delete(model.SubHostKid{}).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on deleting subhost kids: %#v", subHost))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error on updating status",
 			"error":   err,
@@ -183,6 +196,7 @@ func DeleteRequest(c *gin.Context) {
 	}
 
 	if err := db.Delete(&subHost).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on delete sub host: %#v", subHost))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error on updating status",
 			"error":   err,
@@ -224,6 +238,7 @@ func DenyRequest(c *gin.Context) {
 	}
 
 	if err := db.Where("sub_host_id = ?", subHost.ID).Delete(model.SubHostKid{}).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on delete subhost kid request: %#v", subHost))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error on updating status",
 			"error":   err,
@@ -233,6 +248,7 @@ func DenyRequest(c *gin.Context) {
 	}
 
 	if err := db.Delete(&subHost).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on deleting sub host: %#v", subHost))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error on updating status",
 			"error":   err,
@@ -278,6 +294,7 @@ func RemoveSubHostKid(c *gin.Context) {
 			})
 			return
 		} else {
+			logError(errors.Wrapf(err, "Error on retrive subhost: %#v", request))
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Error occur",
 				"error":   err,
@@ -294,6 +311,7 @@ func RemoveSubHostKid(c *gin.Context) {
 			})
 			return
 		} else {
+			logError(errors.Wrapf(err, "Error on delete sub host kid: %#v", request))
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Error occur",
 				"error":   err,
@@ -303,7 +321,8 @@ func RemoveSubHostKid(c *gin.Context) {
 		}
 	}
 
-	if err := db.Where("id = ?", subHost.ID).Preload("RequestFrom").Preload("RequestTo").Preload("Kids").First(&subHost).Error; err != nil {
+	if err := db.Model(&model.SubHost{}).Where("id = ?", subHost.ID).Preload("RequestFrom").Preload("RequestTo").Preload("Kids").First(&subHost).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on retriving sub host: %#v", subHost))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error occur",
 			"error":   err,
@@ -343,7 +362,7 @@ func SubHostList(c *gin.Context) {
 	}
 
 	if err != nil {
-		fmt.Printf("Error on Sub Host List. %#v", err)
+		logError(errors.Wrapf(err, "Error on Sub Host List: %#v", query))
 	}
 
 	c.JSON(http.StatusOK, gin.H{

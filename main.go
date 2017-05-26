@@ -84,6 +84,12 @@ func main() {
 			Value:  "587",
 			Usage:  "",
 		},
+		cli.StringFlag{
+			EnvVar: "ERROR_LOG_EMAIL",
+			Name:   "error_log_email",
+			Value:  "jay@kidsdynamic.com",
+			Usage:  "",
+		},
 	}
 
 	app.Action = func(c *cli.Context) error {
@@ -100,6 +106,7 @@ func main() {
 			EmailAuthPassword: c.String("email_auth_password"),
 			EmailServer:       c.String("email_server"),
 			EmailPort:         c.Int("email_port"),
+			ErrorLogEmail:     c.String("error_log_email"),
 		}
 
 		global.SuperAdminToken = c.String("super_admin_token")

@@ -11,13 +11,12 @@ import (
 
 	"time"
 
-	"errors"
-
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/kidsdynamic/childrenlab_v2/constants"
 	"github.com/kidsdynamic/childrenlab_v2/database"
 	"github.com/kidsdynamic/childrenlab_v2/model"
+	"github.com/pkg/errors"
 )
 
 func UploadRawActivityData(c *gin.Context) {
@@ -34,6 +33,7 @@ func UploadRawActivityData(c *gin.Context) {
 	var kid model.Kid
 
 	if err := db.Where("mac_id = ?", request.MacID).First(&kid).Error; err != nil {
+		logError(errors.Wrapf(err, "can't find the device by the MAC ID: %s", request.Indoor))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": fmt.Sprintf("can't find the device by the MAC ID: %s", request.MacID),
 		})
@@ -45,6 +45,7 @@ func UploadRawActivityData(c *gin.Context) {
 	indoorActivityLong, err := strconv.ParseInt(indoor[0], 10, 64)
 
 	if err != nil {
+		logError(errors.Wrapf(err, "Error on parse indoor time to Long: %s", request.Indoor))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": fmt.Sprintf("Error on parse indoor time to Long: %s", request.Indoor),
 			"error":   err,
@@ -55,6 +56,7 @@ func UploadRawActivityData(c *gin.Context) {
 	var exist bool
 	row := db.Raw("SELECT EXISTS(SELECT id FROM activity_raw WHERE time = ? AND mac_id = ? LIMIT 1)", indoorActivityLong, kid.MacID).Row()
 	if err := row.Scan(&exist); err != nil {
+		logError(errors.Wrapf(err, "Something wrong when finding eixst activity: %s", indoorActivityLong))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something wrong when finding eixst activity",
 			"err":     err,
@@ -74,12 +76,12 @@ func UploadRawActivityData(c *gin.Context) {
 	indoorActivity.Date = time.Unix(indoorActivityLong, 0)
 	indoorActivity.TimeLong = indoorActivityLong
 	indoorActivity.TimeZone = request.TimeZoneOffset
-	log.Printf("Received Indoor Activity Time: %s, User Timezone: %d", indoorActivity.Date, request.TimeZoneOffset)
 
 	outdoor := strings.Split(request.Outdoor, ",")
 	outdoorActivityLong, err := strconv.ParseInt(outdoor[0], 0, 64)
 
 	if err != nil {
+		logError(errors.Wrapf(err, "Error on parse outdoor time to Long: %s", request.Indoor))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": fmt.Sprintf("Error on parse outdoor time to Long: %s", request.Indoor),
 			"error":   err,
@@ -99,7 +101,7 @@ func UploadRawActivityData(c *gin.Context) {
 	request.LastUpdated = GetNowTime()
 	request.UserID = user.ID
 	if err := db.Create(&request).Error; err != nil {
-		log.Printf("Error on inserting raw activity. Data: %#v\n", request)
+		logError(errors.Wrap(err, "Error on inserting raw activity."))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error on inserting raw activity",
 		})
@@ -109,8 +111,10 @@ func UploadRawActivityData(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{})
 
 	if err := calculateActivity(db, indoorActivity, outdoorActivity, kid); err != nil {
-		log.Printf("Error on genreate activity. ERROR: %#v", err)
+		logError(errors.Wrap(err, "Error on genreate activity."))
 	}
+
+	LogUserActivity(db, &user, fmt.Sprintf("Uplaod Raw Activity (%d)", request.ID), &kid.MacID)
 }
 
 func calculateActivity(db *gorm.DB, indoorActivity, outdoorActivity model.ActivityInsight, kid model.Kid) error {
@@ -133,6 +137,7 @@ func calculateActivity(db *gorm.DB, indoorActivity, outdoorActivity model.Activi
 			DateCreated:  GetNowTime(),
 			LastUpdated:  GetNowTime(),
 		}).Error; err != nil {
+			logError(errors.Wrap(err, "Error on create indoor activity record"))
 			return err
 		}
 
@@ -146,6 +151,7 @@ func calculateActivity(db *gorm.DB, indoorActivity, outdoorActivity model.Activi
 			DateCreated:  GetNowTime(),
 			LastUpdated:  GetNowTime(),
 		}).Error; err != nil {
+			logError(errors.Wrap(err, "Error on create outdoor activity record"))
 			return err
 		}
 
@@ -165,17 +171,17 @@ func calculateActivity(db *gorm.DB, indoorActivity, outdoorActivity model.Activi
 			}
 
 			if err := db.Model(&model.Activity{}).Update(&a).Error; err != nil {
+				logError(errors.Wrap(err, "Error on save activity record"))
 				return err
 			}
 		}
 	}
+
 	return nil
 }
 
 func GetActivity(c *gin.Context) {
 	user := GetSignedInUser(c)
-
-	fmt.Printf("Activity Request: %s, %s\n", c.Query("kidId"), c.Query("period"))
 
 	kidIdString := c.Query("kidId")
 	period := c.Query("period")
@@ -193,7 +199,6 @@ func GetActivity(c *gin.Context) {
 	activityRequest.KidID = kidId
 
 	if activityRequest.KidID == 0 || period == "" {
-		log.Printf("Error on parsing activity request. %#v\n", activityRequest)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": fmt.Sprintf("One of parameter is missing: %#v\n", activityRequest),
 		})
@@ -221,7 +226,7 @@ func GetActivity(c *gin.Context) {
 	defer db.Close()
 	var activities []model.Activity
 	if err := db.Joins("JOIN kids ON kids.id = activity.kid_id").Where("kids.id = ? AND kids.parent_id = ? AND activity.received_Date > ?", activityRequest.KidID, user.ID, &periodDate).Find(&activities).Error; err != nil {
-		log.Printf("Error on retrieve Activity: %#v\n", err)
+		logError(errors.Wrap(err, "Error on retrieve Activity"))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": fmt.Sprintf("Error on retriving activity: %#v\n", activityRequest),
 			"error":   err,
@@ -254,6 +259,7 @@ func GetActivityByTime(c *gin.Context) {
 
 	startTimeLong, err := strconv.ParseInt(startTimeString, 10, 64)
 	if err != nil {
+		logError(errors.Wrap(err, "Error on parse string to int - GetActivityByTime"))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error on parse string to int",
 			"error":   err,
@@ -263,6 +269,7 @@ func GetActivityByTime(c *gin.Context) {
 
 	endTimeLong, err := strconv.ParseInt(endTimeString, 10, 64)
 	if err != nil {
+		logError(errors.Wrap(err, "Error on parse string to int - GetActivityByTime"))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error on parse string to int",
 			"error":   err,
@@ -272,6 +279,7 @@ func GetActivityByTime(c *gin.Context) {
 
 	kidID, err := strconv.ParseInt(kidIdString, 10, 64)
 	if err != nil {
+		logError(errors.Wrap(err, "Error on parse string to int - GetActivityByTime"))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error on parse string to int",
 			"error":   err,
@@ -290,6 +298,7 @@ func GetActivityByTime(c *gin.Context) {
 	var activities []model.Activity
 
 	if err := db.Joins("JOIN kids ON kids.id = activity.kid_id").Where("kids.id = ? AND kids.parent_id = ? AND (activity.received_Date between ? and ?)", kidID, user.ID, start, end).Find(&activities).Error; err != nil {
+		logError(errors.Wrap(err, "Error on getting activities"))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error on getting activities",
 			"error":   err,
@@ -306,6 +315,7 @@ func GetActivityByTime(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"activities": activities,
 	})
+	LogUserActivity(db, &user, "Get Activity By Time", nil)
 }
 
 func getTodayDate() *time.Time {
@@ -313,30 +323,22 @@ func getTodayDate() *time.Time {
 	year, month, day := now.Date()
 	today := time.Date(year, month, day, 0, 0, 0, 0, now.Location())
 
-	fmt.Println("get beginning of day: ", today)
 	return &today
 }
 
 func getBeginningOfWeek() *time.Time {
 	now := time.Now()
 
-	//now = now.Add(24 * time.Hour)
-
-	fmt.Printf("Week of day: %d\n", int(now.Weekday()))
-
 	days := int(now.Weekday())
 	if days == 0 {
 		days = 7
 	}
-
-	fmt.Printf("Days passed from fist day of week: %d\n", days)
 
 	now = now.AddDate(0, 0, -days+1)
 
 	year, month, day := now.Date()
 	today := time.Date(year, month, day, 0, 0, 0, 0, now.Location())
 
-	fmt.Println("get beginning of week: ", today)
 	return &today
 }
 
@@ -345,7 +347,6 @@ func getBeginningOfMonth() *time.Time {
 	year, month, _ := now.Date()
 	today := time.Date(year, month, 1, 0, 0, 0, 0, now.Location())
 
-	fmt.Println("get beginning of Month: ", today)
 	return &today
 }
 
@@ -354,7 +355,6 @@ func getBeginningOfYear() *time.Time {
 	year, _, _ := now.Date()
 	today := time.Date(year, 1, 1, 0, 0, 0, 0, now.Location())
 
-	fmt.Println("get beginning of Year: ", today)
 	return &today
 }
 
@@ -365,6 +365,7 @@ func GetActivityList(c *gin.Context) {
 
 	var activity []model.Activity
 	if err := db.Where("kid_id = ?", c.Param("kidId")).Find(&activity).Error; err != nil {
+		logError(errors.Wrap(err, "Error on getting activities"))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error on getting activities",
 			"error":   err,

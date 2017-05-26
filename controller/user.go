@@ -7,6 +7,8 @@ import (
 
 	"fmt"
 
+	"github.com/pkg/errors"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/kidsdynamic/childrenlab_v2/database"
@@ -20,7 +22,7 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{})
 		return
 	}
-	log.Printf("\nEmail: %s, Password:%s, Line: %d\n", json.Email, json.Password, log.LstdFlags)
+
 	db := database.NewGORM()
 	defer db.Close()
 	var user model.User
@@ -34,8 +36,6 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	log.Printf("\nUser login request. User: %#v\n", user)
-
 	accessToken := model.AccessToken{
 		Email:       user.Email,
 		Token:       randToken(),
@@ -45,7 +45,7 @@ func Login(c *gin.Context) {
 	err := storeToken(db, accessToken)
 
 	if err != nil {
-		log.Printf("Store token fail!!!! ERROR: %#v\n", err)
+		logError(errors.Wrapf(err, "Error on login: %#v", json))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Store token failed",
 		})
@@ -57,6 +57,7 @@ func Login(c *gin.Context) {
 		"access_token": accessToken.Token,
 	})
 
+	LogUserActivity(db, &user, "Logged in", nil)
 }
 
 func storeToken(db *gorm.DB, accessToken model.AccessToken) error {
@@ -88,7 +89,7 @@ func Register(c *gin.Context) {
 		})
 		return
 	}
-	log.Printf("\nEmail: %s, Password:%s, Line: %d\n", userRequest.Email, userRequest.Password, log.LstdFlags)
+
 	db := database.NewGORM()
 	defer db.Close()
 
@@ -124,7 +125,7 @@ func Register(c *gin.Context) {
 	user.Language = userRequest.Language
 
 	if err := db.Create(&user).Error; err != nil {
-		log.Println(err)
+		logError(errors.Wrapf(err, "Error on creating user: %#v", user))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error when insert User to database",
 			"error":   err,
@@ -133,7 +134,7 @@ func Register(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, user)
-
+	LogUserActivity(db, &user, fmt.Sprintf("Register (%d)", user.ID), nil)
 }
 
 type LanguageRequest struct {
@@ -144,7 +145,7 @@ func UpdateLanguage(c *gin.Context) {
 	var languageRequest LanguageRequest
 
 	if err := c.BindJSON(&languageRequest); err != nil {
-		log.Printf("Register Error: %#v", err)
+
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Missing some of required paramters.",
 			"error":   err,
@@ -158,6 +159,7 @@ func UpdateLanguage(c *gin.Context) {
 	user := GetSignedInUser(c)
 
 	if err := db.Model(&model.User{}).Where("id = ?", user.ID).UpdateColumn("language", languageRequest.Language).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on update language: %#v", languageRequest))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error when update user language",
 			"error":   err,
@@ -166,6 +168,8 @@ func UpdateLanguage(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{})
+
+	LogUserActivity(db, &user, fmt.Sprintf("User - Update Language (%d)", user.ID), nil)
 }
 
 func IsTokenValid(c *gin.Context) {
@@ -187,6 +191,11 @@ func IsTokenValid(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{})
 
+	var user model.User
+	db.Table("user").Joins("JOIN authentication_token a ON user.email = a.email").Where("a.token = ?", tokenRequest.Token).Find(&user)
+
+	LogUserActivity(db, &user, "User - Is Token Valid (%d)", nil)
+
 }
 
 func UpdateProfile(c *gin.Context) {
@@ -198,8 +207,6 @@ func UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	fmt.Printf("Profile Update Request: %#v", request)
-
 	signedInUser := GetSignedInUser(c)
 
 	db := database.NewGORM()
@@ -207,12 +214,13 @@ func UpdateProfile(c *gin.Context) {
 
 	var user model.User
 	if err := db.Where("id = ?", signedInUser.ID).First(&user).Error; err != nil {
-		log.Printf("Error on retrieve user from udpate Profile. Error: %#v", err)
+		logError(errors.Wrapf(err, "Error on retrieve user from udpate Profile: %#v", signedInUser))
 		c.JSON(http.StatusBadRequest, gin.H{})
 		return
 	}
 
 	if err := db.Model(&user).Updates(request).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on updating profile: %#v", request))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something wrong when retreive updated user information",
 		})
@@ -220,6 +228,8 @@ func UpdateProfile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, user)
+
+	LogUserActivity(db, &user, fmt.Sprintf("User - Update Profile (%d)", user.ID), nil)
 }
 
 func UserProfile(c *gin.Context) {
@@ -227,7 +237,7 @@ func UserProfile(c *gin.Context) {
 
 	kids, err := GetKidsByUser(user)
 	if err != nil {
-		fmt.Printf("Kids error: %#v", err)
+		logError(errors.Wrapf(err, "Error on retrive kids by user: %#v", user))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error when retrieve kids",
 			"error":   err,
@@ -280,6 +290,7 @@ func FindUserByEmail(c *gin.Context) {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusNotFound, gin.H{})
 		} else {
+			logError(errors.Wrapf(err, "Error on finding user by email: %#v", email))
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Error on finding user by email",
 				"error":   err,
@@ -315,6 +326,7 @@ func UpdateIOSRegistrationId(c *gin.Context) {
 	user.RegistrationID = ios.RegistrationId
 
 	if err := db.Save(&user).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on saving user registration ID: %#v", ios))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something wrong on server side",
 			"error":   err,
@@ -323,6 +335,8 @@ func UpdateIOSRegistrationId(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, user)
+
+	LogUserActivity(db, &user, fmt.Sprintf("User - Update IOS Registration ID (%d)", user.ID), nil)
 }
 
 func UpdateAndroidRegistrationId(c *gin.Context) {
@@ -344,6 +358,7 @@ func UpdateAndroidRegistrationId(c *gin.Context) {
 	user.AndroidRegistrationToken = android.RegistrationId
 
 	if err := db.Model(&user).Update("android_registration_token", user.AndroidRegistrationToken).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on update android registration ID: %#v", android))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something wrong on server side",
 			"error":   err,
@@ -352,6 +367,8 @@ func UpdateAndroidRegistrationId(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, user)
+
+	LogUserActivity(db, &user, fmt.Sprintf("User - Update Android ID (%d)", user.ID), nil)
 }
 
 func SendResetPasswordEmail(c *gin.Context) {
@@ -367,6 +384,7 @@ func SendResetPasswordEmail(c *gin.Context) {
 	token := randToken()
 
 	if err := db.Model(&user).Where("id = ?", user.ID).Update("reset_password_token", token).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on update reset password token: %#v", token))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error on updating password token",
 			"error":   err,
@@ -380,8 +398,6 @@ func SendResetPasswordEmail(c *gin.Context) {
 		EmailServer: ServerConfig.EmailServer,
 		Port:        ServerConfig.EmailPort,
 	}
-
-	fmt.Printf("\n %#v \n", emailUser)
 
 	htmlBody := `
 		<html>
@@ -426,6 +442,7 @@ func SendResetPasswordEmail(c *gin.Context) {
 		return
 	}
 
+	LogUserActivity(db, &user, fmt.Sprintf("User - Send Reset password Email (%d)", user.ID), nil)
 }
 
 func ResetPasswordPage(c *gin.Context) {
@@ -442,6 +459,7 @@ func ResetPasswordPage(c *gin.Context) {
 
 	var user model.User
 	if err := db.Model(&model.User{}).Where("reset_password_token = ? and email = ?", token, email).First(&user).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on reset password page: %#v", email))
 		c.HTML(http.StatusNotFound, "404.html", nil)
 		return
 	}
@@ -467,7 +485,6 @@ func ResetPassword(c *gin.Context) {
 
 	var user model.User
 	if err := db.Model(&model.User{}).Where("reset_password_token = ? and email = ?", token, email).First(&user).Error; err != nil {
-		log.Panic(err)
 		c.HTML(http.StatusNotFound, "404.html", nil)
 		return
 	}
@@ -483,6 +500,7 @@ func ResetPassword(c *gin.Context) {
 	password = database.EncryptPassword(password)
 
 	if err := db.Exec("UPDATE user SET password = ?, reset_password_token = null WHERE email = ? and reset_password_token = ?", password, email, token).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on reset user password : %#v %#v", email, password))
 		c.HTML(http.StatusBadRequest, "reset_password", gin.H{
 			"user":         user,
 			"errorMessage": err.Error(),
