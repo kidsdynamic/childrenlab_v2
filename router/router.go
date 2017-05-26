@@ -6,6 +6,8 @@ import (
 
 	"log"
 
+	"strings"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +19,12 @@ func New() *gin.Engine {
 	if err != nil {
 		log.Fatal(err)
 	}
-	r.LoadHTMLGlob(fmt.Sprintf("%s/src/github.com/kidsdynamic/childrenlab_v2/view/template/*", rootPath))
+	if strings.Contains(rootPath, "src/github.com/kidsdynamic") {
+		r.LoadHTMLGlob(fmt.Sprintf("%s/view/template/*", rootPath))
+	} else {
+		r.LoadHTMLGlob(fmt.Sprintf("%s/src/github.com/kidsdynamic/childrenlab_v2/view/template/*", rootPath))
+	}
+
 	r.Static("/server/assets", fmt.Sprintf("%s/view/assets", rootPath))
 
 	initAdminRouter(r)
