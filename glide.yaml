@@ -7,3 +7,5 @@ import:
 - package: github.com/urfave/cli
 - package: gopkg.in/gin-gonic/gin.v1
 - package: github.com/jinzhu/gorm
+- package: github.com/jinzhu/inflection
+- package: github.com/pkg/errors

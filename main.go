@@ -7,6 +7,7 @@ import (
 	"github.com/kidsdynamic/childrenlab_v2/model"
 	"github.com/kidsdynamic/childrenlab_v2/router"
 
+	"github.com/kidsdynamic/childrenlab_v2/controller"
 	"github.com/kidsdynamic/childrenlab_v2/database"
 	"github.com/kidsdynamic/childrenlab_v2/global"
 	"github.com/urfave/cli"
@@ -53,6 +54,42 @@ func main() {
 			Value:  "1",
 			Usage:  "",
 		},
+		cli.StringFlag{
+			EnvVar: "BASE_URL",
+			Name:   "base_url",
+			Value:  "http://localhost:8110",
+			Usage:  "",
+		},
+		cli.StringFlag{
+			EnvVar: "EMAIL_AUTH_NAME",
+			Name:   "email_auth_name",
+			Value:  "no-reply@kidsdynamic.com",
+			Usage:  "",
+		},
+		cli.StringFlag{
+			EnvVar: "EMAIL_AUTH_PASSWORD",
+			Name:   "email_auth_password",
+			Value:  "",
+			Usage:  "",
+		},
+		cli.StringFlag{
+			EnvVar: "EMAIL_SERVER",
+			Name:   "email_server",
+			Value:  "smtp.gmail.com",
+			Usage:  "",
+		},
+		cli.StringFlag{
+			EnvVar: "EMAIL_PORT",
+			Name:   "email_port",
+			Value:  "587",
+			Usage:  "",
+		},
+		cli.StringFlag{
+			EnvVar: "ERROR_LOG_EMAIL",
+			Name:   "error_log_email",
+			Value:  "jay@kidsdynamic.com",
+			Usage:  "",
+		},
 	}
 
 	app.Action = func(c *cli.Context) error {
@@ -61,6 +98,15 @@ func main() {
 			User:     c.String("database_user"),
 			Password: c.String("database_password"),
 			IP:       c.String("database_IP"),
+		}
+
+		controller.ServerConfig = controller.ServerConfiguration{
+			BaseURL:           c.String("base_url"),
+			EmailAuthName:     c.String("email_auth_name"),
+			EmailAuthPassword: c.String("email_auth_password"),
+			EmailServer:       c.String("email_server"),
+			EmailPort:         c.Int("email_port"),
+			ErrorLogEmail:     c.String("error_log_email"),
 		}
 
 		global.SuperAdminToken = c.String("super_admin_token")

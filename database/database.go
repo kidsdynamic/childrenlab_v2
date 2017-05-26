@@ -39,6 +39,7 @@ func InitDatabase() {
 		&model.Todo{},
 		&model.ActivityRawData{},
 		&model.Activity{},
+		&model.LogUserAction{},
 	)
 
 	if err := db.Exec("CREATE TABLE `sub_host_kid` (`sub_host_id` bigint,`kid_id` bigint, PRIMARY KEY (`sub_host_id`,`kid_id`))").Error; err != nil {
@@ -78,29 +79,6 @@ func InitDatabase() {
 	if err := db.Where("authority = ?", model.ROLE_USER).First(&userRole).Error; err != nil {
 		panic(err)
 	}
-
-	//Create Admin
-	/*	users := []model.User{
-			{
-				Email:     "admin",
-				Password:  EncryptPassword("admin"),
-				FirstName: "admin",
-				LastName:  "admin",
-				Role:      adminRole,
-			},
-			{
-				Email:     "jack08300@gmail.com",
-				Password:  EncryptPassword("aaaaaa"),
-				FirstName: "Jay",
-				LastName:  "Chen",
-				Role:      userRole,
-			},
-		}
-
-		for _, user := range users {
-			db.Create(&user)
-		}*/
-
 }
 
 func EncryptPassword(password string) string {
