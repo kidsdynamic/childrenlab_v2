@@ -39,6 +39,7 @@ type ServerConfiguration struct {
 	EmailServer       string
 	EmailPort         int
 	ErrorLogEmail     string
+	Debug             bool
 }
 
 func randToken() string {
@@ -225,15 +226,18 @@ func LogUserActivity(db *gorm.DB, user *model.User, action string, macID *string
 func logError(err error) {
 	log.Printf("Error occur: \n%+v", err)
 
-	emailUser := &EmailUser{
-		Username:    ServerConfig.EmailAuthName,
-		Password:    ServerConfig.EmailAuthPassword,
-		EmailServer: ServerConfig.EmailServer,
-		Port:        ServerConfig.EmailPort,
+	if ServerConfig.Debug != true {
+		emailUser := &EmailUser{
+			Username:    ServerConfig.EmailAuthName,
+			Password:    ServerConfig.EmailAuthPassword,
+			EmailServer: ServerConfig.EmailServer,
+			Port:        ServerConfig.EmailPort,
+		}
+		body := fmt.Sprintf("%+v", err)
+		body = strings.Replace(body, "\n", "<br/>", -1)
+		sendMail(emailUser, ServerConfig.ErrorLogEmail, fmt.Sprintf("Server Error: %s", ServerConfig.BaseURL), body)
 	}
-	body := fmt.Sprintf("%+v", err)
-	body = strings.Replace(body, "\n", "<br/>", -1)
-	sendMail(emailUser, ServerConfig.ErrorLogEmail, fmt.Sprintf("Server Error: %s", ServerConfig.BaseURL), body)
+
 }
 
 type EmailUser struct {

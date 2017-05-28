@@ -35,11 +35,17 @@
   <table class="table table-striped table-hover">
     <thead>
     <tr>
-      <th colspan="3" class="title">Total Activities: {{ dashboard.totalActivityCount }}</th>
+      <th colspan="5" class="title">Total Activities: {{ dashboard.totalActivityCount }}</th>
     </tr>
     <tr>
       <th>
         Activity Count
+      </th>
+      <th>
+        Indoor Steps
+      </th>
+      <th>
+        Outdoor Steps
       </th>
       <th>
         User Count
@@ -53,6 +59,57 @@
     <tr *ngFor="let d of dashboard.activity">
       <td>
         {{ d.activityCount }}
+      </td>
+      <td>
+        {{ d.indoorSteps }}
+      </td>
+      <td>
+        {{ d.outdoorSteps }}
+      </td>
+      <td>
+        {{ d.userCount }}
+      </td>
+      <td>
+        {{ d.date }}
+      </td>
+
+    </tr>
+    </tbody>
+  </table>
+
+  <table class="table table-striped table-hover">
+    <thead>
+    <tr>
+      <th colspan="5" class="title">Activity analytics by activity date</th>
+    </tr>
+    <tr>
+      <th>
+        Activity Count
+      </th>
+      <th>
+        Indoor Steps
+      </th>
+      <th>
+        Outdoor Steps
+      </th>
+      <th>
+        User Count
+      </th>
+      <th>
+        Date
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let d of dashboard.activityByEventDate">
+      <td>
+        {{ d.activityCount }}
+      </td>
+      <td>
+        {{ d.indoorSteps }}
+      </td>
+      <td>
+        {{ d.outdoorSteps }}
       </td>
       <td>
         {{ d.userCount }}
