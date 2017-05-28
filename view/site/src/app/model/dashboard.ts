@@ -3,6 +3,7 @@ export class Dashboard {
   signup: DashboardSignup[];
   totalActivityCount: number;
   activity: DashboardActivity[];
+  activityByEventDate: DashboardActivity[];
 }
 
 class DashboardSignup {
@@ -12,5 +13,7 @@ class DashboardSignup {
 class DashboardActivity {
   activityCount: number;
   userCount: number;
+  indoorActivity: number;
+  outdoorActivity: number;
   date: string;
 }

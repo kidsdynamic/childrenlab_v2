@@ -107,6 +107,7 @@ func main() {
 			EmailServer:       c.String("email_server"),
 			EmailPort:         c.Int("email_port"),
 			ErrorLogEmail:     c.String("error_log_email"),
+			Debug: c.Bool("debug"),
 		}
 
 		global.SuperAdminToken = c.String("super_admin_token")

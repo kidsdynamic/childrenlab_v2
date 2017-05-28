@@ -10,6 +10,8 @@ type ActivityRawData struct {
 	MacID          string    `json:"macId" binding:"required"`
 	TimeZoneOffset int64     `json:"timeZoneOffset"`
 	UserID         int64     `json:"userId"`
+	IndoorSteps    int64     `json:"indoorSteps" gorm:"default:NULL"`
+	OutdoorSteps   int64     `json:"outdoorSteps"`
 	DateCreated    time.Time `json:"dateCreated"`
 	LastUpdated    time.Time `json:"lastUpdated"`
 }

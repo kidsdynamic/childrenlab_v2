@@ -8,6 +8,10 @@ import (
 
 	"log"
 
+	"strings"
+
+	"strconv"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/kidsdynamic/childrenlab_v2/model"
@@ -24,6 +28,7 @@ func NewGORM() *gorm.DB {
 	}
 
 	db.LogMode(true)
+
 	db.SingularTable(true)
 	return db
 }
@@ -78,6 +83,27 @@ func InitDatabase() {
 	}
 	if err := db.Where("authority = ?", model.ROLE_USER).First(&userRole).Error; err != nil {
 		panic(err)
+	}
+
+	//initial activity raw steps
+	var activityRaw []model.ActivityRawData
+	if err := db.Where("indoor_steps is null OR outdoor_steps is null").Find(&activityRaw).Error; err != nil {
+		panic(err)
+	}
+	for _, activity := range activityRaw {
+		indoorData := strings.Split(activity.Indoor, ",")
+		outdoorData := strings.Split(activity.Outdoor, ",")
+		indoor, err := strconv.ParseInt(indoorData[2], 10, 64)
+		if err != nil {
+			panic(err)
+		}
+		outdoor, err := strconv.ParseInt(outdoorData[2], 10, 64)
+		if err != nil {
+			panic(err)
+		}
+		activity.IndoorSteps = indoor
+		activity.OutdoorSteps = outdoor
+		db.Save(activity)
 	}
 }
 

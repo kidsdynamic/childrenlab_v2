@@ -99,6 +99,8 @@ func UploadRawActivityData(c *gin.Context) {
 
 	request.DateCreated = GetNowTime()
 	request.LastUpdated = GetNowTime()
+	request.IndoorSteps = indoorActivity.Steps
+	request.OutdoorSteps = outdoorActivity.Steps
 	request.UserID = user.ID
 	if err := db.Create(&request).Error; err != nil {
 		logError(errors.Wrap(err, "Error on inserting raw activity."))

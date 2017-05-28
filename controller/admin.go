@@ -169,7 +169,7 @@ func Dashboard(c *gin.Context) {
 
 	var signupCounts []model.SignupCountByDate
 	if rows, err := db.Raw("select count(*) as signup, DATE_FORMAT(DATE(date_created), '%Y/%m/%d') as date from user u JOIN role r ON u.role_id = r.id where date_created != 0000-00-00" +
-		" and r.`authority` = 'ROLE_USER' group by date order by date desc LIMIT 20").Rows(); err != nil {
+		" and r.`authority` = 'ROLE_USER' AND date_created >= '2017-04-24' group by date order by date desc LIMIT 20").Rows(); err != nil {
 		if err != nil {
 			logError(errors.Wrap(err, "Error on retrieve signup dashboard from Admin"))
 		}
@@ -184,13 +184,14 @@ func Dashboard(c *gin.Context) {
 	dashboard.Signup = signupCounts
 
 	var activityCount []model.ActivityCountByDate
-	if rows, err := db.Raw("select count(*), DATE_FORMAT(DATE(date_created), '%Y/%m/%d') as date, count(DISTINCT(user_id)) as userCount from activity_raw group by date order by date desc LIMIT 20").Rows(); err != nil {
+	if rows, err := db.Raw("select count(*), DATE_FORMAT(DATE(date_created), '%Y/%m/%d') as date, count(DISTINCT(user_id)) as userCount, sum(indoor_steps), sum(outdoor_steps) " +
+		"from activity_raw group by date order by date desc LIMIT 20").Rows(); err != nil {
 		logError(errors.Wrap(err, "Error on retrieve activity dashboard from Admin"))
 	} else {
 		defer rows.Close()
 		for rows.Next() {
 			var activity model.ActivityCountByDate
-			rows.Scan(&activity.ActivityCount, &activity.Date, &activity.UserCount)
+			rows.Scan(&activity.ActivityCount, &activity.Date, &activity.UserCount, &activity.IndoorSteps, &activity.OutdoorSteps)
 			activityCount = append(activityCount, activity)
 		}
 	}
@@ -204,6 +205,21 @@ func Dashboard(c *gin.Context) {
 	}
 
 	dashboard.Activity = activityCount
+
+	// Activity count depend on activity (event) date - https://app.asana.com/0/33043844747220/349867637183239
+	var activityCountOnEventDate []model.ActivityCountByDate
+	if rows, err := db.Raw("select count(*), DATE_FORMAT(FROM_UNIXTIME(time), '%Y/%m/%d') as date, count(DISTINCT(user_id)) as userCount, sum(indoor_steps), sum(outdoor_steps) " +
+		"from activity_raw group by date order by date desc LIMIT 20").Rows(); err != nil {
+		logError(errors.Wrap(err, "Error on retrieve activity dashboard from Admin"))
+	} else {
+		defer rows.Close()
+		for rows.Next() {
+			var activity model.ActivityCountByDate
+			rows.Scan(&activity.ActivityCount, &activity.Date, &activity.UserCount, &activity.IndoorSteps, &activity.OutdoorSteps)
+			activityCountOnEventDate = append(activityCountOnEventDate, activity)
+		}
+	}
+	dashboard.ActivityByEventDate = activityCountOnEventDate
 
 	c.JSON(http.StatusOK, dashboard)
 }
