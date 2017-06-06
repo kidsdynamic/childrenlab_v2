@@ -18,6 +18,10 @@ import (
 
 	"github.com/pkg/errors"
 
+	"encoding/json"
+
+	"io/ioutil"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/kidsdynamic/childrenlab_v2/constants"
@@ -237,6 +241,41 @@ func logError(err error) {
 		body = strings.Replace(body, "\n", "<br/>", -1)
 		sendMail(emailUser, ServerConfig.ErrorLogEmail, fmt.Sprintf("Server Error: %s", ServerConfig.BaseURL), body)
 	}
+
+}
+
+type IPResp struct {
+	Status      string
+	Country     string
+	CountryCode string
+	Region      string
+	regionName  string
+	City        string
+	Zip         string
+	TimeZone    string
+}
+
+func getDetailFromIP(ip string) *IPResp {
+	response, err := http.Get("http://ip-api.com/json/" + ip)
+	if err != nil {
+		return nil
+	}
+
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		logError(errors.Wrap(err, "Error on reading IP API response body"))
+		return nil
+
+	}
+	var ipRes *IPResp
+	if err := json.Unmarshal(body, &ipRes); err != nil {
+		logError(err)
+		return nil
+	}
+
+	return ipRes
 
 }
 

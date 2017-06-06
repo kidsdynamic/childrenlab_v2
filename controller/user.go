@@ -124,6 +124,12 @@ func Register(c *gin.Context) {
 	user.ZipCode = userRequest.ZipCode
 	user.Language = userRequest.Language
 
+	ipDetail := getDetailFromIP(c.ClientIP())
+	if ipDetail != nil {
+		user.SignUpCountryCode = ipDetail.CountryCode
+		user.SignUpIP = c.ClientIP()
+	}
+
 	if err := db.Create(&user).Error; err != nil {
 		logError(errors.Wrapf(err, "Error on creating user: %#v", user))
 		c.JSON(http.StatusBadRequest, gin.H{
