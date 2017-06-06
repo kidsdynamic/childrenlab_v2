@@ -124,13 +124,8 @@ func Register(c *gin.Context) {
 	user.ZipCode = userRequest.ZipCode
 	user.Language = userRequest.Language
 
-	fmt.Println(c.Request.Header.Get("X-Real-IP"))
-	fmt.Println(c.Request.Header.Get("X-Forwarded-For"))
-	fmt.Println(c.Request.Header.Get("X-Forwarded-Proto"))
-	fmt.Printf("\n%#v\n", c.Request.Header)
-
 	ipDetail := getDetailFromIP(c.ClientIP())
-	if ipDetail != nil {
+	if ipDetail != nil && ipDetail.Country != "" {
 		user.SignUpCountryCode = ipDetail.CountryCode
 		user.SignUpIP = c.ClientIP()
 	}
