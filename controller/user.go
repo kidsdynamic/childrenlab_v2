@@ -127,6 +127,7 @@ func Register(c *gin.Context) {
 	fmt.Println(c.Request.Header.Get("X-Real-IP"))
 	fmt.Println(c.Request.Header.Get("X-Forwarded-For"))
 	fmt.Println(c.Request.Header.Get("X-Forwarded-Proto"))
+	fmt.Printf("\n%#v\n", c.Request.Header)
 
 	ipDetail := getDetailFromIP(c.ClientIP())
 	if ipDetail != nil {
