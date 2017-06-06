@@ -56,6 +56,8 @@ type User struct {
 	Role                     Role      `json:"-"`
 	RoleID                   int64     `json:"-"`
 	ResetPasswordToken       string    `json:"-"`
+	SignUpIP                 string    `json:"-"`
+	SignUpCountryCode        string    `json:"-"`
 }
 
 type Role struct {
