@@ -11,5 +11,6 @@ export class User {
   ios_registration_id: string;
   android_registration_id: string;
   role: string;
+  country: string;
   dateCreated: string;
 }
