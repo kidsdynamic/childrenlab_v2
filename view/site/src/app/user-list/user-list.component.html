@@ -24,6 +24,9 @@
       Android ID
     </th>
     <th>
+      Country
+    </th>
+    <th>
       Sign-up Date
     </th>
   </tr>
@@ -47,6 +50,9 @@
     </td>
     <td>
       {{ user.android_registration_id.substring(0, 5) }}
+    </td>
+    <td>
+      {{ user.country }}
     </td>
     <td>
       {{ user.dateCreated }}

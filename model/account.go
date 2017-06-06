@@ -57,7 +57,7 @@ type User struct {
 	RoleID                   int64     `json:"-"`
 	ResetPasswordToken       string    `json:"-"`
 	SignUpIP                 string    `json:"-"`
-	SignUpCountryCode        string    `json:"-"`
+	SignUpCountryCode        string    `json:"country"`
 }
 
 type Role struct {
