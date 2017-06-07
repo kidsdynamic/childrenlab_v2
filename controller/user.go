@@ -57,6 +57,14 @@ func Login(c *gin.Context) {
 		"access_token": accessToken.Token,
 	})
 
+	if user.SignUpIP == "" {
+		ipDetail := getDetailFromIP(c.ClientIP())
+		if ipDetail != nil && ipDetail.Country != "" {
+			user.SignUpCountryCode = ipDetail.CountryCode
+			user.SignUpIP = c.ClientIP()
+		}
+	}
+
 	LogUserActivity(db, &user, "Logged in", nil)
 }
 
