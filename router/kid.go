@@ -13,4 +13,5 @@ func initKidRouter(r *gin.Engine) {
 	kidsAPI.DELETE("/delete", controller.DeleteKid)
 	kidsAPI.GET("/list", controller.GetKidList)
 	kidsAPI.GET("/whoRegisteredMacID", controller.WhoRegisteredMacID)
+	kidsAPI.POST("/batteryStatus", controller.UpdateBatteryStatus)
 }

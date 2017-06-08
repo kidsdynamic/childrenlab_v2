@@ -45,6 +45,7 @@ func InitDatabase() {
 		&model.ActivityRawData{},
 		&model.Activity{},
 		&model.LogUserAction{},
+		&model.BatteryStatus{},
 	)
 
 	if err := db.Exec("CREATE TABLE `sub_host_kid` (`sub_host_id` bigint,`kid_id` bigint, PRIMARY KEY (`sub_host_id`,`kid_id`))").Error; err != nil {
