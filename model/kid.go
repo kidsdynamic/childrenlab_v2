@@ -33,8 +33,18 @@ type UpdateKidRequest struct {
 	Name string `json:"name"`
 }
 
+type BatteryStatus struct {
+	MacID        string `json:"macId" binding:"required"`
+	BatteryLife  int64  `json:"batteryLife" binding:"required"`
+	DateReceived int64  `json:"dateReceived" binding:"required"`
+}
+
 func (Kid) TableName() string {
 	return "kids"
+}
+
+func (BatteryStatus) TableName() string {
+	return "battery_status"
 }
 
 func (Device) TableName() string {

@@ -217,3 +217,29 @@ func WhoRegisteredMacID(c *gin.Context) {
 		"kid": kid,
 	})
 }
+
+func UpdateBatteryStatus(c *gin.Context) {
+	var batteryStatus model.BatteryStatus
+
+	if err := c.BindJSON(&batteryStatus); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Bad Reqeust",
+			"error":   err,
+		})
+		return
+	}
+
+	db := database.NewGORM()
+	defer db.Close()
+
+	if err := db.Save(&batteryStatus).Error; err != nil {
+		logError(errors.Wrapf(err, "Error when insert battery status: %#v", batteryStatus))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Error when insert battery data",
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{})
+}

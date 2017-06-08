@@ -18,6 +18,7 @@
 * [GET    /v1/kids/list          ](#v1kidslist---get)
 * [GET    /v1/kids/whoRegisteredMacID          ](#v1kidswhoregisteredmacid---get)
 * [DELETE    /v1/kids/delete          ](#v1kidsdelete---delete)
+* [POST   /v1/kids/batterystatus             ](#v1kidsbatterystatus---post)
 
 ### Avatar
 * [POST   /v1/user/avatar/upload   ](#v1useravatarupload---post)
@@ -689,6 +690,41 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: pej57nakctvf7g
     }
   }
 }
+```
+
+## /v1/kids/batteryStatus - POST
+* Upload device battery life
+* Content-Type: application/json
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| -----:|
+| batteryLife     | Yes | Int | 95   |
+| macId      | Yes | string | 8D071FCFE5E0 |
+| dateReceived      | Yes | Long | 1487290224 (Unix time) |
+
+### curl Example
+```
+curl -X POST \
+  http://localhost:8111/v1/kids/batteryStatus \
+  -H 'x-auth-token: 421d691c595e5b4321f33facc037b956' \
+  -d '{
+  "macId": "test123",
+  "batteryLife": 98,
+  "DateReceived": 14442523
+}'
+```
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Data added successfully |
+| 400     | Bad request. Missing some parameters |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+* Success - return empty JSON
+```
+{}
 ```
 
 ## /v1/activity/uploadRawData - POST
