@@ -18,7 +18,7 @@
 * [GET    /v1/kids/list          ](#v1kidslist---get)
 * [GET    /v1/kids/whoRegisteredMacID          ](#v1kidswhoregisteredmacid---get)
 * [DELETE    /v1/kids/delete          ](#v1kidsdelete---delete)
-* [POST   /v1/kids/batterystatus             ](#v1kidsbatterystatus---post)
+* [POST   /v1/kids/batteryStatus             ](#v1kidsbatterystatus---post)
 
 ### Avatar
 * [POST   /v1/user/avatar/upload   ](#v1useravatarupload---post)
