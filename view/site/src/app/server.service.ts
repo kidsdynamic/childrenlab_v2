@@ -20,13 +20,14 @@ export class ServerService {
   ACTIVITY_LIST_API = '/admin/activityList';
   ACTIVITY_RAW_LIST_API = '/admin/activityRawList';
   DASHBOARD_API='/admin/dashboard';
+  DELETE_MAC_ID='/admin/deleteMacID';
 
   @LocalStorage() public token: AdminToken;
 
   constructor(private http: Http) { }
 
   login(userName: string, password: string): Promise<AdminToken> {
-    let loginJson = {
+    const loginJson = {
       name: userName,
       password: password
     };
@@ -38,7 +39,7 @@ export class ServerService {
   }
 
   getUserList(): Promise<User[]> {
-    let options = this.addTokenHeader();
+    const options = this.addTokenHeader();
     return this.http.get(`${environment.BaseURL + this.USER_LIST_API}`, options)
       .toPromise()
       .then(response => response.json() as User[])
@@ -46,7 +47,7 @@ export class ServerService {
   }
 
   getKidList(): Promise<Kid[]> {
-    let options = this.addTokenHeader();
+    const options = this.addTokenHeader();
     return this.http.get(`${environment.BaseURL + this.KID_LIST_API}`, options)
       .toPromise()
       .then(response => response.json() as Kid[])
@@ -54,7 +55,7 @@ export class ServerService {
   }
 
   getActivityListByKidId(kidId: number): Promise<Activity[]> {
-    let options = this.addTokenHeader();
+    const options = this.addTokenHeader();
     return this.http.get(`${environment.BaseURL + this.ACTIVITY_LIST_API}/${kidId}`, options)
       .toPromise()
       .then(response => response.json() as Activity[])
@@ -62,7 +63,7 @@ export class ServerService {
   }
 
   getActivityRawListByKidId(kidId: number): Promise<ActivityRaw[]> {
-    let options = this.addTokenHeader();
+    const options = this.addTokenHeader();
     return this.http.get(`${environment.BaseURL + this.ACTIVITY_RAW_LIST_API}/${kidId}`, options)
       .toPromise()
       .then(response => response.json() as ActivityRaw[])
@@ -70,7 +71,7 @@ export class ServerService {
   }
 
   getDashboardData(): Promise<Dashboard> {
-    let options = this.addTokenHeader();
+    const options = this.addTokenHeader();
     return this.http.get(`${environment.BaseURL + this.DASHBOARD_API}`, options)
       .toPromise()
       .then(response => response.json() as Dashboard)
@@ -78,21 +79,30 @@ export class ServerService {
   }
 
   tokenValidation(): Promise<any> {
-    if(this.token == null) {
-      return Promise.reject("Invalid token");
+    if (this.token == null) {
+      return Promise.reject('Invalid token');
     }
-    return this.http.get(environment.BaseURL + this.TOKEN_VALIDATION_API + "?email=" + this.token.username + "&token=" + this.token.access_token)
+    return this.http.get(environment.BaseURL + this.TOKEN_VALIDATION_API + '?email=' +
+      this.token.username + '&token=' + this.token.access_token)
       .toPromise()
       .then();
 
   }
 
+  deleteMacId(macId:string): Promise<any> {
+    const options = this.addTokenHeader();
+    return this.http.delete(`${environment.BaseURL + this.DELETE_MAC_ID}?macId=${macId}`, options)
+      .toPromise()
+      .then(response => response.json())
+      .catch(this.handleError)
+  }
+
   private addTokenHeader(): RequestOptions{
-    let headers = new Headers({
+    const headers = new Headers({
       'x-auth-token': this.token.access_token,
       'Content-Type': 'application/json'
     });
-    let options = new RequestOptions({ headers: headers });
+    const options = new RequestOptions({ headers: headers });
     return options;
   }
 
@@ -100,6 +110,7 @@ export class ServerService {
     console.error('Error: ', error);
     return Promise.reject(error.message || error);
   }
+  
 
 
 }

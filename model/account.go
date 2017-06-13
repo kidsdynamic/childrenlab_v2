@@ -67,6 +67,7 @@ type Role struct {
 
 var ROLE_ADMIN string = "ROLE_ADMIN"
 var ROLE_USER string = "ROLE_USER"
+var ROLE_SUPER_ADMIN string = "ROLE_SUPER_ADMIN"
 
 type RegisterRequest struct {
 	Email       string `json:"email" db:"email" binding:"required"`

@@ -19,7 +19,7 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private serverService: ServerService,
-    private localSt:LocalStorageService,
+    private localSt: LocalStorageService,
     private router: Router) {}
 
   ngOnInit() {

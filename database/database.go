@@ -69,6 +69,9 @@ func InitDatabase() {
 			{
 				Authority: "ROLE_USER",
 			},
+			{
+				Authority: "ROLE_SUPER_ADMIN",
+			},
 		}
 
 		for _, role := range roles {

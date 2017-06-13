@@ -94,7 +94,7 @@ func AdminAuth(c *gin.Context) {
 
 	var user model.User
 
-	err := db.Table("user").Joins("JOIN authentication_token a ON user.email = a.email").Joins("JOIN role ON user.role_id = role.id").Where("a.token = ? and authority = ?", authToken, model.ROLE_ADMIN).Find(&user).Error
+	err := db.Table("user").Joins("JOIN authentication_token a ON user.email = a.email").Joins("JOIN role ON user.role_id = role.id").Where("a.token = ? and (authority = ? or authority = ?)", authToken, model.ROLE_ADMIN, model.ROLE_SUPER_ADMIN).Find(&user).Error
 
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{})
