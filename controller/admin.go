@@ -24,7 +24,8 @@ func AdminLogin(c *gin.Context) {
 
 	adminLogin.Password = database.EncryptPassword(adminLogin.Password)
 
-	db.Table("user").Joins("JOIN role ON user.role_id = role.id").Where("email = ? AND password = ? and authority = ?", adminLogin.Name, adminLogin.Password, model.ROLE_ADMIN).First(&admin)
+	db.Table("user").Joins("JOIN role ON user.role_id = role.id").Where("email = ? AND password = ? and "+
+		"(authority = ? or authority = ?)", adminLogin.Name, adminLogin.Password, model.ROLE_ADMIN, model.ROLE_SUPER_ADMIN).Preload("Role").First(&admin)
 
 	if admin.ID == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{})
@@ -49,6 +50,7 @@ func AdminLogin(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"username":     accessToken.Email,
+		"role":         admin.Role.Authority,
 		"access_token": accessToken.Token,
 	})
 }
@@ -222,4 +224,19 @@ func Dashboard(c *gin.Context) {
 	dashboard.ActivityByEventDate = activityCountOnEventDate
 
 	c.JSON(http.StatusOK, dashboard)
+}
+
+func DeleteMacID(c *gin.Context) {
+	macID := c.Query("macId")
+
+	db := database.NewGORM()
+	if err := db.Where("mac_id = ?", macID).Delete(&model.Kid{}).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on deleting kid. Mac ID: %s", macID))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Something wrong when deleting kid from database",
+			"error":   err,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{})
 }

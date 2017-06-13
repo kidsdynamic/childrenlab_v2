@@ -5,4 +5,5 @@
 export class AdminToken {
   username: string;
   access_token: string;
+  role: string;
 }

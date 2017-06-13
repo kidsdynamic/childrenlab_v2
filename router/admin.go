@@ -18,4 +18,5 @@ func initAdminRouter(r *gin.Engine) {
 	adminAuthAPI.GET("/activityList/:kidId", controller.GetActivityListForAdmin)
 	adminAuthAPI.GET("/activityRawList/:macId", controller.GetActivityRawForAdmin)
 	adminAuthAPI.GET("/dashboard", controller.Dashboard)
+	adminAuthAPI.DELETE("/deleteMacID", controller.DeleteMacID)
 }

@@ -26,10 +26,13 @@
             <th>
                 Date Created
             </th>
+            <th *ngIf="token.role == 'ROLE_SUPER_ADMIN'">
+                Option
+            </th>
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let kid of kidList">
+        <tr *ngFor="let kid of kidList; let i = index">
             <td>
                 {{ kid.id }}
             </td>
@@ -51,6 +54,9 @@
             </td>
             <td>
                 {{ kid.dateCreated }}
+            </td>
+            <td *ngIf="token.role == 'ROLE_SUPER_ADMIN'">
+                <button md-button (click)="delete(kid.macId, i)" color="warn">Delete</button>
             </td>
 
         </tr>
