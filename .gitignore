@@ -42,3 +42,4 @@ Childrenlab
 gin-bin
 /view/node_modules
 /view/site/node_modules/
+/build
