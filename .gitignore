@@ -40,6 +40,6 @@ Childrenlab
 .ssh/childrenlab.com.key
 
 gin-bin
-/view/node_modules
-/view/site/node_modules/
-/build
+/view/site/node_modules
+/app/build
+/app/vendor
