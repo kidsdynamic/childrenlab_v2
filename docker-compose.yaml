@@ -1,5 +1,5 @@
 childrenlab_v2:
-  build: .
+  build: ./app
   working_dir: /go/src/github.com/kidsdynamic/childrenlab_v2
   container_name: childrenlab
   command: "go run main.go"
