@@ -24,6 +24,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"github.com/kidsdynamic/childrenlab_v2/app/config"
 	"github.com/kidsdynamic/childrenlab_v2/app/constants"
 	"github.com/kidsdynamic/childrenlab_v2/app/database"
 	"github.com/kidsdynamic/childrenlab_v2/app/global"
@@ -33,18 +34,6 @@ import (
 const (
 	SignedUserKey = "SignedUser"
 )
-
-var ServerConfig ServerConfiguration
-
-type ServerConfiguration struct {
-	BaseURL           string
-	EmailAuthName     string
-	EmailAuthPassword string
-	EmailServer       string
-	EmailPort         int
-	ErrorLogEmail     string
-	Debug             bool
-}
 
 func randToken() string {
 	b := make([]byte, 8)
@@ -230,16 +219,16 @@ func LogUserActivity(db *gorm.DB, user *model.User, action string, macID *string
 func logError(err error) {
 	log.Printf("Error occur: \n%+v", err)
 
-	if ServerConfig.Debug != true {
+	if config.ServerConfig.Debug != true {
 		emailUser := &EmailUser{
-			Username:    ServerConfig.EmailAuthName,
-			Password:    ServerConfig.EmailAuthPassword,
-			EmailServer: ServerConfig.EmailServer,
-			Port:        ServerConfig.EmailPort,
+			Username:    config.ServerConfig.EmailAuthName,
+			Password:    config.ServerConfig.EmailAuthPassword,
+			EmailServer: config.ServerConfig.EmailServer,
+			Port:        config.ServerConfig.EmailPort,
 		}
 		body := fmt.Sprintf("%+v", err)
 		body = strings.Replace(body, "\n", "<br/>", -1)
-		sendMail(emailUser, ServerConfig.ErrorLogEmail, fmt.Sprintf("Server Error: %s", ServerConfig.BaseURL), body)
+		sendMail(emailUser, config.ServerConfig.ErrorLogEmail, fmt.Sprintf("Server Error: %s", config.ServerConfig.BaseURL), body)
 	}
 
 }

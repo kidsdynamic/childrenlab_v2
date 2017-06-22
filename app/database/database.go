@@ -14,6 +14,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/kidsdynamic/childrenlab_v2/app/config"
 	"github.com/kidsdynamic/childrenlab_v2/app/model"
 )
 
@@ -27,7 +28,9 @@ func NewGORM() *gorm.DB {
 		panic(err)
 	}
 
-	db.LogMode(true)
+	if !config.ServerConfig.Debug {
+		db.LogMode(true)
+	}
 
 	db.SingularTable(true)
 	return db

@@ -7,7 +7,7 @@ import (
 	"github.com/kidsdynamic/childrenlab_v2/app/model"
 	"github.com/kidsdynamic/childrenlab_v2/app/router"
 
-	"github.com/kidsdynamic/childrenlab_v2/app/controller"
+	"github.com/kidsdynamic/childrenlab_v2/app/config"
 	"github.com/kidsdynamic/childrenlab_v2/app/database"
 	"github.com/kidsdynamic/childrenlab_v2/app/global"
 	"github.com/urfave/cli"
@@ -100,7 +100,7 @@ func main() {
 			IP:       c.String("database_IP"),
 		}
 
-		controller.ServerConfig = controller.ServerConfiguration{
+		config.ServerConfig = config.ServerConfiguration{
 			BaseURL:           c.String("base_url"),
 			EmailAuthName:     c.String("email_auth_name"),
 			EmailAuthPassword: c.String("email_auth_password"),
