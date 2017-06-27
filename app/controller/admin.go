@@ -240,3 +240,21 @@ func DeleteMacID(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{})
 }
+
+func GetFwFileList(c *gin.Context) {
+	db := database.NewGORM()
+	defer db.Close()
+
+	var fwFiles []model.FwFile
+	if err := db.Order("id desc").Limit(50).Find(&fwFiles).Error; err != nil {
+		logError(errors.Wrap(err, "Error on retrieve FW list"))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Something wrong when retrieve FW list from database",
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, fwFiles)
+
+}

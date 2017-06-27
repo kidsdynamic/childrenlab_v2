@@ -4,5 +4,6 @@
 
 export const environment = {
   production: true,
-  BaseURL: "http://dev.childrenlab.com"
+  BaseURL: 'http://dev.childrenlab.com',
+  S3BaseURL: 'https://childrenlabqa.s3.amazonaws.com'
 };

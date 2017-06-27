@@ -1,0 +1,55 @@
+<div class="fileUploader">
+  <div class="file_input_div">
+    <div class="file_input">
+      <label class="image_input_button mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-js-ripple-effect mdl-button--colored">
+        <button id="upload_button" md-mini-fab><i class="material-icons">insert_drive_file</i></button>
+        <input id="file_input_file" class="none" type="file" />
+      </label>
+    </div>
+    <md-input-container class="file_input_container">
+      <input id="file_input_text" mdInput placeholder="File Name" disabled />
+    </md-input-container>
+  </div>
+  <md-input-container  class="fwVersionNameContainer">
+    <input id="fw_version_name" mdInput placeholder="FW Version Name" >
+  </md-input-container>
+  <button [disabled]="uploading" id="submit_button" md-raised-button><i class="material-icons">file_upload</i></button>
+</div>
+
+<div class="fwList">
+  <table class="table">
+    <thead>
+    <tr>
+      <th>
+        ID
+      </th>
+      <th>
+        Version
+      </th>
+      <th>
+        Link
+      </th>
+      <th>
+        Uploaded Date
+      </th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr *ngFor="let file of fwList">
+      <td>
+        {{file.id}}
+      </td>
+      <td>
+        {{file.version}}
+      </td>
+      <td>
+        <a href="{{env.S3BaseURL + '/' + file.fileUrl}}" target="_blank">{{file.version}}</a>
+      </td>
+      <td>
+        {{file.uploadedDate}}
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>

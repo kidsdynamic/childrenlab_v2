@@ -15,6 +15,7 @@ import { KidListComponent } from './kid-list/kid-list.component';
 import { ActivityComponent } from './activity/activity.component';
 import { ActivityRawComponent } from './activity-raw/activity-raw.component';
 import { DashboardMainComponent } from './dashboard-main/dashboard-main.component';
+import { FWComponent } from './fw/fw.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { DashboardMainComponent } from './dashboard-main/dashboard-main.componen
     KidListComponent,
     ActivityComponent,
     ActivityRawComponent,
-    DashboardMainComponent
+    DashboardMainComponent,
+    FWComponent
   ],
   imports: [
     BrowserModule,
