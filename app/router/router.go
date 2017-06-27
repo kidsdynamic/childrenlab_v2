@@ -28,7 +28,7 @@ func New() *gin.Engine {
 	r.Static("/server/assets", fmt.Sprintf("%s/view/assets", rootPath))
 
 	initAdminRouter(r)
-
+	initFWRouter(r)
 	initUserRouter(r)
 	initKidRouter(r)
 	initActivityRouter(r)

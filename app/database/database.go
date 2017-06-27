@@ -14,6 +14,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/kidsdynamic/childrenlab_v2/app/config"
 	"github.com/kidsdynamic/childrenlab_v2/app/model"
 )
 
@@ -27,7 +28,9 @@ func NewGORM() *gorm.DB {
 		panic(err)
 	}
 
-	db.LogMode(true)
+	if !config.ServerConfig.Debug {
+		db.LogMode(true)
+	}
 
 	db.SingularTable(true)
 	return db
@@ -46,6 +49,7 @@ func InitDatabase() {
 		&model.Activity{},
 		&model.LogUserAction{},
 		&model.BatteryStatus{},
+		&model.FwFile{},
 	)
 
 	if err := db.Exec("CREATE TABLE `sub_host_kid` (`sub_host_id` bigint,`kid_id` bigint, PRIMARY KEY (`sub_host_id`,`kid_id`))").Error; err != nil {

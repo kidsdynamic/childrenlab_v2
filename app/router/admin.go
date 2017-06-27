@@ -19,4 +19,5 @@ func initAdminRouter(r *gin.Engine) {
 	adminAuthAPI.GET("/activityRawList/:macId", controller.GetActivityRawForAdmin)
 	adminAuthAPI.GET("/dashboard", controller.Dashboard)
 	adminAuthAPI.DELETE("/deleteMacID", controller.DeleteMacID)
+	adminAuthAPI.GET("/fwList", controller.GetFwFileList)
 }

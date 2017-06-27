@@ -48,6 +48,9 @@
 * [PUT   /v1/subHost/removeKid](#v1subhostremovekid---put)
 * [DELETE   /v1/subHost/delete](#v1subhostdelete---delete)
 
+### Firmware version
+* [GET /v1/fw/currentVersion](#v1fwcurrentVersion---get)
+
 ## /v1/user/login - POST
 * Content-Type: application/json
 
@@ -1686,4 +1689,32 @@ curl --request DELETE \
 * Success - Delete completed, and return sub host info
 ```
 {}
+```
+
+## /v1/fw/currentVersion - GET
+* Retrieve current Firmware version
+* The file is on Amazon S3
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Retrieve successfully |
+| 400     | Bad request. The token is invalid |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X GET \
+  http://localhost:8110/v1/fw/currentVersion \
+  -H 'x-auth-token: 04b62b70c8464bafb84d2de2464024a2'
+```
+* Success - with kids data
+```
+{
+    "id": 4,
+    "version": "Test1",
+    "fileName": "Presentation1.pptx",
+    "fileUrl": "fw_version/Test1.hex",
+    "uploadedDate": "2017-06-27T11:24:41Z"
+}
 ```

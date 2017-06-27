@@ -26,18 +26,4 @@ export class DashboardMainComponent implements OnInit {
       });
   }
 
-  setupChart(){
-    let data = [];
-    for(let s of this.dashboard.signup) {
-      data.push(s.signupCount);
-    }
-    console.error(data);
-    this.options = {
-      title: { text: 'Sign up'},
-      series: [
-        data
-      ]
-    }
-  }
-
 }

@@ -5,5 +5,6 @@
 
 export const environment = {
   production: false,
-  BaseURL: "http://localhost:8110"
+  BaseURL: 'http://localhost:8110',
+  S3BaseURL: 'https://childrenlabqa.s3.amazonaws.com'
 };

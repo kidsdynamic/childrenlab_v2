@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"github.com/kidsdynamic/childrenlab_v2/app/config"
 	"github.com/kidsdynamic/childrenlab_v2/app/database"
 	"github.com/kidsdynamic/childrenlab_v2/app/model"
 )
@@ -407,10 +408,10 @@ func SendResetPasswordEmail(c *gin.Context) {
 	}
 
 	emailUser := &EmailUser{
-		Username:    ServerConfig.EmailAuthName,
-		Password:    ServerConfig.EmailAuthPassword,
-		EmailServer: ServerConfig.EmailServer,
-		Port:        ServerConfig.EmailPort,
+		Username:    config.ServerConfig.EmailAuthName,
+		Password:    config.ServerConfig.EmailAuthPassword,
+		EmailServer: config.ServerConfig.EmailServer,
+		Port:        config.ServerConfig.EmailPort,
 	}
 
 	htmlBody := `
@@ -445,7 +446,7 @@ func SendResetPasswordEmail(c *gin.Context) {
 		</body>
 		</html>
 	`
-	resetPasswordURL := fmt.Sprintf("%s/v1/user/resetPasswordPage?token=%s&email=%s", ServerConfig.BaseURL, token, user.Email)
+	resetPasswordURL := fmt.Sprintf("%s/v1/user/resetPasswordPage?token=%s&email=%s", config.ServerConfig.BaseURL, token, user.Email)
 	emailBody := fmt.Sprintf(htmlBody, user.FirstName, user.LastName, resetPasswordURL)
 
 	if err := sendMail(emailUser, user.Email, "Reset your Swing password", emailBody); err != nil {
