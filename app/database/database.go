@@ -28,7 +28,7 @@ func NewGORM() *gorm.DB {
 		panic(err)
 	}
 
-	if !config.ServerConfig.Debug {
+	if config.ServerConfig.Debug {
 		db.LogMode(true)
 	}
 
