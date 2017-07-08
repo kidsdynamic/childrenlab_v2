@@ -30,15 +30,15 @@ export class KidListComponent implements OnInit {
       });
   }
 
-  delete(macId:string, id:number) {
+  delete(macId: string, id: number) {
     swal({
-        title: "Are you sure?",
+        title: 'Are you sure?',
         text: `The Mac ID( ${macId} ) will be deleted forever!`,
-        type: "warning",
+        type: 'warning',
         showCancelButton: true,
-        confirmButtonColor: "#AEDEF4",
-        confirmButtonText: "Yes, delete it!",
-        cancelButtonText: "No!",
+        confirmButtonColor: '#AEDEF4',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No!',
         showLoaderOnConfirm: true,
         closeOnConfirm: false,
         closeOnCancel: true
@@ -46,20 +46,19 @@ export class KidListComponent implements OnInit {
       (isConfirm) => {
         if (isConfirm) {
           this.deleteKidFromServer(macId, id);
-          
         }
       });
   }
 
-  deleteKidFromServer(macId:string, id:number) {
+  deleteKidFromServer(macId: string, id: number) {
     this.serverService.deleteMacId(macId)
       .then(() => {
         this.kidList.splice(id, 1);
-        swal("Deleted!", "The MAC ID has been deleted.", "success");
+        swal('Deleted!', 'The MAC ID has been deleted.', 'success');
       })
       .catch(error => {
-        swal("Deleted!", "Can't delete the Mac ID, please contact admin user.", "error");
-      })
+        swal('Deleted!', 'Can\'t delete the Mac ID, please contact admin user.', 'error');
+      });
   }
 
 }

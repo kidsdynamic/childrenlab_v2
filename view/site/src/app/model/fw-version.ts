@@ -2,6 +2,7 @@
 export class FWVersion {
   id: number;
   version: string;
-  fileUrl: string;
+  fileAUrl: string;
+  fileBUrl: string;
   uploadedDate: Date;
 }

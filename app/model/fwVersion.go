@@ -5,7 +5,7 @@ import "time"
 type FwFile struct {
 	ID           int64     `json:"id"`
 	Version      string    `json:"version"`
-	FileName     string    `json:"fileName"`
-	FileURL      string    `json:"fileUrl"`
+	FileAURL     string    `json:"fileAUrl"`
+	FileBURL     string    `json:"fileBUrl"`
 	UploadedDate time.Time `json:"uploadedDate"`
 }

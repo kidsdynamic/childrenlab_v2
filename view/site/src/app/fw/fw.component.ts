@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ServerService} from '../server.service';
 import {FWVersion} from '../model/fw-version';
 import {environment} from 'environments/environment';
+// import * as swal from 'sweetalert';
+import * as swal from 'sweetalert';
 
 @Component({
   selector: 'app-fw',
@@ -12,57 +14,80 @@ export class FWComponent implements OnInit {
 
   uploading = false;
   hasFile = false;
-  file: File;
+  fileA: File;
+  fileB: File;
   fwList: FWVersion[];
   env = environment;
+  showUploadSection = false;
 
-  constructor(private serverService: ServerService) { }
+  constructor(private serverService: ServerService) {
+  }
 
   ngOnInit() {
 
-    const fileInput = <HTMLInputElement>document.getElementById('file_input_file');
-  const fileInputText = <HTMLInputElement>document.getElementById('file_input_text');
-    const uploadButton = <HTMLButtonElement>document.getElementById('upload_button');
+    const fileInputA = <HTMLInputElement>document.getElementById('file_input_file_1');
+    const fileInputB = <HTMLInputElement>document.getElementById('file_input_file_2');
+    const fileInputTextA = <HTMLInputElement>document.getElementById('file_input_text_1');
+    const fileInputTextB = <HTMLInputElement>document.getElementById('file_input_text_2');
+    const uploadButtonA = <HTMLButtonElement>document.getElementById('upload_button_1');
+    const uploadButtonB = <HTMLButtonElement>document.getElementById('upload_button_2');
     const submitButton = <HTMLButtonElement>document.getElementById('submit_button');
     const versionInput = <HTMLButtonElement>document.getElementById('fw_version_name');
-    const fileInputContainer = document.getElementsByClassName('file_input_container')[0];
+    const fileInputContainer = document.getElementsByClassName('file_input_container');
 
-    uploadButton.addEventListener('click', () => {
-      fileInput.click();
+    uploadButtonA.addEventListener('click', () => {
+      fileInputA.click();
+    });
+
+    uploadButtonB.addEventListener('click', () => {
+      fileInputB.click();
     });
 
     submitButton.addEventListener('click', () => {
       this.uploading = true;
-      this.file = fileInput.files[0];
-      this.serverService.uploadFWFile(versionInput.value, this.file)
+      this.fileA = fileInputA.files[0];
+      this.fileB = fileInputB.files[0];
+      this.serverService.uploadFWFile(versionInput.value, this.fileA, this.fileB)
         .then(() => {
           this.updateFWList();
         });
     });
 
-    fileInput.addEventListener('change', changeInputText);
-
-    function changeInputText() {
+    fileInputA.addEventListener('change', () => {
       this.hasFile = true;
-      const str = fileInput.value;
+      const str = fileInputA.value;
       let i;
       if (str.lastIndexOf('\\')) {
         i = str.lastIndexOf('\\') + 1;
       } else if (str.lastIndexOf('/')) {
         i = str.lastIndexOf('/') + 1;
       }
-      fileInputText.value = str.slice(i, str.length);
-      fileInputText.classList.remove('none');
-      fileInputContainer.classList.add('with-text');
+      fileInputTextA.value = str.slice(i, str.length);
+      fileInputTextA.classList.remove('none');
+      fileInputContainer[0].classList.add('with-text');
+    });
+
+    fileInputB.addEventListener('change', () => {
+      this.hasFile = true;
+      const str = fileInputB.value;
+      let i;
+      if (str.lastIndexOf('\\')) {
+        i = str.lastIndexOf('\\') + 1;
+      } else if (str.lastIndexOf('/')) {
+        i = str.lastIndexOf('/') + 1;
+      }
+      fileInputTextB.value = str.slice(i, str.length);
+      fileInputTextB.classList.remove('none');
+      fileInputContainer[1].classList.add('with-text');
       versionInput.focus();
-    }
+    });
+
     this.updateFWList();
   }
 
   updateFWList() {
     this.serverService.getFWList()
       .then(fwList => {
-        console.error(fwList);
         this.fwList = fwList;
       })
       .catch(err => {
