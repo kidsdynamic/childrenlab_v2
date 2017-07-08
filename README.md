@@ -49,7 +49,7 @@
 * [DELETE   /v1/subHost/delete](#v1subhostdelete---delete)
 
 ### Firmware version
-* [GET /v1/fw/currentVersion](#v1fwcurrentVersion---get)
+* [GET /v1/fw/currentVersion](#v1fwcurrentversion---get)
 
 ## /v1/user/login - POST
 * Content-Type: application/json
@@ -1711,10 +1711,10 @@ curl -X GET \
 * Success - with kids data
 ```
 {
-    "id": 4,
-    "version": "Test1",
-    "fileName": "Presentation1.pptx",
-    "fileUrl": "fw_version/Test1.hex",
-    "uploadedDate": "2017-06-27T11:24:41Z"
+    "id": 2,
+    "version": "JAY_V2",
+    "fileAUrl": "fw_version/JAY_V2A.hex",
+    "fileBUrl": "fw_version/JAY_V2B.hex",
+    "uploadedDate": "2017-07-08T23:29:00Z"
 }
 ```
