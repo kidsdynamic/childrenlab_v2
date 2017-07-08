@@ -1,19 +1,36 @@
-<div class="fileUploader">
-  <div class="file_input_div">
-    <div class="file_input">
-      <label class="image_input_button mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-js-ripple-effect mdl-button--colored">
-        <button id="upload_button" md-mini-fab><i class="material-icons">insert_drive_file</i></button>
-        <input id="file_input_file" class="none" type="file" />
-      </label>
+<div class="showUploadButton" [hidden]="showUploadSection">
+  <button md-raised-button (click)="showUploadSection = true">Upload New Firmware Files</button>
+</div>
+<div [hidden]="!showUploadSection">
+  <div class="fileUploader">
+    <div class="file_input_div">
+      <div class="file_input">
+        <label class="image_input_button mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-js-ripple-effect mdl-button--colored">
+          <button id="upload_button_1" md-mini-fab>File A</button>
+          <input id="file_input_file_1" class="none" type="file" />
+        </label>
+      </div>
+      <md-input-container class="file_input_container">
+        <input id="file_input_text_1" mdInput placeholder="File Name" disabled />
+      </md-input-container>
     </div>
-    <md-input-container class="file_input_container">
-      <input id="file_input_text" mdInput placeholder="File Name" disabled />
+    <div class="file_input_div">
+      <div class="file_input">
+        <label class="image_input_button mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-js-ripple-effect mdl-button--colored">
+          <button id="upload_button_2" md-mini-fab>File B</button>
+          <input id="file_input_file_2" class="none" type="file" />
+        </label>
+      </div>
+      <md-input-container class="file_input_container">
+        <input id="file_input_text_2" mdInput placeholder="File Name" disabled />
+      </md-input-container>
+    </div>
+    <md-input-container  class="fwVersionNameContainer">
+      <input id="fw_version_name" mdInput placeholder="FW Version Name" >
     </md-input-container>
+    <button [disabled]="uploading" id="submit_button" md-raised-button><i class="material-icons">file_upload</i></button>
   </div>
-  <md-input-container  class="fwVersionNameContainer">
-    <input id="fw_version_name" mdInput placeholder="FW Version Name" >
-  </md-input-container>
-  <button [disabled]="uploading" id="submit_button" md-raised-button><i class="material-icons">file_upload</i></button>
+
 </div>
 
 <div class="fwList">
@@ -27,7 +44,10 @@
         Version
       </th>
       <th>
-        Link
+        File A
+      </th>
+      <th>
+        File B
       </th>
       <th>
         Uploaded Date
@@ -44,7 +64,10 @@
         {{file.version}}
       </td>
       <td>
-        <a href="{{env.S3BaseURL + '/' + file.fileUrl}}" target="_blank">{{file.version}}</a>
+        <a href="{{env.S3BaseURL + '/' + file.fileAUrl}}" target="_blank">{{file.version}} - A</a>
+      </td>
+      <td>
+        <a href="{{env.S3BaseURL + '/' + file.fileBUrl}}" target="_blank">{{file.version}} - B</a>
       </td>
       <td>
         {{file.uploadedDate}}

@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
 import {Http, Headers, RequestOptions} from '@angular/http';
-import {AdminToken} from "./model/admin_login";
-import {environment} from "../environments/environment";
+import {AdminToken} from './model/admin_login';
+import {environment} from '../environments/environment';
 import 'rxjs/add/operator/toPromise';
 import {LocalStorage} from 'ng2-webstorage';
-import {User} from "./model/user";
-import {Kid} from "./model/kid";
-import {Activity} from "./model/activity";
-import {ActivityRaw} from "./model/activity-raw";
-import {Dashboard} from "./model/dashboard";
-import {FWVersion} from "./model/fw-version";
+import {User} from './model/user';
+import {Kid} from './model/kid';
+import {Activity} from './model/activity';
+import {ActivityRaw} from './model/activity-raw';
+import {Dashboard} from './model/dashboard';
+import {FWVersion} from './model/fw-version';
 
 @Injectable()
 export class ServerService {
@@ -100,9 +100,10 @@ export class ServerService {
       .catch(this.handleError);
   }
 
-  uploadFWFile(version: string, file: File): Promise<any> {
+  uploadFWFile(version: string, fileA: File, fileB: File): Promise<any> {
     const formData: FormData = new FormData();
-    formData.append('upload', file, file.name);
+    formData.append('fileA', fileA, fileA.name);
+    formData.append('fileB', fileB, fileB.name);
     formData.append('versionName', version);
 
     const options = this.addMultiPartHeader();
