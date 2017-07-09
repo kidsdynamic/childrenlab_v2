@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	"github.com/kidsdynamic/childrenlab_v2/app/database"
 	"github.com/kidsdynamic/childrenlab_v2/app/model"
 )
@@ -242,4 +243,48 @@ func UpdateBatteryStatus(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{})
+}
+
+func UpdateKidRevertMacID(c *gin.Context) {
+	kidID := c.Query("kidId")
+	macID := c.Query("macId")
+
+	if kidID == "" || macID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Kid ID and Mac ID are required",
+		})
+	}
+
+	db := database.NewGORM()
+	defer db.Close()
+	if err := fixMacIDReverseIssue(db, macID, kidID); err != nil {
+		fmt.Println(err)
+		logError(err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Error on updating MAC ID",
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{})
+
+}
+
+func fixMacIDReverseIssue(db *gorm.DB, macID, kidID string) error {
+	var revertMacID string
+	for i := 0; i < 12; i += 2 {
+		revertMacID += fmt.Sprintf("%s%s", string(macID[i+1]), string(macID[i]))
+	}
+	if err := db.Exec("UPDATE kids SET mac_id = ? WHERE mac_id = ? AND id = ?", macID, revertMacID, kidID).Error; err != nil {
+		return err
+	}
+
+	if err := db.Exec("UPDATE activity SET mac_id = ? WHERE mac_id = ? AND kid_id = ?", macID, revertMacID, kidID).Error; err != nil {
+		return err
+	}
+
+	return nil
+	// E0E5CF1ED7C2
+	// 0E5EFCE17D2C
 }

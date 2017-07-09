@@ -19,6 +19,7 @@
 * [GET    /v1/kids/whoRegisteredMacID          ](#v1kidswhoregisteredmacid---get)
 * [DELETE    /v1/kids/delete          ](#v1kidsdelete---delete)
 * [POST   /v1/kids/batteryStatus             ](#v1kidsbatterystatus---post)
+* [PUT   /v1/kids/updateKidRevertMacID             ](#v1kidsupdatekidrevertmacid---put)
 
 ### Avatar
 * [POST   /v1/user/avatar/upload   ](#v1useravatarupload---post)
@@ -716,6 +717,35 @@ curl -X POST \
   "batteryLife": 98,
   "DateReceived": 14442523
 }'
+```
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Data added successfully |
+| 400     | Bad request. Missing some parameters |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+* Success - return empty JSON
+```
+{}
+```
+
+## /v1/kids/updateKidRevertMacID - PUT
+* Fix kid Mac ID reverse issue
+* It's put method, please add the parameter to the URL
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| -----:|
+| macId     | Yes | String | 8D071FCFE5E0   |
+| kidId      | Yes | Int | 8 |
+
+### curl Example
+```
+curl -X PUT \
+  'http://localhost:8111/v1/kids/updateKidRevertMacID?kidId=8&macId=E0E5CF1ED7C2' \
+  -H 'x-auth-token: ab2763ef35f79cc15604eacaa181c824'
 ```
 
 #### Response Status
