@@ -30,10 +30,6 @@ func UploadRawActivityData(c *gin.Context) {
 	db := database.NewGORM()
 	defer db.Close()
 
-	if err := fixMacIDReverseIssue(db, request.MacID); err != nil {
-		fmt.Println(err)
-	}
-
 	var kid model.Kid
 
 	if err := db.Where("mac_id = ?", request.MacID).First(&kid).Error; err != nil {
@@ -379,22 +375,4 @@ func GetActivityList(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, activity)
-}
-
-func fixMacIDReverseIssue(db *gorm.DB, macID string) error {
-	var revertMacID string
-	for i := 0; i < 12; i += 2 {
-		revertMacID += fmt.Sprintf("%s%s", string(macID[i+1]), string(macID[i]))
-	}
-	if err := db.Exec("UPDATE kids SET mac_id = ? WHERE mac_id = ?", macID, revertMacID).Error; err != nil {
-		return err
-	}
-
-	if err := db.Exec("UPDATE activity SET mac_id = ? WHERE mac_id = ?", macID, revertMacID).Error; err != nil {
-		return err
-	}
-
-	return nil
-	// E0E5CF1ED7C2
-	// 0E5EFCE17D2C
 }
