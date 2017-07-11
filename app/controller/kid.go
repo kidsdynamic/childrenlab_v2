@@ -273,8 +273,8 @@ func UpdateKidRevertMacID(c *gin.Context) {
 
 func fixMacIDReverseIssue(db *gorm.DB, macID, kidID string) error {
 	var revertMacID string
-	for i := 0; i < 12; i += 2 {
-		revertMacID += fmt.Sprintf("%s%s", string(macID[i+1]), string(macID[i]))
+	for i := 12; i > 0; i -= 2 {
+		revertMacID += string(macID[i-2 : i])
 	}
 	if err := db.Exec("UPDATE kids SET mac_id = ? WHERE mac_id = ? AND id = ?", macID, revertMacID, kidID).Error; err != nil {
 		return err
@@ -286,5 +286,5 @@ func fixMacIDReverseIssue(db *gorm.DB, macID, kidID string) error {
 
 	return nil
 	// E0E5CF1ED7C2
-	// 0E5EFCE17D2C
+	// C2D71ECFE5E0
 }
