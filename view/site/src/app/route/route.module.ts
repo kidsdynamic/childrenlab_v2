@@ -9,6 +9,7 @@ import { ActivityComponent } from "../activity/activity.component";
 import { ActivityRawComponent } from "app/activity-raw/activity-raw.component";
 import { FWComponent } from '../fw/fw.component';
 import {DashboardMainComponent} from "../dashboard-main/dashboard-main.component";
+import {KidBatteryComponent} from "app/kid-battery/kid-battery.component";
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -24,6 +25,10 @@ const routes: Routes = [
       {
         path: 'kidList',
         component: KidListComponent
+      },
+      {
+        path: 'kidBattery/:macId',
+        component: KidBatteryComponent
       },
       {
         path: 'activity/:kidId',

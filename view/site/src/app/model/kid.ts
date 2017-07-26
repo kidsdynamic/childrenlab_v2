@@ -12,3 +12,9 @@ export class Kid {
   parent: User;
 
 }
+
+export class BatteryStatus {
+  macId: string;
+  batteryLife: number;
+  dateReceived: string;
+}

@@ -258,3 +258,22 @@ func GetFwFileList(c *gin.Context) {
 	c.JSON(http.StatusOK, fwFiles)
 
 }
+
+func GetBatteryStatus(c *gin.Context) {
+	db := database.NewGORM()
+	defer db.Close()
+
+	macID := c.Param("macId")
+
+	var batteryStatus []model.BatteryStatus
+	if err := db.Order("date_received desc").Where("mac_id = ?", macID).Limit(200).Find(&batteryStatus).Error; err != nil {
+		logError(errors.Wrap(err, "Error on retrieve Battery Status"))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Something wrong when retrieve Battery Status from database",
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, batteryStatus)
+}

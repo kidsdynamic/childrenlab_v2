@@ -201,7 +201,7 @@ func HasPermissionToKid(db *gorm.DB, user *model.User, kidID []int64) bool {
 }
 
 func LogUserActivity(db *gorm.DB, user *model.User, action string, macID *string) {
-	logAction := &model.LogUserAction{
+/*	logAction := &model.LogUserAction{
 		User:        user,
 		UserID:      user.ID,
 		MacID:       macID,
@@ -213,7 +213,7 @@ func LogUserActivity(db *gorm.DB, user *model.User, action string, macID *string
 	if err := db.Create(logAction).Error; err != nil {
 		logError(errors.Wrap(err, "Error on the log user action"))
 		return
-	}
+	}*/
 }
 
 func logError(err error) {
