@@ -5,7 +5,7 @@ import {environment} from '../environments/environment';
 import 'rxjs/add/operator/toPromise';
 import {LocalStorage} from 'ng2-webstorage';
 import {User} from './model/user';
-import {Kid} from './model/kid';
+import {BatteryStatus, Kid} from './model/kid';
 import {Activity} from './model/activity';
 import {ActivityRaw} from './model/activity-raw';
 import {Dashboard} from './model/dashboard';
@@ -18,6 +18,7 @@ export class ServerService {
   TOKEN_VALIDATION_API = '/v1/user/isTokenValid';
   USER_LIST_API = '/admin/userList';
   KID_LIST_API = '/admin/kidList';
+  BATTERY_STATUS = '/admin/getBatteryStatus';
   ACTIVITY_LIST_API = '/admin/activityList';
   ACTIVITY_RAW_LIST_API = '/admin/activityRawList';
   DASHBOARD_API = '/admin/dashboard';
@@ -54,6 +55,14 @@ export class ServerService {
     return this.http.get(`${environment.BaseURL + this.KID_LIST_API}`, options)
       .toPromise()
       .then(response => response.json() as Kid[])
+      .catch(this.handleError);
+  }
+
+  getBatteryStatus(macId: string): Promise<BatteryStatus[]> {
+    const options = this.addTokenHeader();
+    return this.http.get(`${environment.BaseURL + this.BATTERY_STATUS}/${macId}`, options)
+      .toPromise()
+      .then(response => response.json() as BatteryStatus[])
       .catch(this.handleError);
   }
 

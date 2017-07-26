@@ -16,6 +16,7 @@ import { ActivityComponent } from './activity/activity.component';
 import { ActivityRawComponent } from './activity-raw/activity-raw.component';
 import { DashboardMainComponent } from './dashboard-main/dashboard-main.component';
 import { FWComponent } from './fw/fw.component';
+import { KidBatteryComponent } from './kid-battery/kid-battery.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { FWComponent } from './fw/fw.component';
     ActivityComponent,
     ActivityRawComponent,
     DashboardMainComponent,
-    FWComponent
+    FWComponent,
+    KidBatteryComponent
   ],
   imports: [
     BrowserModule,
