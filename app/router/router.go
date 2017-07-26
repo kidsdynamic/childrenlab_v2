@@ -20,7 +20,7 @@ func New() *gin.Engine {
 		log.Fatal(err)
 	}
 	if strings.Contains(rootPath, "src/github.com/kidsdynamic") {
-		r.LoadHTMLGlob(fmt.Sprintf("%s/app/view/template/*", rootPath))
+		r.LoadHTMLGlob(fmt.Sprintf("%s/view/template/*", rootPath))
 	} else {
 		r.LoadHTMLGlob(fmt.Sprintf("%s/src/github.com/kidsdynamic/childrenlab_v2/app/view/template/*", rootPath))
 	}
