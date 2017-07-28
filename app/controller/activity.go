@@ -235,10 +235,8 @@ func GetActivity(c *gin.Context) {
 		return
 	}
 
-	//TODO: It's temp solution: Task: https://app.asana.com/0/33043844747220/308456358881086
 	for i, activity := range activities {
-		newSteps := float32(activity.Steps) * 0.7
-		activities[i].Steps = int64(newSteps)
+		activities[i].Steps = activity.Steps
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -307,10 +305,9 @@ func GetActivityByTime(c *gin.Context) {
 		return
 	}
 
-	//TODO: It's temp solution: Task: https://app.asana.com/0/33043844747220/308456358881086
+
 	for i, activity := range activities {
-		newSteps := float32(activity.Steps) * 0.7
-		activities[i].Steps = int64(newSteps)
+		activities[i].Steps = activity.Steps
 	}
 
 	c.JSON(http.StatusOK, gin.H{
