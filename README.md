@@ -10,6 +10,7 @@
 * [PUT    /v1/user/updateIOSRegistrationId](#v1userupdateiosregistrationid---put)
 * [GET    /v1/user/findByEmail](#v1userfindbyemail---get)
 * [POST    /v1/user/updateLanguage](#v1userupdatelanguage---post)
+* [POST    /v1/user/sendResetPasswordEmail](#v1usersendresetpasswordemail---post)
 
 
 ### Kid API
@@ -303,6 +304,30 @@ curl --request POST \
   --header 'content-type: application/json' \
   --header 'x-auth-token: a87de39359d989f4a3a34d732d9b1529' \
   --data '{\n  "language": "es"\n}'
+```
+* Success - Return user profile
+```
+{}
+```
+
+## /v1/user/sendResetPasswordEmail - POST
+* Send reset password email to logged in user
+
+#### Request Parameters
+* doesn't need any paramters, only x-auth-token
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | send successfully |
+| 400     | Bad request. The token is invalid |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X POST \
+  http://localhost:8111/v1/user/sendResetPasswordEmail \
+  -H 'x-auth-token: 5dd388750f3a17b7e7942aaa5a612692'
 ```
 * Success - Return user profile
 ```
