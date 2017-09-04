@@ -35,7 +35,7 @@ type UpdateKidRequest struct {
 
 type BatteryStatus struct {
 	MacID        string `json:"macId" binding:"required"`
-	BatteryLife  int64  `json:"batteryLife" binding:"required"`
+	BatteryLife  int64  `json:"batteryLife"`
 	DateReceived int64  `json:"dateReceived" binding:"required"`
 }
 
