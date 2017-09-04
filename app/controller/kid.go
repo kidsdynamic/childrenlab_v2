@@ -233,13 +233,21 @@ func UpdateBatteryStatus(c *gin.Context) {
 	db := database.NewGORM()
 	defer db.Close()
 
-	if err := db.Save(&batteryStatus).Error; err != nil {
-		logError(errors.Wrapf(err, "Error when insert battery status: %#v", batteryStatus))
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Error when insert battery data",
-			"error":   err,
-		})
-		return
+	var duplicateBatteryLife model.BatteryStatus
+
+	if err := db.Where("date_received > ?", batteryStatus.DateReceived-60000).First(&duplicateBatteryLife).Error; err != nil {
+		logError(errors.Wrap(err, "Error on retrieve duplicate battery life"))
+	}
+
+	if duplicateBatteryLife.MacID == "" {
+		if err := db.Save(&batteryStatus).Error; err != nil {
+			logError(errors.Wrapf(err, "Error when insert battery status: %#v", batteryStatus))
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Error when insert battery data",
+				"error":   err,
+			})
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{})
