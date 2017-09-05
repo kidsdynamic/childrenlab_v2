@@ -236,7 +236,9 @@ func UpdateBatteryStatus(c *gin.Context) {
 	var duplicateBatteryLife model.BatteryStatus
 
 	if err := db.Where("date_received > ? AND mac_id = ?", batteryStatus.DateReceived-60000, batteryStatus.MacID).First(&duplicateBatteryLife).Error; err != nil {
-		logError(errors.Wrap(err, "Error on retrieve duplicate battery life"))
+		if err != gorm.ErrRecordNotFound {
+			logError(errors.Wrap(err, "Error on retrieve duplicate battery life"))
+		}
 	}
 
 	if duplicateBatteryLife.MacID == "" {
