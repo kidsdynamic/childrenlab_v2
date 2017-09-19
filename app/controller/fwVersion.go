@@ -12,7 +12,14 @@ func GetCurrentFWVersionAndLink(c *gin.Context) {
 	db := database.NewGORM()
 	defer db.Close()
 
+	macID := c.Param("macId")
+	if macID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
+	}
+
 	var currentVersion model.FwFile
+
 	if err := db.Order("id desc").First(&currentVersion).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error on retriving list",

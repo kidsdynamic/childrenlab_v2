@@ -8,5 +8,5 @@ import (
 func initFWRouter(r *gin.Engine) {
 	fwAPI := r.Group("/v1/fw")
 	fwAPI.Use(controller.Auth)
-	fwAPI.GET("/currentVersion", controller.GetCurrentFWVersionAndLink)
+	fwAPI.GET("/currentVersion/:macId", controller.GetCurrentFWVersionAndLink)
 }
