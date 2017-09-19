@@ -1746,30 +1746,32 @@ curl --request DELETE \
 {}
 ```
 
-## /v1/fw/currentVersion - GET
+## /v1/fw/currentVersion/:macId - GET
 * Retrieve current Firmware version
+* The API only return latest firmware version
+* the Mac ID is on the path
 * The file is on Amazon S3
 
 #### Response Status
 | Status Code    | Meaning      |
 | ------------- |:-------------|
 | 200     | Retrieve successfully |
-| 400     | Bad request. The token is invalid |
+| 400     | Bad request. The token is invalid or mac id is not present |
 | 500     | Internal error. Please send me the error. I will fix it |
 
 ### curl
 ```
 curl -X GET \
-  http://localhost:8110/v1/fw/currentVersion \
+  http://localhost:8111/v1/fw/currentVersion/E01786056460 \
   -H 'x-auth-token: 04b62b70c8464bafb84d2de2464024a2'
 ```
 * Success - with kids data
 ```
 {
-    "id": 2,
-    "version": "JAY_V2",
-    "fileAUrl": "fw_version/JAY_V2A.hex",
-    "fileBUrl": "fw_version/JAY_V2B.hex",
-    "uploadedDate": "2017-07-08T23:29:00Z"
+    "id": 1,
+    "version": "A2",
+    "fileAUrl": "fw_version/A2A.hex",
+    "fileBUrl": "fw_version/A2B.hex",
+    "uploadedDate": "2017-07-08T23:21:21Z"
 }
 ```
