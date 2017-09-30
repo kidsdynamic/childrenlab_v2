@@ -51,7 +51,8 @@
 * [DELETE   /v1/subHost/delete](#v1subhostdelete---delete)
 
 ### Firmware version
-* [GET /v1/fw/currentVersion](#v1fwcurrentversion---get)
+* [GET /v1/fw/currentVersion](#v1fwcurrentversionmacid---get)
+* [PUT   /v1/fw/firmwareVersion](#v1fwfirmwareversion---put)
 
 ## /v1/user/login - POST
 * Content-Type: application/json
@@ -1774,4 +1775,32 @@ curl -X GET \
     "fileBUrl": "fw_version/A2B.hex",
     "uploadedDate": "2017-07-08T23:21:21Z"
 }
+```
+
+## /v1/fw/firmwareVersion - PUT
+* Send device firmware version to backend
+* Send the firmware version every time when user sync
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| :-----|
+| macId     | Yes | String | A81B6ABA0749 |
+| firmwareVersion | Yes | String | KDV0106-J |
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Update successfully |
+| 400     | Bad request. The token is invalid or mac id is not present |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X GET \
+  http://localhost:8111/v1/fw/currentVersion/E01786056460 \
+  -H 'x-auth-token: 04b62b70c8464bafb84d2de2464024a2'
+```
+* Success - No Data
+```
+{}
 ```
