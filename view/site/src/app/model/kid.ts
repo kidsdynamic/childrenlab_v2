@@ -8,6 +8,7 @@ export class Kid {
   name: string;
   profile: string;
   macId: string;
+  firmwareVersion: string;
   dateCreated: string;
   parent: User;
 
