@@ -3,13 +3,14 @@ package model
 import "time"
 
 type Kid struct {
-	ID          int64     `json:"id" gorm:"AUTO_INCREMENT;primary_key:true"`
-	Name        string    `json:"name"`
-	DateCreated time.Time `json:"dateCreated"`
-	MacID       string    `json:"macId"`
-	Profile     string    `json:"profile"`
-	Parent      *User     `json:"parent,omitempty"`
-	ParentID    int64     `json:"-"`
+	ID              int64     `json:"id" gorm:"AUTO_INCREMENT;primary_key:true"`
+	Name            string    `json:"name"`
+	DateCreated     time.Time `json:"dateCreated"`
+	MacID           string    `json:"macId"`
+	FirmwareVersion string    `json:"firmwareVersion"`
+	Profile         string    `json:"profile"`
+	Parent          *User     `json:"parent,omitempty"`
+	ParentID        int64     `json:"-"`
 }
 
 type UserKidIDs struct {
