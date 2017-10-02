@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { AppComponent } from './app.component';
-import {MdButtonModule, MdInputModule, MdToolbarModule, MdProgressSpinnerModule, MdGridListModule} from '@angular/material';
-import {ServerService} from "./server.service";
+import {MdButtonModule, MdInputModule, MdToolbarModule, MdProgressSpinnerModule, MdGridListModule, MatSelectModule} from '@angular/material';
+import {ServerService} from './server.service';
 import {Ng2Webstorage} from 'ng2-webstorage';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import {RouteModule} from './route/route.module';
@@ -42,7 +42,8 @@ import { KidBatteryComponent } from './kid-battery/kid-battery.component';
     MdToolbarModule,
     Ng2Webstorage,
     MdProgressSpinnerModule,
-    MdGridListModule
+    MdGridListModule,
+    MatSelectModule
   ],
   providers: [
     ServerService

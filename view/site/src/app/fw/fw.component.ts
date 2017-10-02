@@ -2,8 +2,6 @@ import {Component, OnInit} from '@angular/core';
 import {ServerService} from '../server.service';
 import {FWVersion} from '../model/fw-version';
 import {environment} from 'environments/environment';
-// import * as swal from 'sweetalert';
-import * as swal from 'sweetalert';
 
 @Component({
   selector: 'app-fw',
@@ -16,9 +14,17 @@ export class FWComponent implements OnInit {
   hasFile = false;
   fileA: File;
   fileB: File;
-  fwList: FWVersion[];
+  fwListAll: FWVersion[];
+  fwListFiltered: FWVersion[];
   env = environment;
+  filterValue: string;
   showUploadSection = false;
+  filterList = [
+    'All',
+    'Japanese',
+    'English',
+    'OLD'
+  ];
 
   constructor(private serverService: ServerService) {
   }
@@ -34,6 +40,7 @@ export class FWComponent implements OnInit {
     const submitButton = <HTMLButtonElement>document.getElementById('submit_button');
     const versionInput = <HTMLButtonElement>document.getElementById('fw_version_name');
     const fileInputContainer = document.getElementsByClassName('file_input_container');
+
 
     uploadButtonA.addEventListener('click', () => {
       fileInputA.click();
@@ -88,11 +95,31 @@ export class FWComponent implements OnInit {
   updateFWList() {
     this.serverService.getFWList()
       .then(fwList => {
-        this.fwList = fwList;
+        this.fwListAll = fwList;
+        this.fwListFiltered = fwList;
+        this.showUploadSection = false;
       })
       .catch(err => {
         console.error(err);
       });
+  }
+
+  updateFilter() {
+    if (this.filterValue === 'English') {
+      this.fwListFiltered = this.fwListAll.filter(
+        fw => fw.version.indexOf('-E') !== -1
+      );
+    } else if (this.filterValue === 'Japanese') {
+      this.fwListFiltered = this.fwListAll.filter(
+        fw => fw.version.indexOf('-J') !== -1
+      );
+    } else if (this.filterValue === 'OLD') {
+      this.fwListFiltered = this.fwListAll.filter(
+        fw => fw.version.indexOf('-A') !== -1
+      );
+    } else {
+      this.fwListFiltered = this.fwListAll;
+    }
   }
 
 }
