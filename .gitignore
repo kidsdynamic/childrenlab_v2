@@ -27,7 +27,6 @@ vendor/*
 .idea/*
 
 
-Makefile
 
 run
 
