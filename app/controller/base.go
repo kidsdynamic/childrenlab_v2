@@ -118,10 +118,6 @@ func GetSignedInUser(c *gin.Context) model.User {
 	signedUser, ok := c.Get(SignedUserKey)
 
 	if !ok {
-		c.JSON(http.StatusForbidden, gin.H{
-			"message": "can't find login user",
-		})
-		c.Abort()
 		return user
 	}
 
@@ -201,19 +197,19 @@ func HasPermissionToKid(db *gorm.DB, user *model.User, kidID []int64) bool {
 }
 
 func LogUserActivity(db *gorm.DB, user *model.User, action string, macID *string) {
-/*	logAction := &model.LogUserAction{
-		User:        user,
-		UserID:      user.ID,
-		MacID:       macID,
-		Action:      action,
-		DateCreated: time.Now(),
-		LastUpdated: time.Now(),
-	}
+	/*	logAction := &model.LogUserAction{
+			User:        user,
+			UserID:      user.ID,
+			MacID:       macID,
+			Action:      action,
+			DateCreated: time.Now(),
+			LastUpdated: time.Now(),
+		}
 
-	if err := db.Create(logAction).Error; err != nil {
-		logError(errors.Wrap(err, "Error on the log user action"))
-		return
-	}*/
+		if err := db.Create(logAction).Error; err != nil {
+			logError(errors.Wrap(err, "Error on the log user action"))
+			return
+		}*/
 }
 
 func logError(err error) {
