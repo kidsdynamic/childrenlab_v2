@@ -312,10 +312,14 @@ curl --request POST \
 ```
 
 ## /v1/user/sendResetPasswordEmail - POST
-* Send reset password email to logged in user
+* Send reset password email
+* If x-auth-token is provided, no need any parameter
 
 #### Request Parameters
-* doesn't need any paramters, only x-auth-token
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| -----:|
+| email     | No | String |   test@gmail.com |
+
 
 #### Response Status
 | Status Code    | Meaning      |

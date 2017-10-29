@@ -387,14 +387,33 @@ func UpdateAndroidRegistrationId(c *gin.Context) {
 }
 
 func SendResetPasswordEmail(c *gin.Context) {
-	user := GetSignedInUser(c)
 
-	if user.ID == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{})
-		return
-	}
 	db := database.NewGORM()
 	defer db.Close()
+
+	var user model.User
+
+	authToken := c.Request.Header.Get("x-auth-token")
+	if authToken != "" {
+		fmt.Println(authToken)
+		if err := db.Model(&user).Joins("JOIN authentication_token a ON user.email = a.email").Where("a.token = ?", authToken).First(&user).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{})
+			return
+		}
+		fmt.Printf("Email: %#v", user)
+
+	} else {
+		if err := c.BindJSON(&user); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{})
+			return
+		}
+		if user.Email != "" {
+			if err := db.Model(&user).Where("email = ?", user.Email).First(&user).Error; err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{})
+				return
+			}
+		}
+	}
 
 	token := randToken()
 
@@ -450,6 +469,7 @@ func SendResetPasswordEmail(c *gin.Context) {
 	emailBody := fmt.Sprintf(htmlBody, user.FirstName, user.LastName, resetPasswordURL)
 
 	if err := sendMail(emailUser, user.Email, "Reset your Swing password", emailBody); err != nil {
+		logError(errors.Wrap(err, "Sending Reset Password Error"))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Please try again later",
 			"error":   err,
@@ -457,7 +477,8 @@ func SendResetPasswordEmail(c *gin.Context) {
 		return
 	}
 
-	LogUserActivity(db, &user, fmt.Sprintf("User - Send Reset password Email (%d)", user.ID), nil)
+	c.JSON(http.StatusOK, gin.H{})
+
 }
 
 func ResetPasswordPage(c *gin.Context) {
