@@ -5,6 +5,8 @@ import (
 
 	"log"
 
+	"database/sql"
+
 	"github.com/gin-gonic/gin"
 	"github.com/kidsdynamic/childrenlab_v2/app/database"
 	"github.com/kidsdynamic/childrenlab_v2/app/model"
@@ -28,12 +30,15 @@ func GetCurrentFWVersionAndLink(c *gin.Context) {
 
 	var currentVersion model.FwFile
 
-	if err := db.Order("id desc").First(&currentVersion).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Error on retriving list",
-			"error":   err,
-		})
-		return
+	if err := db.Where("active = true").Order("id desc").First(&currentVersion).Error; err != nil {
+		if err != sql.ErrNoRows {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Error on retriving list",
+				"error":   err,
+			})
+			return
+		}
+
 	}
 
 	//TODO: For NOW

@@ -41,5 +41,5 @@ Childrenlab
 
 gin-bin
 /view/site/node_modules
-/app/build
-/app/vendor
+build
+vendor

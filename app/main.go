@@ -118,12 +118,7 @@ func main() {
 
 		r := router.New()
 
-		if c.Bool("debug") {
-
-			return r.Run(":8111")
-		} else {
-			return r.RunTLS(":8111", ".ssh/childrenlab.chained.crt", ".ssh/childrenlab.com.key")
-		}
+		return r.Run(":8111")
 
 	}
 
