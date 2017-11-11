@@ -8,4 +8,5 @@ type FwFile struct {
 	FileAURL     string    `json:"fileAUrl"`
 	FileBURL     string    `json:"fileBUrl"`
 	UploadedDate time.Time `json:"uploadedDate"`
+	Active       bool      `json:"active",gorm:"default:false"`
 }

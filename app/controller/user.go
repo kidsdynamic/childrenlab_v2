@@ -546,3 +546,37 @@ func ResetPassword(c *gin.Context) {
 
 	c.HTML(http.StatusOK, "reset_password_success", nil)
 }
+
+func GetUserByEmail(c *gin.Context) {
+	email := c.Query("email")
+
+	if email == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Email is missing",
+			"error":   "",
+		})
+		return
+	}
+
+	db := database.NewGORM()
+	defer db.Close()
+	var user model.User
+	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{
+				"message": "No record",
+			})
+			return
+		} else {
+			logError(errors.Wrapf(err, "Error on search user by email : %s", email))
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "Error on search email",
+				"error":   err,
+			})
+			return
+		}
+
+	}
+
+	c.JSON(http.StatusOK, user)
+}
