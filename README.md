@@ -11,6 +11,7 @@
 * [GET    /v1/user/findByEmail](#v1userfindbyemail---get)
 * [POST    /v1/user/updateLanguage](#v1userupdatelanguage---post)
 * [POST    /v1/user/sendResetPasswordEmail](#v1usersendresetpasswordemail---post)
+* [GET    /v1/user/getUserByEmail](#v1usergetuserbyemail---get)
 
 
 ### Kid API
@@ -337,6 +338,54 @@ curl -X POST \
 * Success - Return user profile
 ```
 {}
+```
+
+## /v1/user/getUserByEmail - GET
+* Get user information by email
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| -----:|
+| email     | Yes | String |   test@gmail.com |
+
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | send successfully |
+| 400     | Bad request. The token is invalid |
+| 404     | The email is not found in the database |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X GET \
+  'http://localhost:8111/v1/user/getUserByEmail?email=ii14%40ii.com' \
+  -H 'x-auth-token: 7802035efda3dfe01fa16fd10f97ec81'
+```
+* Success - Return user profile
+```
+{
+    "id": 324,
+    "email": "ii14@ii.com",
+    "firstName": "dufhe",
+    "lastName": "fudhf",
+    "lastUpdate": "2017-10-03T03:59:30Z",
+    "dateCreated": "2017-10-03T03:59:30Z",
+    "zipCode": "",
+    "phoneNumber": "59596855",
+    "profile": "",
+    "language": "en",
+    "ios_registration_id": "",
+    "android_registration_id": "dhIKOCE5U-E:APA91bEi19Y428vQCVaC9xsZlcC5Nt2dmc100KXVu91Y0xR8sWh5sKceTzINyjV7qoUVIZlSYueYOZ5PGU1l15ygezRoi8vcGCa1ZTQj0RvLnZWtXx5oEWCgine2sUMv8gOste3tLHRB",
+    "country": "US"
+}
+```
+* Error 404
+```
+{
+    "message": "No record"
+}
 ```
 
 ## /v1/user/updateIOSRegistrationId - PUT
