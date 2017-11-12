@@ -78,3 +78,7 @@ func (Role) TableName() string {
 func (AccessToken) TableName() string {
 	return "authentication_token"
 }
+
+type UpdatePasswordReq struct {
+	NewPassword string `json:"newPassword"`
+}

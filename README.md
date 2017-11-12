@@ -12,6 +12,7 @@
 * [POST    /v1/user/updateLanguage](#v1userupdatelanguage---post)
 * [POST    /v1/user/sendResetPasswordEmail](#v1usersendresetpasswordemail---post)
 * [GET    /v1/user/getUserByEmail](#v1usergetuserbyemail---get)
+* [POST    /v1/user/updatePassword](#v1userupdatepassword---post)
 
 
 ### Kid API
@@ -385,6 +386,45 @@ curl -X GET \
 ```
 {
     "message": "No record"
+}
+```
+
+## /v1/user/updatePassword - POST
+* This API for the user to update the password after signed in
+* The password length has to be longer than 6 characters
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| -----:|
+| newPassword     | Yes | String |   aaaaaa |
+
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | send successfully |
+| 400     | Bad request. The token is invalid or the password length is not longer than 6 characters |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X POST \
+  http://localhost:8111/v1/user/updatePassword \
+  -H 'content-type: application/json' \
+  -H 'x-auth-token: 7802035efda3dfe01fa16fd10f97ec81' \
+  -d '{
+	"newPassword": "aaaaaa"
+	}'
+```
+* Success - Return 200 status with empty json
+```
+{
+}
+```
+* Error 400
+```
+{
+    "message": "The password has to be longer than 6 characters"
 }
 ```
 

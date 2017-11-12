@@ -580,3 +580,38 @@ func GetUserByEmail(c *gin.Context) {
 
 	c.JSON(http.StatusOK, user)
 }
+
+func UpdatePassword(c *gin.Context) {
+
+	var newPassword model.UpdatePasswordReq
+	if err := c.BindJSON(&newPassword); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "The password has to be longer than 6 characters",
+		})
+		return
+	}
+
+	if newPassword.NewPassword == "" || len(newPassword.NewPassword) < 6 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "The password has to be longer than 6 characters",
+		})
+		return
+	}
+
+	db := database.NewGORM()
+	defer db.Close()
+
+	user := GetSignedInUser(c)
+	hashedPassword := database.EncryptPassword(newPassword.NewPassword)
+
+	if err := db.Exec("UPDATE user SET password = ?, reset_password_token = null WHERE email = ?", hashedPassword, user.Email).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on reset user password : %s", user.Email))
+		c.HTML(http.StatusBadRequest, "reset_password", gin.H{
+			"user":         user,
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{})
+}
