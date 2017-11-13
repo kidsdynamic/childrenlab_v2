@@ -35,9 +35,21 @@ func RequestSubHostToUser(c *gin.Context) {
 	db := database.NewGORM()
 	defer db.Close()
 
+	var exists bool = false
+	row := db.Raw("SELECT EXISTS(SELECT id FROM user WHERE id = ? LIMIT 1)", requestSubHostReq.HostID).Row()
+	row.Scan(&exists)
+	fmt.Printf("Existing: %#v", exists)
+	if !exists {
+		logError(errors.Wrapf(errors.New("The host not found"), "Error on saving sub host ID: %d", requestSubHostReq.HostID))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "The hot not found",
+		})
+		return
+	}
+
 	var subHost model.SubHost
 
-	if err := db.Where("request_from_id = ? AND request_to_iD = ?", user.ID, requestSubHostReq.HostID).First(&subHost).Error; err != nil {
+	if err := db.Where("request_from_id = ? AND request_to_id = ?", user.ID, requestSubHostReq.HostID).First(&subHost).Error; err != nil {
 		if err != gorm.ErrRecordNotFound {
 			logError(errors.Wrapf(err, "Error on retriving sub host request: %#v", requestSubHostReq))
 		}
@@ -287,7 +299,7 @@ func RemoveSubHostKid(c *gin.Context) {
 	}
 
 	var subHost model.SubHost
-	if err := db.Where("id = ? AND request_to_id = ? AND status = ?", request.SubHostID, user.ID, SubHostStatusAccepted).First(&subHost).Error; err != nil {
+	if err := db.Where("id = ? AND (request_to_id = ? or request_from_id = ?) AND status = ?", request.SubHostID, request.SubHostID, user.ID, SubHostStatusAccepted).First(&subHost).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"message": "The subhost is not exists",
