@@ -148,8 +148,23 @@ func UpdateCalendarEvent(c *gin.Context) {
 		return
 	}
 
-	var todos []model.Todo
+	var kids []model.Kid
+	if err := db.Model(model.Kid{}).Where("id in (?)", eventRequest.KidsID).Find(&kids).Error; err != nil {
+		logError(errors.Wrap(err, "Error on retrieve Kid"))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Error on retrieve Kid",
+			"error":   err.Error(),
+		})
+		return
+	}
+	if len(kids) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Can't find kids",
+		})
+		return
+	}
 
+	var todos []model.Todo
 	for _, todoReq := range eventRequest.Todo {
 		var todo model.Todo
 
@@ -160,6 +175,15 @@ func UpdateCalendarEvent(c *gin.Context) {
 
 		todos = append(todos, todo)
 	}
+	if err := db.Delete(model.EventKid{}, "event_id = ?", event.ID).Error; err != nil {
+		logError(errors.Wrap(err, "Error on Deleting event kids"))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Error on Delete Event kids",
+			"error":   err.Error(),
+		})
+		return
+	}
+	event.Kid = kids
 
 	if len(todos) > 0 {
 		if err := db.Delete(model.Todo{}, "event_id = ?", event.ID).Error; err != nil {
