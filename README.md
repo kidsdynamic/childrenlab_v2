@@ -1140,6 +1140,7 @@ curl -X POST -H "x-auth-token: 28e20ffb974205c0747b5aa35d53e538" -H "Content-Typ
 | repeat               | No | String |   DAILY, MONTHLY |
 | timezoneOffset       Yes | Integer |   300 |
 | todo               | No | Array |   ["test todo 1"] |
+| kidId               | Yes | Array |   [118, 120] |
 
 
 #### Response Status
@@ -1152,72 +1153,85 @@ curl -X POST -H "x-auth-token: 28e20ffb974205c0747b5aa35d53e538" -H "Content-Typ
 
 ### curl
 ```
-curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: 28e20ffb974205c0747b5aa35d53e538" -d '{
-  "eventId": 3,
-  "Name": "Test event name2",
-  "startDate": "2015-08-30T08:20:00",
-  "endDate": "2015-08-31T08:20:00",
-  "timezoneOffset": 300,
-  "color": "#F05D25",
-  "description": "Hafdewadhah",
-  "alert": 23
-  
-}' "http://localhost:8111/v1/event/update"
+curl -X PUT \
+  http://localhost:8111/v1/event/update \
+  -H 'content-type: application/json' \
+  -H 'x-auth-token: 3c8b3fde05ca42f04a91ae1a67774a65' \
+  -d '{
+"color":"#7572C1",
+"description":"123",
+"endDate":"2017-02-20T12:00:00Z",
+"kidId":[118, 120],
+"name":"Storey",
+"repeat":"",
+"startDate":"2017-02-17T09:30:00Z",
+"state":"",
+"todo":["todo1"],
+"alert":61,
+"eventId":402,
+"timezoneOffset":0
+}'
 ```
 
 * Success - Returns updated event
 ```
 {
-  "event": {
-    "id": 3,
-    "user": {
-      "id": 2,
-      "email": "jack08300@gmail.com",
-      "firstName": "Jay",
-      "lastName": "Chen",
-      "lastUpdate": "0001-01-01T00:00:00Z",
-      "dateCreated": "0001-01-01T00:00:00Z",
-      "zipCode": "",
-      "phoneNumber": "",
-      "profile": "avatar_2.jpg"
-    },
-    "kid": [
-      {
-        "id": 3,
-        "name": "kid13",
-        "dateCreated": "2017-02-02T10:25:20Z",
-        "macId": "012345678915",
-        "profile": "kid_avatar_3.jpg"
-      },
-      {
-        "id": 4,
-        "name": "5",
-        "dateCreated": "2017-02-02T10:42:02Z",
-        "macId": "012345678916",
-        "profile": "kid_avatar_4.jpg"
-      }
-    ],
-    "name": "Test event name2",
-    "startDate": "2016-08-30T08:20:00Z",
-    "endDate": "2017-08-31T08:20:00Z",
-    "color": "#F05D25",
-    "status": "OPEN",
-    "description": "Hafdewadhah",
-    "alert": 23,
-    "repeat": "DAILY",
-    "timezoneOffset": 300,
-    "dateCreated": "2017-02-12T20:01:51Z",
-    "lastUpdated": "2017-02-12T20:01:51Z",
-    "todo": [
-      {
-        "id": 11,
-        "text": "test todo 1",
-        "status": "DONE",
-        "dateCreated": "2017-02-13T04:35:05Z",
-        "lastUpdated": "2017-02-13T01:01:51Z"
-      }
-    ]
-  }
+    "event": {
+        "id": 402,
+        "user": {
+            "id": 348,
+            "email": "nn17@nn.com",
+            "firstName": "jdhx",
+            "lastName": "djchsj",
+            "lastUpdate": "2017-11-12T20:10:12Z",
+            "dateCreated": "2017-11-12T20:10:12Z",
+            "zipCode": "",
+            "phoneNumber": "5686946894",
+            "profile": "",
+            "language": "en",
+            "ios_registration_id": "",
+            "android_registration_id": "dQYymla3XIY:APA91bHjW_PFjbnXDSP-Xjag_49UKgtYTmM3w_PpVD_Z_trPRo0PU-B22XRVJatlW_0Dr94phK8M_AlYEv7DnyCo3_-SOlxYGLRVtugWELmcEzwsg_j-4kL3gc8BErfc61eat55UVC0Q",
+            "country": "US"
+        },
+        "kid": [
+            {
+                "id": 118,
+                "name": "kha hahx",
+                "dateCreated": "2017-11-12T20:12:48Z",
+                "macId": "606405861CC9",
+                "firmwareVersion": "KDV0006-A",
+                "profile": ""
+            },
+            {
+                "id": 120,
+                "name": "JOHN",
+                "dateCreated": "2017-11-19T21:34:45Z",
+                "macId": "testtter1",
+                "firmwareVersion": "",
+                "profile": ""
+            }
+        ],
+        "name": "Storey",
+        "startDate": "2017-02-17T09:30:00Z",
+        "endDate": "2017-02-20T12:00:00Z",
+        "color": "#7572C1",
+        "status": "OPEN",
+        "description": "123",
+        "alert": 61,
+        "repeat": "",
+        "timezoneOffset": 0,
+        "dateCreated": "2017-11-19T21:31:02Z",
+        "lastUpdated": "2017-11-19T21:31:02Z",
+        "todo": [
+            {
+                "id": 72,
+                "text": "todo1",
+                "status": "PENDING",
+                "dateCreated": "2017-11-19T21:35:00Z",
+                "lastUpdated": "2017-11-19T21:35:00Z"
+            }
+        ]
+    }
 }
 ```
 
