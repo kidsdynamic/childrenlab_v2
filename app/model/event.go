@@ -72,6 +72,7 @@ type UpdateEventRequest struct {
 	Repeat         string    `json:"repeat"`
 	TimezoneOffset int64     `json:"timezoneOffset"`
 	Todo           []string  `json:"todo"`
+	KidsID         []int64   `json:"kidId" binding:"required"`
 }
 
 type DeleteEventRequest struct {
