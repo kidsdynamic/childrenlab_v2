@@ -77,7 +77,7 @@ func AddCalendarEvent(c *gin.Context) {
 	event.TimezoneOffset = request.TimezoneOffset
 
 	var kids []model.Kid
-	if err := db.Model(model.Kid{}).Where("id in (?)", request.KidID).Find(&kids).Error; err != nil {
+	if err := db.Model(model.Kid{}).Where("id in (?) and parent_id", request.KidID, user.ID).Find(&kids).Error; err != nil {
 		logError(errors.Wrap(err, "Error on retrieve Kid"))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error on retrieve Kid",
@@ -149,7 +149,7 @@ func UpdateCalendarEvent(c *gin.Context) {
 	}
 
 	var kids []model.Kid
-	if err := db.Model(model.Kid{}).Where("id in (?)", eventRequest.KidsID).Find(&kids).Error; err != nil {
+	if err := db.Model(model.Kid{}).Where("id in (?) and parent_id = ?", eventRequest.KidsID, user.ID).Find(&kids).Error; err != nil {
 		logError(errors.Wrap(err, "Error on retrieve Kid"))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error on retrieve Kid",
