@@ -51,7 +51,7 @@ func AddCalendarEvent(c *gin.Context) {
 	defer db.Close()
 
 	if !HasPermissionToKid(db, &user, request.KidID) {
-		c.JSON(http.StatusForbidden, gin.H{
+		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "You don't have permission to do it",
 		})
 		return
@@ -494,7 +494,7 @@ func RetrieveEventsByKid(c *gin.Context) {
 	var kidIDs []int64
 	kidIDs = append(kidIDs, kidID)
 	if !HasPermissionToKid(db, &user, kidIDs) {
-		c.JSON(http.StatusForbidden, gin.H{
+		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "You don't have permission to access",
 		})
 		return

@@ -1033,7 +1033,7 @@ curl -X GET -H "x-auth-token: 27e217ae4d2907188b8c92cdcf9c85ac" "http://localhos
 
 ## /v1/event/add - POST
 * Content-Type: application/json
-* Only when user has access to the kids, otherwise, the API returns 403 forbidden
+* Only when user has access to the kids, otherwise, the API returns 401 unauthorized
 * Date Time format is ***YYYY-MM-ddThh:mm:ssZ***
 
 #### Request Parameters
@@ -1055,7 +1055,7 @@ curl -X GET -H "x-auth-token: 27e217ae4d2907188b8c92cdcf9c85ac" "http://localhos
 | Status Code    | Meaning      |
 | ------------- |:-------------|
 | 200     | Added successfully |
-| 403     | Forbidden. The user doesn't have permission to add event |
+| 401     | Unauthorized. The user doesn't have permission to add event |
 | 400     | Bad request. Missing some parameters, or the type is wrong |
 | 500     | Internal error. Please send me the error. I will fix it |
 
@@ -1147,7 +1147,7 @@ curl -X POST -H "x-auth-token: 28e20ffb974205c0747b5aa35d53e538" -H "Content-Typ
 | Status Code    | Meaning      |
 | ------------- |:-------------|
 | 200     | Updated successfully |
-| 403     | Forbidden. The user doesn't have permission to update |
+| 401     | Unauthorized. The user doesn't have permission to update |
 | 400     | Bad request. Missing some parameters, or the type is wrong |
 | 500     | Internal error. Please send me the error. I will fix it |
 
@@ -1249,7 +1249,7 @@ curl -X PUT \
 | Status Code    | Meaning      |
 | ------------- |:-------------|
 | 200     | Delete successfully |
-| 403     | Forbidden. The user doesn't have permission to delete |
+| 401     | Unauthorized. The user doesn't have permission to delete |
 | 400     | Bad request. Missing some parameters, or the type is wrong |
 | 500     | Internal error. Please send me the error. I will fix it |
 
@@ -1372,7 +1372,7 @@ curl -X GET -H "x-auth-token: 42142142421421312312312" "http://localhost:8111/v1
 | Status Code    | Meaning      |
 | ------------- |:-------------|
 | 200     | Retrieve successfully |
-| 403     | The user doesn't have access to the kid
+| 401     | Unauthorized, The user doesn't have access to the kid
 | 500     | Internal error. Please send me the error. I will fix it |
 
 ### curl
@@ -1771,7 +1771,7 @@ curl -X GET -H "Content-Type: application/json" -H "x-auth-token: 58lkp329ejbr44
 | ------------- |:-------------|
 | 200     | Accept successfully |
 | 400     | Bad request. Missing some parameters, or the type is wrong |
-| 403     | Forbidden. The user doesn't have permission |
+| 401     | Unauthorized. The user doesn't have permission |
 | 500     | Internal error. Please send me the error. I will fix it |
 
 ### curl
@@ -1839,7 +1839,7 @@ curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: 0838289b3d518d
 | ------------- |:-------------|
 | 200     | Delete successfully |
 | 400     | Bad request. Missing some parameters, or the type is wrong |
-| 403     | Forbidden. The user doesn't have permission |
+| 401     | Unauthorized. The user doesn't have permission |
 | 500     | Internal error. Please send me the error. I will fix it |
 
 ### curl
