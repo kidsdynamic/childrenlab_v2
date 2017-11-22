@@ -109,7 +109,7 @@ func AcceptRequest(c *gin.Context) {
 	db.Where("Request_to_id = ? AND id = ?", user.ID, acceptRequest.SubHostID).Preload("RequestFrom").Preload("RequestTo").First(&subHost)
 
 	if subHost.ID == 0 {
-		c.JSON(http.StatusForbidden, gin.H{
+		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "The user doesn't have permission to accept the request",
 		})
 
@@ -242,7 +242,7 @@ func DenyRequest(c *gin.Context) {
 	db.Model(&subHost).Preload("RequestFrom").Preload("RequestTo").Preload("Kids").Where("id = ? AND request_to_id = ?", request.SubHostID, user.ID).First(&subHost)
 
 	if subHost.ID == 0 {
-		c.JSON(http.StatusForbidden, gin.H{
+		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "The user doesn't have permission to accept the request",
 		})
 
@@ -292,14 +292,14 @@ func RemoveSubHostKid(c *gin.Context) {
 		request.KidID,
 	}
 	if !HasPermissionToKid(db, &user, kidIds) {
-		c.JSON(http.StatusForbidden, gin.H{
+		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "The user doesn't have permission to remove kid",
 		})
 		return
 	}
 
 	var subHost model.SubHost
-	if err := db.Where("id = ? AND (request_to_id = ? or request_from_id = ?) AND status = ?", request.SubHostID, request.SubHostID, user.ID, SubHostStatusAccepted).First(&subHost).Error; err != nil {
+	if err := db.Where("id = ? AND (request_to_id = ? or request_from_id = ?) AND status = ?", request.SubHostID, user.ID, user.ID, SubHostStatusAccepted).First(&subHost).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"message": "The subhost is not exists",
@@ -341,7 +341,19 @@ func RemoveSubHostKid(c *gin.Context) {
 		})
 
 		return
+	}
 
+	//If the request doesn't have any kid, remove the request
+	if len(subHost.Kids) == 0 {
+		if err := db.Delete(&subHost).Error; err != nil {
+			logError(errors.Wrapf(err, "Error on deleting sub host: %#v", subHost))
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Error on updating status",
+				"error":   err,
+			})
+
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, subHost)
