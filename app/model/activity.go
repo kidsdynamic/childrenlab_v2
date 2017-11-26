@@ -49,3 +49,17 @@ type ActivityRequest struct {
 	KidID  int64  `json:"kidId" binding:"required"`
 	Period string `json:"period" binding:"required"`
 }
+
+type HourlyActivity struct {
+	ID           int64     `json:"id" gorm:"AUTO_INCREMENT"`
+	MacID        string    `json:"macId" gorm:"not null"`
+	Kid          Kid       `json:"-"`
+	KidID        int64     `json:"kidId" gorm:"not null"`
+	Type         string    `json:"type" gorm:"not null"`
+	Steps        int64     `json:"steps"`
+	Distance     int64     `json:"distance"`
+	ReceivedDate time.Time `json:"receivedDate"`
+	ReceivedTime int64     `json:"-"`
+	DateCreated  time.Time
+	LastUpdated  time.Time
+}

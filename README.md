@@ -32,6 +32,7 @@
 * [POST   /v1/activity/uploadRawData](#v1activityuploadrawdata---post)
 * [GET   /v1/activity/retrieveData](#v1activityretrievedata---get)
 * [GET   /v1/activity/retrieveDataByTime](#v1activityretrievedatabytime---get)
+* [GET   /v1/activity/retrieveHourlyDataByTime](#v1activityretrievehourlydatabytime---get)
 
 ### Event
 * [POST   /v1/event/add](#v1eventadd---post)
@@ -1027,6 +1028,135 @@ curl -X GET -H "x-auth-token: 27e217ae4d2907188b8c92cdcf9c85ac" "http://localhos
       "receivedDate": "2017-06-21T23:51:30Z"
     }
   ]
+}
+```
+
+## /v1/activity/retrieveHourlyDataByTime - GET
+* It's ***GET*** method, so no content-type. Add parameters to the ***URL***
+* Ordered by receivedDate
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| :-----|
+| start      | Yes | Long ***Timestamp*** | 1491599032 |
+| end        | Yes | Long ***Timestamp*** | 1498089090  |
+| kidId      | Yes | Integer | 1  |
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Receiving Data successfully |
+| 400     | Bad request. Missing some parameters, or the type is wrong |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X GET \
+  'http://dev.childrenlab.com/v1/activity/retrieveHourlyDataByTime?start=1511654400&end=1511740799&kidId=120' \
+  -H 'content-type: application/json' \
+  -H 'x-auth-token: 3c8b3fde05ca42f04a91ae1a67774a65' \
+  -d '{
+  "indoorActivity": "1511737552,0,10,2,3,4",
+  "outdoorActivity": "1511737552,1,24,0,0,0",
+  "time": 1487245098,
+  "timeZoneOffset": 420,
+  "macId": "testtter1"
+}'
+```
+
+* Success - 
+```
+{
+    "activities": [
+        {
+            "id": 51,
+            "macId": "testtter1",
+            "kidId": 120,
+            "type": "INDOOR",
+            "steps": 10,
+            "distance": 0,
+            "receivedDate": "2017-11-26T23:59:59Z",
+            "DateCreated": "2017-11-26T22:07:11Z",
+            "LastUpdated": "2017-11-26T22:07:11Z"
+        },
+        {
+            "id": 52,
+            "macId": "testtter1",
+            "kidId": 120,
+            "type": "OUTDOOR",
+            "steps": 24,
+            "distance": 0,
+            "receivedDate": "2017-11-26T23:59:59Z",
+            "DateCreated": "2017-11-26T22:07:11Z",
+            "LastUpdated": "2017-11-26T22:07:11Z"
+        },
+        {
+            "id": 47,
+            "macId": "testtter1",
+            "kidId": 120,
+            "type": "INDOOR",
+            "steps": 10,
+            "distance": 0,
+            "receivedDate": "2017-11-26T10:53:20Z",
+            "DateCreated": "2017-11-26T22:01:46Z",
+            "LastUpdated": "2017-11-26T22:01:46Z"
+        },
+        {
+            "id": 48,
+            "macId": "testtter1",
+            "kidId": 120,
+            "type": "OUTDOOR",
+            "steps": 24,
+            "distance": 0,
+            "receivedDate": "2017-11-26T10:53:20Z",
+            "DateCreated": "2017-11-26T22:01:46Z",
+            "LastUpdated": "2017-11-26T22:01:46Z"
+        },
+        {
+            "id": 45,
+            "macId": "testtter1",
+            "kidId": 120,
+            "type": "INDOOR",
+            "steps": 10,
+            "distance": 0,
+            "receivedDate": "2017-11-26T08:06:40Z",
+            "DateCreated": "2017-11-26T22:01:27Z",
+            "LastUpdated": "2017-11-26T22:01:27Z"
+        },
+        {
+            "id": 46,
+            "macId": "testtter1",
+            "kidId": 120,
+            "type": "OUTDOOR",
+            "steps": 24,
+            "distance": 0,
+            "receivedDate": "2017-11-26T08:06:40Z",
+            "DateCreated": "2017-11-26T22:01:27Z",
+            "LastUpdated": "2017-11-26T22:01:27Z"
+        },
+        {
+            "id": 43,
+            "macId": "testtter1",
+            "kidId": 120,
+            "type": "INDOOR",
+            "steps": 20,
+            "distance": 0,
+            "receivedDate": "2017-11-26T07:50:00Z",
+            "DateCreated": "2017-11-26T22:01:07Z",
+            "LastUpdated": "2017-11-26T22:01:17Z"
+        },
+        {
+            "id": 44,
+            "macId": "testtter1",
+            "kidId": 120,
+            "type": "OUTDOOR",
+            "steps": 48,
+            "distance": 0,
+            "receivedDate": "2017-11-26T07:50:00Z",
+            "DateCreated": "2017-11-26T22:01:07Z",
+            "LastUpdated": "2017-11-26T22:01:17Z"
+        }
+    ]
 }
 ```
 
