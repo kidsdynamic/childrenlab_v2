@@ -122,11 +122,13 @@ func UploadRawActivityData(c *gin.Context) {
 func calculateActivity(db *gorm.DB, indoorActivity, outdoorActivity model.ActivityInsight, kid model.Kid) error {
 	var todayActivity []model.Activity
 	timeWithZone := indoorActivity.Date.Add(time.Duration(indoorActivity.TimeZone) * time.Minute)
+	fmt.Printf("\n%d, %s, %d, %d\n", timeWithZone.Year(), timeWithZone.Month().String(), timeWithZone.Day(), timeWithZone.Hour())
 	if err := db.Where("(mac_id = ? OR mac_id = REVERSE(?)) AND (YEAR(received_date) = ? AND MONTH(received_date) = ? AND DAY(received_date) = ?)", kid.MacID, kid.MacID, timeWithZone.Year(), timeWithZone.Month(), timeWithZone.Day()).
 		Find(&todayActivity).Error; err != nil {
 		return err
 	}
 
+	// Daily Activity
 	if len(todayActivity) == 0 {
 		if err := db.Create(&model.Activity{
 			Steps:        indoorActivity.Steps,
@@ -173,6 +175,64 @@ func calculateActivity(db *gorm.DB, indoorActivity, outdoorActivity model.Activi
 
 			if err := db.Model(&model.Activity{}).Update(&a).Error; err != nil {
 				logError(errors.Wrap(err, "Error on save activity record"))
+				return err
+			}
+		}
+	}
+
+	//Hourly Activity
+	var hourlyActivity []model.HourlyActivity
+	if err := db.Where("(mac_id = ? OR mac_id = REVERSE(?)) AND (YEAR(received_date) = ? AND MONTH(received_date) = ? AND DAY(received_date) = ? AND HOUR(received_date) = ?)",
+		kid.MacID, kid.MacID, timeWithZone.Year(), timeWithZone.Month(), timeWithZone.Day(), timeWithZone.Hour()).
+		Find(&hourlyActivity).Error; err != nil {
+		return err
+	}
+	if len(hourlyActivity) == 0 {
+		if err := db.Create(&model.HourlyActivity{
+			Steps:        indoorActivity.Steps,
+			ReceivedDate: timeWithZone,
+			ReceivedTime: indoorActivity.TimeLong,
+			KidID:        kid.ID,
+			MacID:        kid.MacID,
+			Type:         constants.ActivityIndoorType,
+			DateCreated:  GetNowTime(),
+			LastUpdated:  GetNowTime(),
+		}).Error; err != nil {
+			logError(errors.Wrap(err, "Error on create hourly indoor activity record"))
+			return err
+		}
+
+		if err := db.Create(&model.HourlyActivity{
+			Steps:        outdoorActivity.Steps,
+			ReceivedDate: timeWithZone,
+			ReceivedTime: outdoorActivity.TimeLong,
+			KidID:        kid.ID,
+			MacID:        kid.MacID,
+			Type:         constants.ActivityOutdoorType,
+			DateCreated:  GetNowTime(),
+			LastUpdated:  GetNowTime(),
+		}).Error; err != nil {
+			logError(errors.Wrap(err, "Error on create hourly outdoor activity record"))
+			return err
+		}
+
+	} else {
+		for _, a := range hourlyActivity {
+			if a.Type == constants.ActivityIndoorType {
+				a.Steps += indoorActivity.Steps
+				a.ReceivedDate = timeWithZone
+				a.ReceivedTime = indoorActivity.TimeLong
+				a.LastUpdated = GetNowTime()
+
+			} else {
+				a.Steps += outdoorActivity.Steps
+				a.ReceivedDate = timeWithZone
+				a.ReceivedTime = outdoorActivity.TimeLong
+				a.LastUpdated = GetNowTime()
+			}
+
+			if err := db.Model(&model.HourlyActivity{}).Update(&a).Error; err != nil {
+				logError(errors.Wrap(err, "Error on save hourly activity record"))
 				return err
 			}
 		}
@@ -304,7 +364,6 @@ func GetActivityByTime(c *gin.Context) {
 		})
 		return
 	}
-
 
 	for i, activity := range activities {
 		activities[i].Steps = activity.Steps
