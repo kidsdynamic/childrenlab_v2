@@ -375,6 +375,71 @@ func GetActivityByTime(c *gin.Context) {
 	LogUserActivity(db, &user, "Get Activity By Time", nil)
 }
 
+func GetTodayHourlyActivity(c *gin.Context) {
+	startTimeString := c.Query("start")
+	endTimeString := c.Query("end")
+	kidIdString := c.Query("kidId")
+
+	if startTimeString == "" || endTimeString == "" || kidIdString == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Start time and end time and kid ID are required",
+		})
+		return
+	}
+
+	startTimeLong, err := strconv.ParseInt(startTimeString, 10, 64)
+	if err != nil {
+		logError(errors.Wrap(err, "Error on parse string to int - GetActivityByTime"))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error on parse string to int",
+			"error":   err,
+		})
+		return
+	}
+
+	endTimeLong, err := strconv.ParseInt(endTimeString, 10, 64)
+	if err != nil {
+		logError(errors.Wrap(err, "Error on parse string to int - GetActivityByTime"))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error on parse string to int",
+			"error":   err,
+		})
+		return
+	}
+
+	kidID, err := strconv.ParseInt(kidIdString, 10, 64)
+	if err != nil {
+		logError(errors.Wrap(err, "Error on parse string to int - GetActivityByTime"))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error on parse string to int",
+			"error":   err,
+		})
+		return
+	}
+
+	start := time.Unix(startTimeLong, 0)
+	end := time.Unix(endTimeLong, 0)
+	user := GetSignedInUser(c)
+
+	db := database.NewGORM()
+	defer db.Close()
+
+	var activities []model.HourlyActivity
+
+	if err := db.Joins("JOIN kids ON kids.id = hourly_activity.kid_id").Where("kids.id = ? AND kids.parent_id = ? AND (hourly_activity.received_date between ? and ?)", kidID, user.ID, start, end).Order("received_date desc").Find(&activities).Error; err != nil {
+		logError(errors.Wrap(err, "Error on getting activities"))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error on getting hourly activities",
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"activities": activities,
+	})
+}
+
 func getTodayDate() *time.Time {
 	now := time.Now()
 	year, month, day := now.Date()
