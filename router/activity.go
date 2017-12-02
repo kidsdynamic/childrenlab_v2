@@ -15,4 +15,5 @@ func initActivityRouter(r *gin.Engine) {
 	activityAPI.GET("/retrieveData", controller.GetActivity)
 	activityAPI.GET("/retrieveDataByTime", controller.GetActivityByTime)
 	activityAPI.GET("/retrieveHourlyDataByTime", controller.GetTodayHourlyActivity)
+	activityAPI.GET("/retrieveMonthlyActivity", controller.GetMonthlyActivity)
 }

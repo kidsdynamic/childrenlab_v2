@@ -77,7 +77,7 @@ func AddCalendarEvent(c *gin.Context) {
 	event.TimezoneOffset = request.TimezoneOffset
 
 	var kids []model.Kid
-	if err := db.Model(model.Kid{}).Where("id in (?) and parent_id = ?", request.KidID, user.ID).Find(&kids).Error; err != nil {
+	if err := db.Model(model.Kid{}).Where("id in (?)", request.KidID).Find(&kids).Error; err != nil {
 		logError(errors.Wrap(err, "Error on retrieve Kid"))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error on retrieve Kid",
@@ -415,7 +415,7 @@ func RetrieveAllEventWithTodoByUser(c *gin.Context) {
 	}
 
 	if len(otherKidID) > 0 {
-		var otherkidsEvent model.Event
+		var otherkidsEvent []model.Event
 		//Find all of events that belong to Other host's kid
 		if err := db.Model(model.Event{}).Joins("JOIN event_kid ON event.id = event_kid.event_id").Where("event_kid.kid_id in (?)", toString(otherKidID)).Preload("User").Preload("Kid").Preload("Todo").Find(&otherkidsEvent).Error; err != nil && err != gorm.ErrRecordNotFound {
 
@@ -428,9 +428,9 @@ func RetrieveAllEventWithTodoByUser(c *gin.Context) {
 			return
 		}
 
-		if otherkidsEvent.ID != 0 {
-			removeUnacceptableKid(db, &user, &otherkidsEvent)
-			events = append(events, otherkidsEvent)
+		if len(otherkidsEvent) > 0 {
+			removeUnacceptableKid(db, &user, otherkidsEvent)
+			events = append(events, otherkidsEvent...)
 		}
 
 	}
@@ -526,22 +526,25 @@ func toString(kidsID []model.UserKidIDs) []int64 {
 	return ids
 }
 
-func removeUnacceptableKid(db *gorm.DB, user *model.User, event *model.Event) {
+func removeUnacceptableKid(db *gorm.DB, user *model.User, events []model.Event) {
 	var removedCount int = 0
-	for key, kid := range event.Kid {
-		var exists bool
-		row := db.Raw("SELECT EXISTS(SELECT id FROM sub_host s JOIN sub_host_kid sk ON s.id = sk.sub_host_id WHERE s.request_from_id = ? and sk.kid_id = ? and s.status = ? LIMIT 1)", user.ID, kid.ID, SubHostStatusAccepted).Row()
+	for _, event := range events {
+		for key, kid := range event.Kid {
+			var exists bool
+			row := db.Raw("SELECT EXISTS(SELECT id FROM sub_host s JOIN sub_host_kid sk ON s.id = sk.sub_host_id WHERE s.request_from_id = ? and sk.kid_id = ? and s.status = ? LIMIT 1)", user.ID, kid.ID, SubHostStatusAccepted).Row()
 
-		row.Scan(&exists)
-		if !exists {
-			if len(event.Kid) > 0 {
-				kids := event.Kid
-				kids = append(kids[:key-removedCount], kids[key+1-removedCount:]...)
-				event.Kid = kids
+			row.Scan(&exists)
+			if !exists {
+				if len(event.Kid) > 0 {
+					kids := event.Kid
+					kids = append(kids[:key-removedCount], kids[key+1-removedCount:]...)
+					event.Kid = kids
+				}
+				removedCount++
+
 			}
-			removedCount++
 
 		}
-
 	}
+
 }
