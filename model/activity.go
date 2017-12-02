@@ -63,3 +63,11 @@ type HourlyActivity struct {
 	DateCreated  time.Time
 	LastUpdated  time.Time
 }
+
+type MonthlyActivity struct {
+	MacID    string `json:"macId" gorm:"not null"`
+	Type     string `json:"type" gorm:"not null"`
+	Month    int32  `json:"month"`
+	Steps    int64  `json:"steps"`
+	Distance int64  `json:"distance"`
+}

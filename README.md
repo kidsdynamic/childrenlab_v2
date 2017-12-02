@@ -33,6 +33,7 @@
 * [GET   /v1/activity/retrieveData](#v1activityretrievedata---get)
 * [GET   /v1/activity/retrieveDataByTime](#v1activityretrievedatabytime---get)
 * [GET   /v1/activity/retrieveHourlyDataByTime](#v1activityretrievehourlydatabytime---get)
+* [GET   /v1/activity/retrieveMonthlyActivity](#v1activityretrievemonthlyactivity---get)
 
 ### Event
 * [POST   /v1/event/add](#v1eventadd---post)
@@ -1155,6 +1156,67 @@ curl -X GET \
             "receivedDate": "2017-11-26T07:50:00Z",
             "DateCreated": "2017-11-26T22:01:07Z",
             "LastUpdated": "2017-11-26T22:01:17Z"
+        }
+    ]
+}
+```
+
+## /v1/activity/retrieveMonthlyActivity - GET
+* It's ***GET*** method, so no content-type. Add parameters to the ***URL***
+* Ordered by month
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| :-----|
+| start      | Yes | Long ***Timestamp*** | 1491599032 |
+| end        | Yes | Long ***Timestamp*** | 1498089090  |
+| kidId      | Yes | Integer | 1  |
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Receiving Data successfully |
+| 400     | Bad request. Missing some parameters, or the type is wrong |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X GET \
+  'http://localhost:8111/v1/activity/retrieveMonthlyActivity?start=1411654400&end=1512237067&kidId=19' \
+  -H 'x-auth-token: 3b9b03e26bf40f9e431b5d2b69b89c4c'
+```
+
+* Success - 
+```
+{
+    "activities": [
+        {
+            "macId": "AAAAAABBBB01",
+            "type": "INDOOR",
+            "month": 2,
+            "steps": 346,
+            "distance": 0
+        },
+        {
+            "macId": "AAAAAABBBB01",
+            "type": "OUTDOOR",
+            "month": 2,
+            "steps": 346,
+            "distance": 0
+        },
+        {
+            "macId": "AAAAAABBBB01",
+            "type": "INDOOR",
+            "month": 11,
+            "steps": 173,
+            "distance": 0
+        },
+        {
+            "macId": "AAAAAABBBB01",
+            "type": "OUTDOOR",
+            "month": 11,
+            "steps": 173,
+            "distance": 0
         }
     ]
 }

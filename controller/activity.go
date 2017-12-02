@@ -19,6 +19,12 @@ import (
 	"github.com/pkg/errors"
 )
 
+type ActivityRequestParams struct {
+	KidID int64
+	Start time.Time
+	End   time.Time
+}
+
 func UploadRawActivityData(c *gin.Context) {
 	var request model.ActivityRawData
 	if err := c.BindJSON(&request); err != nil {
@@ -285,18 +291,25 @@ func GetActivity(c *gin.Context) {
 
 	db := database.NewGORM()
 	defer db.Close()
+
+	var kidIDs []int64
+	kidIDs = append(kidIDs, activityRequest.KidID)
+	if !HasPermissionToKid(db, &user, kidIDs) {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "You don't have permission",
+			"error":   err,
+		})
+		return
+	}
+
 	var activities []model.Activity
-	if err := db.Joins("JOIN kids ON kids.id = activity.kid_id").Where("kids.id = ? AND kids.parent_id = ? AND activity.received_Date > ?", activityRequest.KidID, user.ID, &periodDate).Find(&activities).Error; err != nil {
+	if err := db.Joins("JOIN kids ON kids.id = activity.kid_id").Where("kids.id = ? AND activity.received_Date > ?", activityRequest.KidID, &periodDate).Find(&activities).Error; err != nil {
 		logError(errors.Wrap(err, "Error on retrieve Activity"))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": fmt.Sprintf("Error on retriving activity: %#v\n", activityRequest),
 			"error":   err,
 		})
 		return
-	}
-
-	for i, activity := range activities {
-		activities[i].Steps = activity.Steps
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -354,19 +367,25 @@ func GetActivityByTime(c *gin.Context) {
 	db := database.NewGORM()
 	defer db.Close()
 
+	var kidIDs []int64
+	kidIDs = append(kidIDs, kidID)
+	if !HasPermissionToKid(db, &user, kidIDs) {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "You don't have permission",
+			"error":   err,
+		})
+		return
+	}
+
 	var activities []model.Activity
 
-	if err := db.Joins("JOIN kids ON kids.id = activity.kid_id").Where("kids.id = ? AND kids.parent_id = ? AND (activity.received_Date between ? and ?)", kidID, user.ID, start, end).Find(&activities).Error; err != nil {
+	if err := db.Joins("JOIN kids ON kids.id = activity.kid_id").Where("kids.id = ? AND (activity.received_Date between ? and ?)", kidID, start, end).Find(&activities).Error; err != nil {
 		logError(errors.Wrap(err, "Error on getting activities"))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error on getting activities",
 			"error":   err,
 		})
 		return
-	}
-
-	for i, activity := range activities {
-		activities[i].Steps = activity.Steps
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -424,9 +443,19 @@ func GetTodayHourlyActivity(c *gin.Context) {
 	db := database.NewGORM()
 	defer db.Close()
 
+	var kidIDs []int64
+	kidIDs = append(kidIDs, kidID)
+	if !HasPermissionToKid(db, &user, kidIDs) {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "You don't have permission",
+			"error":   err,
+		})
+		return
+	}
+
 	var activities []model.HourlyActivity
 
-	if err := db.Joins("JOIN kids ON kids.id = hourly_activity.kid_id").Where("kids.id = ? AND kids.parent_id = ? AND (hourly_activity.received_date between ? and ?)", kidID, user.ID, start, end).Order("received_date desc").Find(&activities).Error; err != nil {
+	if err := db.Joins("JOIN kids ON kids.id = hourly_activity.kid_id").Where("kids.id = ? AND (hourly_activity.received_date between ? and ?)", kidID, start, end).Order("received_date desc").Find(&activities).Error; err != nil {
 		logError(errors.Wrap(err, "Error on getting activities"))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error on getting hourly activities",
@@ -438,6 +467,102 @@ func GetTodayHourlyActivity(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"activities": activities,
 	})
+}
+
+func GetMonthlyActivity(c *gin.Context) {
+	user := GetSignedInUser(c)
+
+	activityParams, err := getActivityParams(c)
+	if err != nil {
+		return
+	}
+
+	db := database.NewGORM()
+	defer db.Close()
+
+	var kidIDs []int64
+	kidIDs = append(kidIDs, activityParams.KidID)
+	if !HasPermissionToKid(db, &user, kidIDs) {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "You don't have permission",
+			"error":   err,
+		})
+		return
+	}
+
+	var activities []model.MonthlyActivity
+	query := "SELECT a.mac_id, a.type, sum(a.steps) as steps, sum(distance) as distance, MONTH(a.received_date) as month FROM " +
+		"activity a JOIN kids k ON k.id = a.kid_id WHERE k.id = ? AND (a.received_date between ? and ?) GROUP BY MONTH(a.received_date), mac_id, a.type ORDER BY MONTH(received_date)"
+	if err := db.Raw(query, activityParams.KidID, activityParams.Start, activityParams.End).Find(&activities).Error; err != nil {
+		logError(errors.Wrap(err, "Error on retrieve Activity"))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": fmt.Sprintf("Error on retriving activity: %#v\n", activityParams),
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"activities": activities,
+	})
+}
+
+func getActivityParams(c *gin.Context) (*ActivityRequestParams, error) {
+	startTimeString := c.Query("start")
+	endTimeString := c.Query("end")
+	kidIdString := c.Query("kidId")
+
+	if startTimeString == "" || endTimeString == "" || kidIdString == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Start time and end time and kid ID are required",
+		})
+		return nil, errors.Wrap(errors.New("Bad Request"), "Start time and end time and kid ID are required")
+	}
+
+	startTimeLong, err := strconv.ParseInt(startTimeString, 10, 64)
+	if err != nil {
+		logError(errors.Wrap(err, "Error on parse string to int"))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error on parse string to int",
+			"error":   err,
+		})
+		return nil, errors.Wrap(err, "Error on parse string to int")
+	}
+
+	endTimeLong, err := strconv.ParseInt(endTimeString, 10, 64)
+	if err != nil {
+		logError(errors.Wrap(err, "Error on parse string to int - GetActivityByTime"))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error on parse string to int",
+			"error":   err,
+		})
+		return nil, errors.Wrap(err, "Error on parse string to int")
+	}
+
+	kidID, err := strconv.ParseInt(kidIdString, 10, 64)
+	if err != nil {
+		logError(errors.Wrap(err, "Error on parse string to int - GetActivityByTime"))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error on parse string to int",
+			"error":   err,
+		})
+		return nil, errors.Wrap(err, "Error on parse string to int")
+	}
+
+	activityRequestParams := ActivityRequestParams{
+		KidID: kidID,
+		Start: time.Unix(startTimeLong, 0),
+		End:   time.Unix(endTimeLong, 0),
+	}
+
+	if activityRequestParams.KidID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": fmt.Sprintf("One of parameter is missing: %#v\n", activityRequestParams),
+		})
+		return nil, errors.Wrap(errors.New("Bad Request"), "One of parameter is missing")
+	}
+
+	return &activityRequestParams, nil
 }
 
 func getTodayDate() *time.Time {
