@@ -1054,14 +1054,7 @@ curl -X GET -H "x-auth-token: 27e217ae4d2907188b8c92cdcf9c85ac" "http://localhos
 ```
 curl -X GET \
   'http://dev.childrenlab.com/v1/activity/retrieveHourlyDataByTime?start=1511654400&end=1511740799&kidId=120' \
-  -H 'content-type: application/json' \
-  -H 'x-auth-token: 3c8b3fde05ca42f04a91ae1a67774a65' \
-  -d '{
-  "indoorActivity": "1511737552,0,10,2,3,4",
-  "outdoorActivity": "1511737552,1,24,0,0,0",
-  "time": 1487245098,
-  "timeZoneOffset": 420,
-  "macId": "testtter1"
+  -H 'x-auth-token: 3c8b3fde05ca42f04a91ae1a67774a65' 
 }'
 ```
 
