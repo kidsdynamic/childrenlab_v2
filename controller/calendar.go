@@ -139,7 +139,7 @@ func UpdateCalendarEvent(c *gin.Context) {
 
 	user := GetSignedInUser(c)
 
-	if err := db.Where("id = ? AND user_id = ?", eventRequest.ID, user.ID).Preload("User").Preload("Kid").Preload("Todo").First(&event).Error; err != nil {
+	if err := db.Where("id = ?", eventRequest.ID).Preload("User").Preload("Kid").Preload("Todo").First(&event).Error; err != nil {
 		logError(errors.Wrap(err, "Can't find the event from database"))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Can't find the event from database",
@@ -428,6 +428,7 @@ func RetrieveAllEventWithTodoByUser(c *gin.Context) {
 		var otherkidsEvent []model.Event
 		//Find all of events that belong to Other host's kid
 		var eventIDs []int64
+		eventIDs = append(eventIDs, 0)
 		for _, event := range events {
 			eventIDs = append(eventIDs, event.ID)
 		}

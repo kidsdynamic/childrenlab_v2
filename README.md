@@ -8,6 +8,7 @@
 * [PUT    /v1/user/updateProfile ](#v1userupdateprofile---put)
 * [GET    /v1/user/retrieveUserProfile](#v1userretrieveuserprofile---get)
 * [PUT    /v1/user/updateIOSRegistrationId](#v1userupdateiosregistrationid---put)
+* [PUT    /v1/user/updateAndroidRegistrationId](#v1userupdateandroidregistrationid---put)
 * [GET    /v1/user/findByEmail](#v1userfindbyemail---get)
 * [POST    /v1/user/updateLanguage](#v1userupdatelanguage---post)
 * [POST    /v1/user/sendResetPasswordEmail](#v1usersendresetpasswordemail---post)
@@ -464,6 +465,47 @@ curl -X PUT -H "Content-Type: application/json" -H "x-auth-token: ec83d6e41db516
   "phoneNumber": "",
   "profile": "",
   "registrationId": "TestRegistrationID"
+}
+```
+
+## /v1/user/updateAndroidRegistrationId - PUT
+* It's for Android registration ID - push notification
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| -----:|
+| registrationId     | Yes | String |   TestRegistrationID |
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | Update the registration id successfully |
+| 400     | Bad request. The token is invalid |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X PUT \
+  http://dev.childrenlab.com:8080/v1/user/updateAndroidRegistrationId \
+  -H 'Content-Type: application/json' \
+  -H 'x-auth-token: 0619b2d6e3c065bb2a0ced77b3705c8c' \
+  -d '{
+	"registrationId": "TestRegistrationID"
+}'
+```
+* Success - Return user profile
+```
+{
+    "id": 156,
+    "email": "nn@nn.com",
+    "firstName": "jdhcbd",
+    "lastName": "fhhchdff",
+    "dateCreated": "2017-03-17T04:56:16Z",
+    "zipCode": "",
+    "phoneNumber": "86866598",
+    "profile": "avatar_156.jpg",
+    "language": "es",
+    "country": "US"
 }
 ```
 
