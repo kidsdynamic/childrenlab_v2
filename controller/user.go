@@ -319,7 +319,7 @@ func FindUserByEmail(c *gin.Context) {
 }
 
 type PushNotificationID struct {
-	RegistrationId string
+	RegistrationId string `json:"registrationId"`
 }
 
 func UpdateIOSRegistrationId(c *gin.Context) {

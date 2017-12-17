@@ -33,14 +33,14 @@ type User struct {
 	Password                 string    `json:"-"`
 	FirstName                string    `json:"firstName" gorm:"not null"`
 	LastName                 string    `json:"lastName" gorm:"not null"`
-	LastUpdated              time.Time `json:"lastUpdate"`
+	LastUpdated              time.Time `json:"-"`
 	DateCreated              time.Time `json:"dateCreated"`
 	ZipCode                  string    `json:"zipCode"`
 	PhoneNumber              string    `json:"phoneNumber"`
 	Profile                  string    `json:"profile"`
 	Language                 string    `json:"language"`
-	RegistrationID           string    `json:"ios_registration_id"`
-	AndroidRegistrationToken string    `json:"android_registration_id"`
+	RegistrationID           string    `json:"-"`
+	AndroidRegistrationToken string    `json:"-"`
 	Role                     Role      `json:"-"`
 	RoleID                   int64     `json:"-"`
 	ResetPasswordToken       string    `json:"-"`

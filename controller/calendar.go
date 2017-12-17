@@ -139,7 +139,7 @@ func UpdateCalendarEvent(c *gin.Context) {
 
 	user := GetSignedInUser(c)
 
-	if err := db.Where("id = ? and user_id = ?", eventRequest.ID, user.ID).Preload("User").Preload("Kid").Preload("Todo").First(&event).Error; err != nil {
+	if err := db.Where("id = ?", eventRequest.ID).Preload("User").Preload("Kid").Preload("Todo").First(&event).Error; err != nil {
 		logError(errors.Wrap(err, "Can't find the event from database"))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Can't find the event from database",
@@ -148,8 +148,15 @@ func UpdateCalendarEvent(c *gin.Context) {
 		return
 	}
 
+	if !HasPermissionToKid(db, &user, eventRequest.KidsID) {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "You don't have permission to access",
+		})
+		return
+	}
+
 	var kids []model.Kid
-	if err := db.Model(model.Kid{}).Where("id in (?) and parent_id = ?", eventRequest.KidsID, user.ID).Find(&kids).Error; err != nil {
+	if err := db.Model(model.Kid{}).Where("id in (?)", eventRequest.KidsID).Find(&kids).Error; err != nil {
 		logError(errors.Wrap(err, "Error on retrieve Kid"))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error on retrieve Kid",
@@ -261,22 +268,25 @@ func DeleteEvent(c *gin.Context) {
 	defer db.Close()
 
 	var event model.Event
+	user := GetSignedInUser(c)
 
-	if err := db.Where("id = ?", eventID).Preload("User").First(&event).Error; err != nil {
+	if err := db.Where("id = ?", eventID).Preload("Kid").First(&event).Error; err != nil {
 		if err != nil {
 			logError(errors.Wrapf(err, "Error when retriving event. Event ID: %d", eventID))
-			c.JSON(http.StatusBadRequest, gin.H{
+			c.JSON(http.StatusUnauthorized, gin.H{
 				"message": "Error when retriving event",
 			})
 			return
 		}
 	}
 
-	user := GetSignedInUser(c)
-
-	if user.ID != event.User.ID {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "You don't have permission to do it",
+	var kidsID []int64
+	for _, kid := range event.Kid {
+		kidsID = append(kidsID, kid.ID)
+	}
+	if !HasPermissionToKid(db, &user, kidsID) {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "You don't have permission to access",
 		})
 		return
 	}
@@ -417,7 +427,12 @@ func RetrieveAllEventWithTodoByUser(c *gin.Context) {
 	if len(otherKidID) > 0 {
 		var otherkidsEvent []model.Event
 		//Find all of events that belong to Other host's kid
-		if err := db.Model(model.Event{}).Joins("JOIN event_kid ON event.id = event_kid.event_id").Where("event_kid.kid_id in (?)", toString(otherKidID)).Preload("User").Preload("Kid").Preload("Todo").Find(&otherkidsEvent).Error; err != nil && err != gorm.ErrRecordNotFound {
+		var eventIDs []int64
+		eventIDs = append(eventIDs, 0)
+		for _, event := range events {
+			eventIDs = append(eventIDs, event.ID)
+		}
+		if err := db.Model(model.Event{}).Joins("JOIN event_kid ON event.id = event_kid.event_id").Where("event_kid.kid_id in (?) AND event.id not in (?)", toString(otherKidID), eventIDs).Group("event.id").Preload("User").Preload("Kid").Preload("Todo").Find(&otherkidsEvent).Error; err != nil && err != gorm.ErrRecordNotFound {
 
 			fmt.Printf("Error on retriving events. %#v", err)
 			logError(errors.Wrapf(err, "Error on retriving event from sub host kid ID: %#v", otherKidID))
