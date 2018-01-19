@@ -291,7 +291,7 @@ func DeleteEvent(c *gin.Context) {
 		return
 	}
 
-	if err := db.Delete(&model.Event{}, "id = ?", eventID).Error; err != nil {
+	if err := db.Where("id = ?", eventID).Delete(&model.Event{}).Error; err != nil {
 		if err != nil {
 			logError(errors.Wrap(err, "Error on retrieve signup dashboard from Admin"))
 			fmt.Printf("Error on deleting event. %#v", err)
@@ -456,8 +456,8 @@ func RetrieveAllEventWithTodoByUser(c *gin.Context) {
 }
 
 type todoDoneRequest struct {
-	EventID int64 `json:"eventId" binding:"required"`
-	TodoID  int64 `json:"todoId" binding:"required"`
+	EventID int64 `binding:"required"`
+	TodoID  int64 `binding:"required"`
 }
 
 func TodoDone(c *gin.Context) {

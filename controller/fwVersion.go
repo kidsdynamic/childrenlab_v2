@@ -7,6 +7,9 @@ import (
 
 	"database/sql"
 
+	"fmt"
+	"regexp"
+
 	"github.com/gin-gonic/gin"
 	"github.com/kidsdynamic/childrenlab_v2/database"
 	"github.com/kidsdynamic/childrenlab_v2/model"
@@ -28,9 +31,19 @@ func GetCurrentFWVersionAndLink(c *gin.Context) {
 		return
 	}
 
+	var deviceInitVersion model.InitialDeviceFirmware
+	deviceVersion := "KDV0005-A"
+	if err := db.Where("mac_id = ?", macID).First(&deviceInitVersion).Error; err == nil {
+		deviceVersion = deviceInitVersion.FirmwareVersion
+	}
+
+	r, _ := regexp.Compile("-.*")
+	deviceVersion = r.FindString(deviceVersion)
+	fmt.Println(deviceVersion)
+
 	var currentVersion model.FwFile
 
-	if err := db.Where("active = true").Order("id desc").First(&currentVersion).Error; err != nil {
+	if err := db.Where("active = true and version like ?", fmt.Sprintf("%%%s%%", deviceVersion)).Order("id desc").First(&currentVersion).Error; err != nil {
 		if err != sql.ErrNoRows {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Error on retriving list",
@@ -38,11 +51,7 @@ func GetCurrentFWVersionAndLink(c *gin.Context) {
 			})
 			return
 		}
-
 	}
-
-	//TODO: For NOW
-	currentVersion.Version = ""
 
 	c.JSON(http.StatusOK, currentVersion)
 }

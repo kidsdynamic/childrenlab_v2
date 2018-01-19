@@ -142,6 +142,16 @@ func DeleteKid(c *gin.Context) {
 		return
 	}
 
+	//Delete all of activity
+	if err := db.Where("mac_id = ?", kid.MacID).Delete(&model.Activity{}).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on deleting kid activity. Mac ID: %#v", kid.MacID))
+	}
+
+	if err := db.Where("mac_id = ?", kid.MacID).Delete(&model.ActivityRawData{}).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on deleting kid activity Raw Data. Mac ID: %#v", kid.MacID))
+
+	}
+
 	if err := db.Where("id = ?", kid.ID).Delete(&model.Kid{}).Error; err != nil {
 		logError(errors.Wrapf(err, "Error on deleting kid. Kid ID: %#v", kidID))
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -150,6 +160,49 @@ func DeleteKid(c *gin.Context) {
 		})
 		return
 	}
+
+	// Delete all of subhost request
+	if err := db.Where("kid_id = ?", kid.ID).Delete(&model.SubHostKid{}).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusOK, gin.H{})
+			return
+		} else {
+			logError(errors.Wrapf(err, "Error on deleting sub host kid: %#v", kid))
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Error on retrieve subhost",
+				"error":   err,
+			})
+		}
+	}
+
+	var subHosts []model.SubHost
+	if err := db.Model(&model.SubHost{}).Where("request_to_id = ?", user.ID).Preload("Kids").Find(&subHosts).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on retrieve sub host from request to id: %#v", user.ID))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Error occur",
+			"error":   err,
+		})
+
+		return
+	}
+
+	//If the request doesn't have any kid, remove the request
+	for _, subHost := range subHosts {
+		if len(subHost.Kids) == 0 {
+			if err := db.Delete(&subHost).Error; err != nil {
+				logError(errors.Wrapf(err, "Error on deleting sub host: %#v", subHost))
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"message": "Error on updating status",
+					"error":   err,
+				})
+
+				return
+			}
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{})
+
 	LogUserActivity(db, &user, fmt.Sprintf("Delete Kid (%d)", kid.ID), &kid.MacID)
 }
 
