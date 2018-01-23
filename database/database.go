@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"time"
 
 	"crypto/sha256"
 	"io"
@@ -18,11 +19,50 @@ import (
 	"github.com/kidsdynamic/childrenlab_v2/model"
 )
 
+type FinalTest struct {
+	ID              int       `db:"id"`
+	MacID           string    `db:"mac_id"`
+	FirmwareVersion string    `db:"firmware_version"`
+	ProductVersion  int64     `db:"product_version"`
+	BatteryLevel    string    `db:"battery_level"`
+	DateCreated     time.Time `db:"date_created"`
+	Result          bool      `db:"result"`
+	UVMax           string    `gorm:"column:uv_max"`
+	UVMin           string    `gorm:"column:uv_min" db:"uv_min"`
+	XMax            string    `gorm:"column:x_max" db:"x_max"`
+	XMin            string    `gorm:"column:x_min" db:"x_min"`
+	YMax            string    `gorm:"column:y_max" db:"y_max"`
+	YMin            string    `gorm:"column:y_min" db:"y_min"`
+	Company         *string   `db:"company"`
+	Language        string    `db:"language"`
+	Converted       bool      `db:"converted"`
+}
+
+func (FinalTest) TableName() string {
+	return "Final_Test"
+}
+
 var DatabaseInfo model.Database
 
 func NewGORM() *gorm.DB {
 	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=true",
 		DatabaseInfo.User, DatabaseInfo.Password, DatabaseInfo.IP, DatabaseInfo.Name))
+
+	if err != nil {
+		panic(err)
+	}
+
+	if config.ServerConfig.Debug {
+		db.LogMode(true)
+	}
+
+	db.SingularTable(true)
+	return db
+}
+
+func NewTestRecordGORM() *gorm.DB {
+	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=true",
+		DatabaseInfo.User, DatabaseInfo.Password, DatabaseInfo.IP, "swing_test_record"))
 
 	if err != nil {
 		panic(err)
@@ -51,6 +91,7 @@ func InitDatabase() {
 		&model.BatteryStatus{},
 		&model.FwFile{},
 		&model.HourlyActivity{},
+		&model.InitialDeviceFirmware{},
 	)
 
 	if err := db.Exec("CREATE TABLE `sub_host_kid` (`sub_host_id` bigint,`kid_id` bigint, PRIMARY KEY (`sub_host_id`,`kid_id`))").Error; err != nil {
@@ -114,6 +155,32 @@ func InitDatabase() {
 		activity.OutdoorSteps = outdoor
 		db.Save(activity)
 	}
+
+	// Copy swing test record final result to the database
+	sdb := NewTestRecordGORM()
+	defer sdb.Close()
+
+	var finalTest []FinalTest
+	if err := sdb.Where("converted = false").Find(&finalTest).Error; err != nil {
+		fmt.Printf("Error on retrieve final test. %#v", err)
+	} else {
+		for _, f := range finalTest {
+			macId := f.MacID
+			macId = strings.Replace(macId, ":", "", -1)
+			device := &model.InitialDeviceFirmware{
+				MacId:           macId,
+				FirmwareVersion: f.FirmwareVersion,
+				Language:        f.Language,
+				ProductVersion:  f.ProductVersion,
+			}
+			db.Save(device)
+
+			f.Converted = true
+			sdb.Save(f)
+		}
+
+	}
+
 }
 
 func EncryptPassword(password string) string {

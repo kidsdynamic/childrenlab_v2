@@ -7,6 +7,9 @@ import (
 
 	"database/sql"
 
+	"fmt"
+	"regexp"
+
 	"github.com/gin-gonic/gin"
 	"github.com/kidsdynamic/childrenlab_v2/database"
 	"github.com/kidsdynamic/childrenlab_v2/model"
@@ -22,27 +25,49 @@ func GetCurrentFWVersionAndLink(c *gin.Context) {
 	db := database.NewGORM()
 	defer db.Close()
 
-	macID := c.Param("macId")
+	macID := c.Query("macId")
 	if macID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{})
 		return
 	}
 
+	deviceFWVersion := c.Query("fwVersion")
+	if deviceFWVersion == "" {
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
+	}
+
+	r, _ := regexp.Compile("-.*")
+	languageCode := r.FindString(deviceFWVersion)
+
+	if len(languageCode) < 2 {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "There is no support firmware version found",
+		})
+		return
+	}
+
 	var currentVersion model.FwFile
 
-	if err := db.Where("active = true").Order("id desc").First(&currentVersion).Error; err != nil {
+	if err := db.Where("active = true and version like ?", fmt.Sprintf("%%%s%%", languageCode)).Order("id desc").First(&currentVersion).Error; err != nil {
 		if err != sql.ErrNoRows {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Error on retriving list",
 				"error":   err,
 			})
 			return
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "There is no support firmware version found",
+			})
+			return
 		}
-
 	}
 
-	//TODO: For NOW
-	currentVersion.Version = ""
+	if deviceFWVersion == currentVersion.Version {
+		c.JSON(http.StatusOK, gin.H{})
+		return
+	}
 
 	c.JSON(http.StatusOK, currentVersion)
 }

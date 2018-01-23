@@ -8,6 +8,6 @@ import (
 func initFWRouter(r *gin.Engine) {
 	fwAPI := r.Group("/v1/fw")
 	fwAPI.Use(controller.Auth)
-	fwAPI.GET("/currentVersion/:macId", controller.GetCurrentFWVersionAndLink)
+	fwAPI.GET("/currentVersion", controller.GetCurrentFWVersionAndLink)
 	fwAPI.PUT("/firmwareVersion", controller.UpdateDeviceFWVersion)
 }
