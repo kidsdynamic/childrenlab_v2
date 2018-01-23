@@ -2081,11 +2081,17 @@ curl --request DELETE \
 {}
 ```
 
-## /v1/fw/currentVersion/:macId - GET
+## /v1/fw/currentVersion/ - GET
 * Retrieve current Firmware version
 * The API only return latest firmware version
 * the Mac ID is on the path
 * The file is on Amazon S3
+
+#### Request Parameters
+| Parameters    | Required      | Type  | Example  |
+| ------------- |:-------------:|:-------------:| :-----|
+| macId     | Yes | String | 6064058630BA |
+| fwVersion | Yes | String | KDV0109-CN |
 
 #### Response Status
 | Status Code    | Meaning      |
@@ -2097,17 +2103,18 @@ curl --request DELETE \
 ### curl
 ```
 curl -X GET \
-  http://localhost:8111/v1/fw/currentVersion/E01786056460 \
-  -H 'x-auth-token: 04b62b70c8464bafb84d2de2464024a2'
+  'http://dev.childrenlab.com/v1/fw/currentVersion/?macId=6064058630BA&fwVersion=KDV0109-CN' \
+  -H 'x-auth-token: f64ca9d8de4cb508ba6b6e6b4f1462d6'
 ```
 * Success - with kids data
 ```
 {
-    "id": 1,
-    "version": "A2",
-    "fileAUrl": "fw_version/A2A.hex",
-    "fileBUrl": "fw_version/A2B.hex",
-    "uploadedDate": "2017-07-08T23:21:21Z"
+    "id": 15,
+    "version": "KDV0109-CN",
+    "fileAUrl": "fw_version/KDV0109-CNA.hex",
+    "fileBUrl": "fw_version/KDV0109-CNB.hex",
+    "uploadedDate": "2018-01-19T03:27:07Z",
+    "active": true
 }
 ```
 

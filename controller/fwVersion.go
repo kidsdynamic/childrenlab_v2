@@ -25,32 +25,48 @@ func GetCurrentFWVersionAndLink(c *gin.Context) {
 	db := database.NewGORM()
 	defer db.Close()
 
-	macID := c.Param("macId")
+	macID := c.Query("macId")
 	if macID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{})
 		return
 	}
 
-	var deviceInitVersion model.InitialDeviceFirmware
-	deviceVersion := "KDV0005-A"
-	if err := db.Where("mac_id = ?", macID).First(&deviceInitVersion).Error; err == nil {
-		deviceVersion = deviceInitVersion.FirmwareVersion
+	deviceFWVersion := c.Query("fwVersion")
+	if deviceFWVersion == "" {
+		c.JSON(http.StatusBadRequest, gin.H{})
+		return
 	}
 
 	r, _ := regexp.Compile("-.*")
-	deviceVersion = r.FindString(deviceVersion)
-	fmt.Println(deviceVersion)
+	languageCode := r.FindString(deviceFWVersion)
+
+	if len(languageCode) < 2 {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "There is no support firmware version found",
+		})
+		return
+	}
 
 	var currentVersion model.FwFile
 
-	if err := db.Where("active = true and version like ?", fmt.Sprintf("%%%s%%", deviceVersion)).Order("id desc").First(&currentVersion).Error; err != nil {
+	if err := db.Where("active = true and version like ?", fmt.Sprintf("%%%s%%", languageCode)).Order("id desc").First(&currentVersion).Error; err != nil {
 		if err != sql.ErrNoRows {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Error on retriving list",
 				"error":   err,
 			})
 			return
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "There is no support firmware version found",
+			})
+			return
 		}
+	}
+
+	if deviceFWVersion == currentVersion.Version {
+		c.JSON(http.StatusOK, gin.H{})
+		return
 	}
 
 	c.JSON(http.StatusOK, currentVersion)
