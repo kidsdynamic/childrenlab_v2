@@ -56,7 +56,7 @@
 * [DELETE   /v1/subHost/delete](#v1subhostdelete---delete)
 
 ### Firmware version
-* [GET /v1/fw/currentVersion](#v1fwcurrentversionmacid---get)
+* [GET /v1/fw/currentVersion](#v1fwcurrentversion---get)
 * [PUT   /v1/fw/firmwareVersion](#v1fwfirmwareversion---put)
 
 ## /v1/user/login - POST
