@@ -14,6 +14,7 @@
 * [POST    /v1/user/sendResetPasswordEmail](#v1usersendresetpasswordemail---post)
 * [GET    /v1/user/getUserByEmail](#v1usergetuserbyemail---get)
 * [POST    /v1/user/updatePassword](#v1userupdatepassword---post)
+* [POST    /v1/user/logout](#v1userlogout---post)
 
 
 ### Kid API
@@ -430,6 +431,30 @@ curl -X POST \
     "message": "The password has to be longer than 6 characters"
 }
 ```
+
+## /v1/user/logout - POST
+* This API for user logout
+* No parameter required
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | send successfully |
+| 400     | Bad request. Not token found |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X POST \
+  http://localhost:8111/v1/user/logout \
+  -H 'x-auth-token: 3b9b03e26bf40f9e431b5d2b69b89c4c'
+```
+* Success - Return 200 status with empty json
+```
+{
+}
+```
+
 
 ## /v1/user/updateIOSRegistrationId - PUT
 * It's for IOS registration ID - push notification

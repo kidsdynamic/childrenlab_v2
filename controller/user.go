@@ -615,3 +615,32 @@ func UpdatePassword(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{})
 }
+
+func Logout(c *gin.Context) {
+	user := GetSignedInUser(c)
+
+	db := database.NewGORM()
+	defer db.Close()
+
+	var auth model.AccessToken
+
+	if err := db.Where("email = ?", user.Email).First(&auth).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on retrieve access auth by email : %s", user.Email))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error on retrieve auth",
+			"error":   err,
+		})
+		return
+	}
+
+	if err := db.Delete(&auth).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on delete access auth by email : %s", user.Email))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error on delete auth",
+			"error":   err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{})
+}
