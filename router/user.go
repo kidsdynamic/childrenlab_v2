@@ -27,5 +27,6 @@ func initUserRouter(r *gin.Engine) {
 	authAPI.GET("/getUserByEmail", controller.GetUserByEmail)
 	authAPI.POST("/updatePassword", controller.UpdatePassword)
 	authAPI.POST("/logout", controller.Logout)
+	authAPI.GET("/myCountryCode", controller.MyCountryCode)
 
 }

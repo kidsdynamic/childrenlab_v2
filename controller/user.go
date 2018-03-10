@@ -644,3 +644,31 @@ func Logout(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{})
 }
+
+func MyCountryCode(c *gin.Context) {
+	user := GetSignedInUser(c)
+
+	db := database.NewGORM()
+	defer db.Close()
+
+	var countryCode []string
+	if err := db.Model(&model.User{}).Where("id = ?", user.ID).Pluck("sign_up_country_code", &countryCode).Error; err != nil {
+		logError(errors.Wrapf(err, "Error on access user country code : %s", user.Email))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error on retrieve country code",
+			"error":   err,
+		})
+		return
+	}
+
+	if len(countryCode) == 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"countryCode": "",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"countryCode": countryCode[0],
+	})
+}

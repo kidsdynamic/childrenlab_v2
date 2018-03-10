@@ -15,6 +15,7 @@
 * [GET    /v1/user/getUserByEmail](#v1usergetuserbyemail---get)
 * [POST    /v1/user/updatePassword](#v1userupdatepassword---post)
 * [POST    /v1/user/logout](#v1userlogout---post)
+* [GET    /v1/user/myCountryCode](#v1usermycountrycode---get)
 
 
 ### Kid API
@@ -452,6 +453,31 @@ curl -X POST \
 * Success - Return 200 status with empty json
 ```
 {
+}
+```
+
+## /v1/user/myCountryCode - GET
+* Get signed in user country code
+* If the user doesn't have country code in the database, the API return empty string
+
+#### Response Status
+| Status Code    | Meaning      |
+| ------------- |:-------------|
+| 200     | get country code successfully |
+| 400     | Bad request. Not token found |
+| 500     | Internal error. Please send me the error. I will fix it |
+
+### curl
+```
+curl -X POST \
+curl -X GET \
+  http://localhost:8111/v1/user/myCountryCode \
+  -H 'x-auth-token: 64d8ddc85668083bdaf0a43a1156df7d'
+```
+* Success - Return 200 status
+```
+{
+    "countryCode": "TW"
 }
 ```
 
