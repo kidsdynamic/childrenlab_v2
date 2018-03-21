@@ -81,6 +81,20 @@ func AddKid(c *gin.Context) {
 
 	c.JSON(http.StatusOK, kid)
 
+	// Sync activity table for lose data
+	var activities []model.Activity
+	if err := db.Where("mac_id = ?", device.MacID).Find(&activities).Error; err != nil {
+		if err != gorm.ErrRecordNotFound {
+			logError(errors.Wrapf(err, "Error when sync activity table: %#v", kid.MacID))
+			return
+		}
+	}
+
+	for _, activity := range activities {
+		activity.KidID = kid.ID
+		db.Save(activity)
+	}
+
 	LogUserActivity(db, &user, fmt.Sprintf("Added Kid (%d)", kid.ID), &kid.MacID)
 }
 

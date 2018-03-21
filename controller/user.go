@@ -286,7 +286,23 @@ func IsEmailAvailableToRegister(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{})
+	ipDetail := getDetailFromIP(c.ClientIP())
+	message := "System upgrading now. Please login again at a later time. Thank you"
+	if ipDetail != nil && ipDetail.Country != "" {
+		if ipDetail.CountryCode == "CN" || ipDetail.CountryCode == "TW" {
+			message = "系統更新中。請稍晚再重新登入。"
+		} else if ipDetail.CountryCode == "JP" {
+			message = "現在システムの更新中です。本日（3月21日）の午後８時以降に再度ログインしていただけますよう、お願い申し上げます。"
+		} else if ipDetail.CountryCode == "RU" {
+			message = "Обновление системы сейчас. Повторите попытку позже. Спасибо"
+		} else if ipDetail.CountryCode == "ES" {
+			message = "Actualización del sistema ahora. Por favor inicie sesión nuevamente en otro momento. Gracias"
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": message,
+	})
 }
 
 func FindUserByEmail(c *gin.Context) {
